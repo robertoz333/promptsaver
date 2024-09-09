@@ -340,6 +340,7 @@
         function renderCategories() {
             var container = document.getElementById('categories');
             container.innerHTML = '';
+            categories.sort((a, b) => a.name.localeCompare(b.name)); // Ordina le categorie in ordine alfabetico
             categories.forEach(function (category, index) {
                 container.appendChild(createCategoryElement(category, index));
             });
