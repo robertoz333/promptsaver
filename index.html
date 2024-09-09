@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver (In-Memory)</title>
+    <title>Prompt Saver (Listener Individuali)</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
         h1 { text-align: center; }
         .category { background-color: #222; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
-        .category-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .prompt { margin-left: 20px; margin-top: 10px; }
         .btn { color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px; }
         .btn-new { background-color: #4CAF50; }
         .btn-edit { background-color: #2196F3; }
         .btn-delete { background-color: #F44336; }
-        input[type="text"], textarea { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px; }
+        input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px; }
+        .prompt-input { display: none; margin-top: 10px; }
+        .prompt { margin-bottom: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Prompt Saver (In-Memory)</h1>
+        <h1>Prompt Saver (Listener Individuali)</h1>
         <div>
             <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
             <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
@@ -29,132 +29,93 @@
     </div>
 
     <script>
-    (function() {
-        let categories = [];
+    let categories = [];
 
-        function renderCategories() {
-            const container = document.getElementById('categories');
-            container.innerHTML = '';
+    function createCategoryElement(category, index) {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'category';
+        categoryDiv.innerHTML = `
+            <h3>${category.name}</h3>
+            <button class="btn btn-new new-prompt-btn">Nuovo prompt</button>
+            <button class="btn btn-delete delete-category-btn">Elimina categoria</button>
+            <div class="prompt-input" style="display: none;">
+                <input type="text" class="new-prompt-input" placeholder="Inserisci nuovo prompt">
+                <button class="btn btn-new add-prompt-btn">Aggiungi</button>
+            </div>
+            <div class="prompts-container"></div>
+        `;
 
-            categories.forEach((category, categoryIndex) => {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category';
-                categoryDiv.innerHTML = `
-                    <div class="category-header">
-                        <span>${category.name}</span>
-                        <div>
-                            <button class="btn btn-new" data-action="newPrompt" data-category="${categoryIndex}">Nuovo prompt</button>
-                            <button class="btn btn-edit" data-action="editCategory" data-category="${categoryIndex}">Modifica</button>
-                            <button class="btn btn-delete" data-action="deleteCategory" data-category="${categoryIndex}">Elimina</button>
-                        </div>
-                    </div>
-                    <div class="prompts" style="display:none;">
-                        ${category.prompts.map((prompt, promptIndex) => `
-                            <div class="prompt">
-                                <span>${prompt}</span>
-                                <button class="btn btn-edit" data-action="editPrompt" data-category="${categoryIndex}" data-prompt="${promptIndex}">Modifica</button>
-                                <button class="btn btn-delete" data-action="deletePrompt" data-category="${categoryIndex}" data-prompt="${promptIndex}">Elimina</button>
-                            </div>
-                        `).join('')}
-                        <div>
-                            <input type="text" placeholder="Nuovo prompt" data-new-prompt="${categoryIndex}">
-                            <button class="btn btn-new" data-action="addPrompt" data-category="${categoryIndex}">Aggiungi</button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(categoryDiv);
-            });
-        }
+        const newPromptBtn = categoryDiv.querySelector('.new-prompt-btn');
+        const promptInput = categoryDiv.querySelector('.prompt-input');
+        const addPromptBtn = categoryDiv.querySelector('.add-prompt-btn');
+        const deleteCategoryBtn = categoryDiv.querySelector('.delete-category-btn');
+        const newPromptInput = categoryDiv.querySelector('.new-prompt-input');
 
-        function addCategory() {
-            const input = document.getElementById('newCategoryInput');
-            const name = input.value.trim();
-            if (name) {
-                categories.push({ name: name, prompts: [] });
-                input.value = '';
-                renderCategories();
-            }
-        }
-
-        function addPrompt(categoryIndex) {
-            const input = document.querySelector(`[data-new-prompt="${categoryIndex}"]`);
-            const prompt = input.value.trim();
-            if (prompt) {
-                categories[categoryIndex].prompts.push(prompt);
-                input.value = '';
-                renderCategories();
-            }
-        }
-
-        function editCategory(categoryIndex) {
-            const newName = prompt('Nuovo nome categoria:', categories[categoryIndex].name);
-            if (newName !== null && newName.trim() !== '') {
-                categories[categoryIndex].name = newName.trim();
-                renderCategories();
-            }
-        }
-
-        function deleteCategory(categoryIndex) {
-            if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
-                categories.splice(categoryIndex, 1);
-                renderCategories();
-            }
-        }
-
-        function editPrompt(categoryIndex, promptIndex) {
-            const newPrompt = prompt('Modifica prompt:', categories[categoryIndex].prompts[promptIndex]);
-            if (newPrompt !== null && newPrompt.trim() !== '') {
-                categories[categoryIndex].prompts[promptIndex] = newPrompt.trim();
-                renderCategories();
-            }
-        }
-
-        function deletePrompt(categoryIndex, promptIndex) {
-            if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
-                categories[categoryIndex].prompts.splice(promptIndex, 1);
-                renderCategories();
-            }
-        }
-
-        function handleClick(e) {
-            const target = e.target;
-            if (target.tagName === 'BUTTON') {
-                const action = target.getAttribute('data-action');
-                const categoryIndex = parseInt(target.getAttribute('data-category'));
-                const promptIndex = parseInt(target.getAttribute('data-prompt'));
-
-                switch(action) {
-                    case 'newPrompt':
-                        target.closest('.category').querySelector('.prompts').style.display = 'block';
-                        break;
-                    case 'editCategory':
-                        editCategory(categoryIndex);
-                        break;
-                    case 'deleteCategory':
-                        deleteCategory(categoryIndex);
-                        break;
-                    case 'editPrompt':
-                        editPrompt(categoryIndex, promptIndex);
-                        break;
-                    case 'deletePrompt':
-                        deletePrompt(categoryIndex, promptIndex);
-                        break;
-                    case 'addPrompt':
-                        addPrompt(categoryIndex);
-                        break;
-                }
-            } else if (target.classList.contains('category-header')) {
-                const promptsDiv = target.nextElementSibling;
-                promptsDiv.style.display = promptsDiv.style.display === 'none' ? 'block' : 'none';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
-            document.getElementById('categories').addEventListener('click', handleClick);
-            renderCategories();
+        newPromptBtn.addEventListener('click', () => {
+            promptInput.style.display = promptInput.style.display === 'none' ? 'block' : 'none';
         });
-    })();
+
+        addPromptBtn.addEventListener('click', () => {
+            const promptText = newPromptInput.value.trim();
+            if (promptText) {
+                category.prompts.push(promptText);
+                newPromptInput.value = '';
+                renderPrompts(categoryDiv, category);
+                promptInput.style.display = 'none';
+            }
+        });
+
+        deleteCategoryBtn.addEventListener('click', () => {
+            if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
+                categories.splice(index, 1);
+                renderCategories();
+            }
+        });
+
+        renderPrompts(categoryDiv, category);
+        return categoryDiv;
+    }
+
+    function renderPrompts(categoryDiv, category) {
+        const promptsContainer = categoryDiv.querySelector('.prompts-container');
+        promptsContainer.innerHTML = '';
+        category.prompts.forEach((prompt, promptIndex) => {
+            const promptElement = document.createElement('div');
+            promptElement.className = 'prompt';
+            promptElement.innerHTML = `
+                ${prompt}
+                <button class="btn btn-delete delete-prompt-btn">Elimina</button>
+            `;
+            const deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
+            deletePromptBtn.addEventListener('click', () => {
+                if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                    category.prompts.splice(promptIndex, 1);
+                    renderPrompts(categoryDiv, category);
+                }
+            });
+            promptsContainer.appendChild(promptElement);
+        });
+    }
+
+    function renderCategories() {
+        const container = document.getElementById('categories');
+        container.innerHTML = '';
+        categories.forEach((category, index) => {
+            container.appendChild(createCategoryElement(category, index));
+        });
+    }
+
+    document.getElementById('addCategoryBtn').addEventListener('click', () => {
+        const input = document.getElementById('newCategoryInput');
+        const name = input.value.trim();
+        if (name) {
+            categories.push({ name: name, prompts: [] });
+            input.value = '';
+            renderCategories();
+        }
+    });
+
+    renderCategories();
     </script>
 </body>
 </html>
