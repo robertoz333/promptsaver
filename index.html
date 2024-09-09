@@ -39,6 +39,32 @@
             width: 100%;
         }
 
+        #newPromptForm {
+            display: flex;
+            align-items: flex-start;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .new-prompt-inputs input[type="text"],
+        .new-prompt-inputs textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+
+        .new-prompt-inputs textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .prompt-btn {
+            align-self: center;
+        }
+
         #categories {
             width: 300px;
         }
@@ -135,7 +161,15 @@
             <div class="new-category-section">
                 <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
                 <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
+
+                <!-- Form per aggiungere un nuovo prompt -->
+                <div id="newPromptForm" class="new-prompt-inputs" style="display: none;">
+                    <input type="text" id="newPromptTitle" placeholder="Titolo del prompt">
+                    <textarea id="newPromptText" placeholder="Testo del prompt"></textarea>
+                    <button id="addPromptBtn" class="btn btn-new prompt-btn">Aggiungi Prompt</button>
+                </div>
             </div>
+
             <div id="categories"></div>
         </div>
     </div>
@@ -190,7 +224,8 @@
 
             newPromptBtn.addEventListener('click', function (event) {
                 event.stopPropagation();
-                promptInput.style.display = promptInput.style.display === 'none' ? 'block' : 'none';
+                // Visualizza il form per aggiungere un nuovo prompt sotto il campo di input
+                document.getElementById('newPromptForm').style.display = 'flex';
             });
 
             addPromptBtn.addEventListener('click', function () {
@@ -298,6 +333,18 @@
             if (name) {
                 categories.push({ name: name, prompts: [] });
                 input.value = '';
+                renderCategories();
+                saveToLocalStorage();
+            }
+        });
+
+        document.getElementById('addPromptBtn').addEventListener('click', function () {
+            var promptTitle = document.getElementById('newPromptTitle').value.trim();
+            var promptText = document.getElementById('newPromptText').value.trim();
+            if (promptTitle && promptText) {
+                categories[0].prompts.push({ title: promptTitle, text: promptText }); // Aggiunge al primo elemento
+                document.getElementById('newPromptTitle').value = '';
+                document.getElementById('newPromptText').value = '';
                 renderCategories();
                 saveToLocalStorage();
             }
