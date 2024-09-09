@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver (Toggle Prompts v2)</title>
+    <title>Prompt Saver (Modifica Robusta)</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -16,12 +16,13 @@
         .btn-delete { background-color: #F44336; }
         input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px; }
         .prompt-input, .prompts-container { display: none; margin-top: 10px; }
-        .prompt { margin-bottom: 5px; }
+        .prompt { margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .edit-mode input[type="text"] { width: calc(100% - 150px); }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Prompt Saver (Toggle Prompts v2)</h1>
+        <h1>Prompt Saver (Modifica Robusta)</h1>
         <div>
             <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
             <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
@@ -99,10 +100,43 @@
             const promptElement = document.createElement('div');
             promptElement.className = 'prompt';
             promptElement.innerHTML = `
-                ${prompt}
-                <button class="btn btn-delete delete-prompt-btn">Elimina</button>
+                <span>${prompt}</span>
+                <div>
+                    <button class="btn btn-edit edit-prompt-btn">Modifica</button>
+                    <button class="btn btn-delete delete-prompt-btn">Elimina</button>
+                </div>
             `;
+            const editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
             const deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
+            
+            editPromptBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                promptElement.innerHTML = `
+                    <input type="text" value="${prompt}" class="edit-prompt-input">
+                    <div>
+                        <button class="btn btn-new save-edit-btn">Salva</button>
+                        <button class="btn btn-delete cancel-edit-btn">Annulla</button>
+                    </div>
+                `;
+                promptElement.classList.add('edit-mode');
+
+                const saveEditBtn = promptElement.querySelector('.save-edit-btn');
+                const cancelEditBtn = promptElement.querySelector('.cancel-edit-btn');
+                const editPromptInput = promptElement.querySelector('.edit-prompt-input');
+
+                saveEditBtn.addEventListener('click', () => {
+                    const newPrompt = editPromptInput.value.trim();
+                    if (newPrompt !== '') {
+                        category.prompts[promptIndex] = newPrompt;
+                        renderPrompts(categoryDiv, category);
+                    }
+                });
+
+                cancelEditBtn.addEventListener('click', () => {
+                    renderPrompts(categoryDiv, category);
+                });
+            });
+
             deletePromptBtn.addEventListener('click', (event) => {
                 event.stopPropagation();
                 if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
