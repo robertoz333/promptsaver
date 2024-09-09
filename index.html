@@ -5,132 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Saver (In-Memory)</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        .top-section {
-            margin-bottom: 20px;
-        }
-
-        .new-category-section {
-            display: flex;
-            margin-bottom: 10px;
-        }
-
-        input[type="text"],
-        textarea {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-new {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .btn-new:hover {
-            background-color: #45a049;
-        }
-
-        .btn-delete {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background-color: #da190b;
-        }
-
-        .btn-edit {
-            background-color: #008CBA;
-            color: white;
-        }
-
-        .btn-edit:hover {
-            background-color: #007B9A;
-        }
-
-        .category {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
-
-        .category-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .prompt {
-            background-color: #fff;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            margin-top: 10px;
-            padding: 10px;
-        }
-
-        .prompt-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            cursor: pointer;
-        }
-
-        .prompt-text {
-            display: none;
-            margin-bottom: 10px;
-        }
-
-        .edit-mode .prompt-text {
-            display: block;
-        }
-
-        .new-prompt-inputs {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Nuovo stile per la freccia */
-        .category-header.selected::before {
-            content: "▶";
-            margin-right: 5px;
-        }
-    </style>
+    
 </head>
 
 <body>
@@ -140,21 +15,22 @@
             <div class="new-category-section">
                 <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
                 <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
+
+                
+                <div id="newPromptForm" class="new-prompt-inputs" style="display: none;">
+                    <input type="text" id="newPromptTitle" placeholder="Titolo del prompt">
+                    <textarea id="newPromptText" placeholder="Testo del prompt"></textarea>
+                    <button id="addPromptBtn" class="btn btn-new prompt-btn">Aggiungi Prompt</button>
+                </div>
             </div>
 
-            <div id="newPromptForm" class="new-prompt-inputs" style="display: none;">
-                <input type="text" id="newPromptTitle" placeholder="Titolo del prompt">
-                <textarea id="newPromptText" placeholder="Testo del prompt"></textarea>
-                <button id="addPromptBtn" class="btn btn-new prompt-btn">Aggiungi Prompt</button>
-            </div>
+            <div id="categories"></div>
         </div>
-
-        <div id="categories"></div>
     </div>
 
     <script>
         var categories = [];
-        var currentCategoryIndex = null;
+        var currentCategoryIndex = null; // Variabile per tracciare la categoria corrente
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
@@ -198,17 +74,14 @@
             categoryHeader.addEventListener('click', function (event) {
                 if (!event.target.closest('button')) {
                     promptsContainer.style.display = promptsContainer.style.display === 'none' ? 'block' : 'none';
-                    document.querySelectorAll('.category-header').forEach(header => header.classList.remove('selected'));
-                    categoryHeader.classList.add('selected');
                 }
             });
 
             newPromptBtn.addEventListener('click', function (event) {
                 event.stopPropagation();
+                // Visualizza il form per aggiungere un nuovo prompt e memorizza l'indice della categoria corrente
                 document.getElementById('newPromptForm').style.display = 'flex';
-                currentCategoryIndex = index;
-                document.querySelectorAll('.category-header').forEach(header => header.classList.remove('selected'));
-                categoryHeader.classList.add('selected');
+                currentCategoryIndex = index; // Imposta l'indice della categoria corrente
             });
 
             addPromptBtn.addEventListener('click', function () {
@@ -335,9 +208,8 @@
                 categories[currentCategoryIndex].prompts.push({ title: promptTitle, text: promptText });
                 document.getElementById('newPromptTitle').value = '';
                 document.getElementById('newPromptText').value = '';
-                renderCategories();
+                renderPrompts(document.querySelectorAll('.category')[currentCategoryIndex], categories[currentCategoryIndex]);
                 saveToLocalStorage();
-                document.getElementById('newPromptForm').style.display = 'none';
             }
         });
     </script>
