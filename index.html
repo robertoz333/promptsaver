@@ -260,8 +260,16 @@
             var newPromptText = categoryDiv.querySelector('.new-prompt-text');
             var promptsContainer = categoryDiv.querySelector('.prompts-container');
 
+            function closeAllPrompts() {
+                var allPromptTexts = document.querySelectorAll('.prompt-text');
+                allPromptTexts.forEach(function(promptText) {
+                    promptText.style.display = 'none';
+                });
+            }
+
             categoryHeader.addEventListener('click', function (event) {
                 if (!event.target.closest('button')) {
+                    closeAllPrompts(); // Chiude tutti i prompt aperti
                     promptsContainer.style.display = promptsContainer.style.display === 'none' ? 'block' : 'none';
                 }
             });
