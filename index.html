@@ -1,28 +1,113 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Saver (In-Memory)</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        h1 { text-align: center; }
-        .category { background-color: #222; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
-        .category-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .btn { color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px; }
-        .btn-new { background-color: #4CAF50; }
-        .btn-edit { background-color: #2196F3; }
-        .btn-delete { background-color: #F44336; }
-        input[type="text"], textarea { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px; }
-        textarea { height: 100px; resize: vertical; }
-        .prompt-input, .prompts-container { display: none; margin-top: 10px; }
-        .prompt { margin-bottom: 15px; background-color: #333; padding: 10px; border-radius: 5px; }
-        .prompt-title { font-weight: bold; margin-bottom: 5px; font-size: 18px; }
-        .prompt-text { margin-bottom: 10px; white-space: pre-wrap; font-size: 14px; font-weight: normal; color: #ccc; }
-        .edit-mode input[type="text"], .edit-mode textarea { width: calc(100% - 22px); }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .category {
+            background-color: #222;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .category-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .btn-new {
+            background-color: #4CAF50;
+        }
+
+        .btn-edit {
+            background-color: #2196F3;
+        }
+
+        .btn-delete {
+            background-color: #F44336;
+        }
+
+        input[type="text"],
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .prompt-input,
+        .prompts-container {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .prompt {
+            margin-bottom: 15px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .prompt-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .prompt-text {
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            font-weight: normal;
+            color: #ccc;
+        }
+
+        .edit-mode input[type="text"],
+        .edit-mode textarea {
+            width: calc(100% - 22px);
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Prompt Saver (In-Memory)</h1>
@@ -34,12 +119,12 @@
     </div>
 
     <script>
-    var categories = [];
+        var categories = [];
 
-    function createCategoryElement(category, index) {
-        var categoryDiv = document.createElement('div');
-        categoryDiv.className = 'category';
-        categoryDiv.innerHTML = `
+        function createCategoryElement(category, index) {
+            var categoryDiv = document.createElement('div');
+            categoryDiv.className = 'category';
+            categoryDiv.innerHTML = `
             <div class="category-header">
                 <h3>${category.name}</h3>
                 <div>
@@ -55,58 +140,58 @@
             <div class="prompts-container" style="display: none;"></div>
         `;
 
-        var categoryHeader = categoryDiv.querySelector('.category-header');
-        var newPromptBtn = categoryDiv.querySelector('.new-prompt-btn');
-        var promptInput = categoryDiv.querySelector('.prompt-input');
-        var addPromptBtn = categoryDiv.querySelector('.add-prompt-btn');
-        var deleteCategoryBtn = categoryDiv.querySelector('.delete-category-btn');
-        var newPromptTitle = categoryDiv.querySelector('.new-prompt-title');
-        var newPromptText = categoryDiv.querySelector('.new-prompt-text');
-        var promptsContainer = categoryDiv.querySelector('.prompts-container');
+            var categoryHeader = categoryDiv.querySelector('.category-header');
+            var newPromptBtn = categoryDiv.querySelector('.new-prompt-btn');
+            var promptInput = categoryDiv.querySelector('.prompt-input');
+            var addPromptBtn = categoryDiv.querySelector('.add-prompt-btn');
+            var deleteCategoryBtn = categoryDiv.querySelector('.delete-category-btn');
+            var newPromptTitle = categoryDiv.querySelector('.new-prompt-title');
+            var newPromptText = categoryDiv.querySelector('.new-prompt-text');
+            var promptsContainer = categoryDiv.querySelector('.prompts-container');
 
-        categoryHeader.addEventListener('click', function(event) {
-            if (!event.target.closest('button')) {
-                promptsContainer.style.display = promptsContainer.style.display === 'none' ? 'block' : 'none';
-            }
-        });
+            categoryHeader.addEventListener('click', function (event) {
+                if (!event.target.closest('button')) {
+                    promptsContainer.style.display = promptsContainer.style.display === 'none' ? 'block' : 'none';
+                }
+            });
 
-        newPromptBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            promptInput.style.display = promptInput.style.display === 'none' ? 'block' : 'none';
-        });
+            newPromptBtn.addEventListener('click', function (event) {
+                event.stopPropagation();
+                promptInput.style.display = promptInput.style.display === 'none' ? 'block' : 'none';
+            });
 
-        addPromptBtn.addEventListener('click', function() {
-            var promptTitle = newPromptTitle.value.trim();
-            var promptText = newPromptText.value.trim();
-            if (promptTitle && promptText) {
-                category.prompts.push({ title: promptTitle, text: promptText });
-                newPromptTitle.value = '';
-                newPromptText.value = '';
-                renderPrompts(categoryDiv, category);
-                promptInput.style.display = 'none';
-                promptsContainer.style.display = 'block';
-            }
-        });
+            addPromptBtn.addEventListener('click', function () {
+                var promptTitle = newPromptTitle.value.trim();
+                var promptText = newPromptText.value.trim();
+                if (promptTitle && promptText) {
+                    category.prompts.push({ title: promptTitle, text: promptText });
+                    newPromptTitle.value = '';
+                    newPromptText.value = '';
+                    renderPrompts(categoryDiv, category);
+                    promptInput.style.display = 'none';
+                    promptsContainer.style.display = 'block';
+                }
+            });
 
-        deleteCategoryBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
-                categories.splice(index, 1);
-                renderCategories();
-            }
-        });
+            deleteCategoryBtn.addEventListener('click', function (event) {
+                event.stopPropagation();
+                if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
+                    categories.splice(index, 1);
+                    renderCategories();
+                }
+            });
 
-        renderPrompts(categoryDiv, category);
-        return categoryDiv;
-    }
+            renderPrompts(categoryDiv, category);
+            return categoryDiv;
+        }
 
-    function renderPrompts(categoryDiv, category) {
-        var promptsContainer = categoryDiv.querySelector('.prompts-container');
-        promptsContainer.innerHTML = '';
-        category.prompts.forEach(function(prompt, promptIndex) {
-            var promptElement = document.createElement('div');
-            promptElement.className = 'prompt';
-            promptElement.innerHTML = `
+        function renderPrompts(categoryDiv, category) {
+            var promptsContainer = categoryDiv.querySelector('.prompts-container');
+            promptsContainer.innerHTML = '';
+            category.prompts.forEach(function (prompt, promptIndex) {
+                var promptElement = document.createElement('div');
+                promptElement.className = 'prompt';
+                promptElement.innerHTML = `
                 <div class="prompt-title">${prompt.title}</div>
                 <div class="prompt-text">${prompt.text}</div>
                 <div>
@@ -114,12 +199,12 @@
                     <button class="btn btn-delete delete-prompt-btn">Elimina</button>
                 </div>
             `;
-            var editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
-            var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
-            
-            editPromptBtn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                promptElement.innerHTML = `
+                var editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
+                var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
+
+                editPromptBtn.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    promptElement.innerHTML = `
                     <input type="text" value="${prompt.title}" class="edit-prompt-title">
                     <textarea class="edit-prompt-text">${prompt.text}</textarea>
                     <div>
@@ -127,57 +212,58 @@
                         <button class="btn btn-delete cancel-edit-btn">Annulla</button>
                     </div>
                 `;
-                promptElement.classList.add('edit-mode');
+                    promptElement.classList.add('edit-mode');
 
-                var saveEditBtn = promptElement.querySelector('.save-edit-btn');
-                var cancelEditBtn = promptElement.querySelector('.cancel-edit-btn');
-                var editPromptTitle = promptElement.querySelector('.edit-prompt-title');
-                var editPromptText = promptElement.querySelector('.edit-prompt-text');
+                    var saveEditBtn = promptElement.querySelector('.save-edit-btn');
+                    var cancelEditBtn = promptElement.querySelector('.cancel-edit-btn');
+                    var editPromptTitle = promptElement.querySelector('.edit-prompt-title');
+                    var editPromptText = promptElement.querySelector('.edit-prompt-text');
 
-                saveEditBtn.addEventListener('click', function() {
-                    var newTitle = editPromptTitle.value.trim();
-                    var newText = editPromptText.value.trim();
-                    if (newTitle && newText) {
-                        category.prompts[promptIndex] = { title: newTitle, text: newText };
+                    saveEditBtn.addEventListener('click', function () {
+                        var newTitle = editPromptTitle.value.trim();
+                        var newText = editPromptText.value.trim();
+                        if (newTitle && newText) {
+                            category.prompts[promptIndex] = { title: newTitle, text: newText };
+                            renderPrompts(categoryDiv, category);
+                        }
+                    });
+
+                    cancelEditBtn.addEventListener('click', function () {
+                        renderPrompts(categoryDiv, category);
+                    });
+                });
+
+                deletePromptBtn.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                        category.prompts.splice(promptIndex, 1);
                         renderPrompts(categoryDiv, category);
                     }
                 });
-
-                cancelEditBtn.addEventListener('click', function() {
-                    renderPrompts(categoryDiv, category);
-                });
+                promptsContainer.appendChild(promptElement);
             });
-
-            deletePromptBtn.addEventListener('click', function(event) {
-                event.stopPropagation();
-                if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
-                    category.prompts.splice(promptIndex, 1);
-                    renderPrompts(categoryDiv, category);
-                }
-            });
-            promptsContainer.appendChild(promptElement);
-        });
-    }
-
-    function renderCategories() {
-        var container = document.getElementById('categories');
-        container.innerHTML = '';
-        categories.forEach(function(category, index) {
-            container.appendChild(createCategoryElement(category, index));
-        });
-    }
-
-    document.getElementById('addCategoryBtn').addEventListener('click', function() {
-        var input = document.getElementById('newCategoryInput');
-        var name = input.value.trim();
-        if (name) {
-            categories.push({ name: name, prompts: [] });
-            input.value = '';
-            renderCategories();
         }
-    });
 
-    renderCategories();
+        function renderCategories() {
+            var container = document.getElementById('categories');
+            container.innerHTML = '';
+            categories.forEach(function (category, index) {
+                container.appendChild(createCategoryElement(category, index));
+            });
+        }
+
+        document.getElementById('addCategoryBtn').addEventListener('click', function () {
+            var input = document.getElementById('newCategoryInput');
+            var name = input.value.trim();
+            if (name) {
+                categories.push({ name: name, prompts: [] });
+                input.value = '';
+                renderCategories();
+            }
+        });
+
+        renderCategories();
     </script>
 </body>
+
 </html>
