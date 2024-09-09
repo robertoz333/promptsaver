@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver (Stile Testo Migliorato)</title>
+    <title>Prompt Saver (In-Memory)</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -25,7 +25,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Prompt Saver (Stile Testo Migliorato)</h1>
+        <h1>Prompt Saver (In-Memory)</h1>
         <div>
             <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
             <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
@@ -34,10 +34,10 @@
     </div>
 
     <script>
-    let categories = [];
+    var categories = [];
 
     function createCategoryElement(category, index) {
-        const categoryDiv = document.createElement('div');
+        var categoryDiv = document.createElement('div');
         categoryDiv.className = 'category';
         categoryDiv.innerHTML = `
             <div class="category-header">
@@ -55,29 +55,29 @@
             <div class="prompts-container" style="display: none;"></div>
         `;
 
-        const categoryHeader = categoryDiv.querySelector('.category-header');
-        const newPromptBtn = categoryDiv.querySelector('.new-prompt-btn');
-        const promptInput = categoryDiv.querySelector('.prompt-input');
-        const addPromptBtn = categoryDiv.querySelector('.add-prompt-btn');
-        const deleteCategoryBtn = categoryDiv.querySelector('.delete-category-btn');
-        const newPromptTitle = categoryDiv.querySelector('.new-prompt-title');
-        const newPromptText = categoryDiv.querySelector('.new-prompt-text');
-        const promptsContainer = categoryDiv.querySelector('.prompts-container');
+        var categoryHeader = categoryDiv.querySelector('.category-header');
+        var newPromptBtn = categoryDiv.querySelector('.new-prompt-btn');
+        var promptInput = categoryDiv.querySelector('.prompt-input');
+        var addPromptBtn = categoryDiv.querySelector('.add-prompt-btn');
+        var deleteCategoryBtn = categoryDiv.querySelector('.delete-category-btn');
+        var newPromptTitle = categoryDiv.querySelector('.new-prompt-title');
+        var newPromptText = categoryDiv.querySelector('.new-prompt-text');
+        var promptsContainer = categoryDiv.querySelector('.prompts-container');
 
-        categoryHeader.addEventListener('click', (event) => {
+        categoryHeader.addEventListener('click', function(event) {
             if (!event.target.closest('button')) {
                 promptsContainer.style.display = promptsContainer.style.display === 'none' ? 'block' : 'none';
             }
         });
 
-        newPromptBtn.addEventListener('click', (event) => {
+        newPromptBtn.addEventListener('click', function(event) {
             event.stopPropagation();
             promptInput.style.display = promptInput.style.display === 'none' ? 'block' : 'none';
         });
 
-        addPromptBtn.addEventListener('click', () => {
-            const promptTitle = newPromptTitle.value.trim();
-            const promptText = newPromptText.value.trim();
+        addPromptBtn.addEventListener('click', function() {
+            var promptTitle = newPromptTitle.value.trim();
+            var promptText = newPromptText.value.trim();
             if (promptTitle && promptText) {
                 category.prompts.push({ title: promptTitle, text: promptText });
                 newPromptTitle.value = '';
@@ -88,7 +88,7 @@
             }
         });
 
-        deleteCategoryBtn.addEventListener('click', (event) => {
+        deleteCategoryBtn.addEventListener('click', function(event) {
             event.stopPropagation();
             if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
                 categories.splice(index, 1);
@@ -101,10 +101,10 @@
     }
 
     function renderPrompts(categoryDiv, category) {
-        const promptsContainer = categoryDiv.querySelector('.prompts-container');
+        var promptsContainer = categoryDiv.querySelector('.prompts-container');
         promptsContainer.innerHTML = '';
-        category.prompts.forEach((prompt, promptIndex) => {
-            const promptElement = document.createElement('div');
+        category.prompts.forEach(function(prompt, promptIndex) {
+            var promptElement = document.createElement('div');
             promptElement.className = 'prompt';
             promptElement.innerHTML = `
                 <div class="prompt-title">${prompt.title}</div>
@@ -114,10 +114,10 @@
                     <button class="btn btn-delete delete-prompt-btn">Elimina</button>
                 </div>
             `;
-            const editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
-            const deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
+            var editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
+            var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
             
-            editPromptBtn.addEventListener('click', (event) => {
+            editPromptBtn.addEventListener('click', function(event) {
                 event.stopPropagation();
                 promptElement.innerHTML = `
                     <input type="text" value="${prompt.title}" class="edit-prompt-title">
@@ -129,26 +129,26 @@
                 `;
                 promptElement.classList.add('edit-mode');
 
-                const saveEditBtn = promptElement.querySelector('.save-edit-btn');
-                const cancelEditBtn = promptElement.querySelector('.cancel-edit-btn');
-                const editPromptTitle = promptElement.querySelector('.edit-prompt-title');
-                const editPromptText = promptElement.querySelector('.edit-prompt-text');
+                var saveEditBtn = promptElement.querySelector('.save-edit-btn');
+                var cancelEditBtn = promptElement.querySelector('.cancel-edit-btn');
+                var editPromptTitle = promptElement.querySelector('.edit-prompt-title');
+                var editPromptText = promptElement.querySelector('.edit-prompt-text');
 
-                saveEditBtn.addEventListener('click', () => {
-                    const newTitle = editPromptTitle.value.trim();
-                    const newText = editPromptText.value.trim();
+                saveEditBtn.addEventListener('click', function() {
+                    var newTitle = editPromptTitle.value.trim();
+                    var newText = editPromptText.value.trim();
                     if (newTitle && newText) {
                         category.prompts[promptIndex] = { title: newTitle, text: newText };
                         renderPrompts(categoryDiv, category);
                     }
                 });
 
-                cancelEditBtn.addEventListener('click', () => {
+                cancelEditBtn.addEventListener('click', function() {
                     renderPrompts(categoryDiv, category);
                 });
             });
 
-            deletePromptBtn.addEventListener('click', (event) => {
+            deletePromptBtn.addEventListener('click', function(event) {
                 event.stopPropagation();
                 if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
                     category.prompts.splice(promptIndex, 1);
@@ -160,16 +160,16 @@
     }
 
     function renderCategories() {
-        const container = document.getElementById('categories');
+        var container = document.getElementById('categories');
         container.innerHTML = '';
-        categories.forEach((category, index) => {
+        categories.forEach(function(category, index) {
             container.appendChild(createCategoryElement(category, index));
         });
     }
 
-    document.getElementById('addCategoryBtn').addEventListener('click', () => {
-        const input = document.getElementById('newCategoryInput');
-        const name = input.value.trim();
+    document.getElementById('addCategoryBtn').addEventListener('click', function() {
+        var input = document.getElementById('newCategoryInput');
+        var name = input.value.trim();
         if (name) {
             categories.push({ name: name, prompts: [] });
             input.value = '';
