@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver (Listener Individuali)</title>
+    <title>Prompt Saver (Toggle Prompts)</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
         h1 { text-align: center; }
         .category { background-color: #222; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .category-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .btn { color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px; }
         .btn-new { background-color: #4CAF50; }
         .btn-edit { background-color: #2196F3; }
         .btn-delete { background-color: #F44336; }
         input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px; }
-        .prompt-input { display: none; margin-top: 10px; }
+        .prompt-input, .prompts-container { display: none; margin-top: 10px; }
         .prompt { margin-bottom: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Prompt Saver (Listener Individuali)</h1>
+        <h1>Prompt Saver (Toggle Prompts)</h1>
         <div>
             <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
             <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
@@ -35,21 +36,33 @@
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'category';
         categoryDiv.innerHTML = `
-            <h3>${category.name}</h3>
-            <button class="btn btn-new new-prompt-btn">Nuovo prompt</button>
-            <button class="btn btn-delete delete-category-btn">Elimina categoria</button>
+            <div class="category-header">
+                <h3>${category.name}</h3>
+                <div>
+                    <button class="btn btn-new new-prompt-btn">Nuovo prompt</button>
+                    <button class="btn btn-delete delete-category-btn">Elimina categoria</button>
+                </div>
+            </div>
             <div class="prompt-input" style="display: none;">
                 <input type="text" class="new-prompt-input" placeholder="Inserisci nuovo prompt">
                 <button class="btn btn-new add-prompt-btn">Aggiungi</button>
             </div>
-            <div class="prompts-container"></div>
+            <div class="prompts-container" style="display: none;"></div>
         `;
 
+        const categoryHeader = categoryDiv.querySelector('.category-header');
         const newPromptBtn = categoryDiv.querySelector('.new-prompt-btn');
         const promptInput = categoryDiv.querySelector('.prompt-input');
         const addPromptBtn = categoryDiv.querySelector('.add-prompt-btn');
         const deleteCategoryBtn = categoryDiv.querySelector('.delete-category-btn');
         const newPromptInput = categoryDiv.querySelector('.new-prompt-input');
+        const promptsContainer = categoryDiv.querySelector('.prompts-container');
+
+        categoryHeader.addEventListener('click', (event) => {
+            if (!event.target.closest('button')) {
+                promptsContainer.style.display = promptsContainer.style.display === 'none' ? 'block' : 'none';
+            }
+        });
 
         newPromptBtn.addEventListener('click', () => {
             promptInput.style.display = promptInput.style.display === 'none' ? 'block' : 'none';
