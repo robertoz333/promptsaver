@@ -23,6 +23,26 @@
             text-align: center;
         }
 
+        .top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .new-category-section {
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+
+        #newCategoryInput {
+            width: 100%;
+        }
+
+        #categories {
+            width: 300px;
+        }
+
         .category {
             background-color: #222;
             border-radius: 10px;
@@ -110,23 +130,23 @@
 
 <body>
     <div class="container">
-        <h1>Prompt Saver </h1>
-        <div>
-            <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
-            <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
+        <h1>Prompt Saver</h1>
+        <div class="top-section">
+            <div class="new-category-section">
+                <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
+                <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
+            </div>
+            <div id="categories"></div>
         </div>
-        <div id="categories"></div>
     </div>
 
     <script>
         var categories = [];
 
-        // Funzione per salvare le categorie nel localStorage
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
         }
 
-        // Funzione per caricare le categorie dal localStorage
         function loadFromLocalStorage() {
             var savedCategories = localStorage.getItem('categories');
             if (savedCategories) {
@@ -183,7 +203,7 @@
                     renderPrompts(categoryDiv, category);
                     promptInput.style.display = 'none';
                     promptsContainer.style.display = 'block';
-                    saveToLocalStorage();  // Salva ogni volta che aggiungi un prompt
+                    saveToLocalStorage();
                 }
             });
 
@@ -192,7 +212,7 @@
                 if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
                     categories.splice(index, 1);
                     renderCategories();
-                    saveToLocalStorage();  // Salva dopo l'eliminazione
+                    saveToLocalStorage();
                 }
             });
 
@@ -240,7 +260,7 @@
                         if (newTitle && newText) {
                             category.prompts[promptIndex] = { title: newTitle, text: newText };
                             renderPrompts(categoryDiv, category);
-                            saveToLocalStorage();  // Salva dopo la modifica
+                            saveToLocalStorage();
                         }
                     });
 
@@ -254,7 +274,7 @@
                     if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
                         category.prompts.splice(promptIndex, 1);
                         renderPrompts(categoryDiv, category);
-                        saveToLocalStorage();  // Salva dopo l'eliminazione
+                        saveToLocalStorage();
                     }
                 });
                 promptsContainer.appendChild(promptElement);
@@ -269,7 +289,6 @@
             });
         }
 
-        // Carica le categorie salvate al caricamento della pagina
         loadFromLocalStorage();
         renderCategories();
 
@@ -280,7 +299,7 @@
                 categories.push({ name: name, prompts: [] });
                 input.value = '';
                 renderCategories();
-                saveToLocalStorage();  // Salva dopo aver aggiunto una nuova categoria
+                saveToLocalStorage();
             }
         });
     </script>
