@@ -15,16 +15,16 @@
             <div class="new-category-section">
                 <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
                 <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
-
-                
-                <div id="newPromptForm" class="new-prompt-inputs" style="display: none;">
-                    <input type="text" id="newPromptTitle" placeholder="Titolo del prompt">
-                    <textarea id="newPromptText" placeholder="Testo del prompt"></textarea>
-                    <button id="addPromptBtn" class="btn btn-new prompt-btn">Aggiungi Prompt</button>
-                </div>
             </div>
 
             <div id="categories"></div>
+        </div>
+        <div id="newPromptForm" class="new-prompt-inputs" style="display: none;">
+            <select id="promptCategorySelect">
+                </select>
+            <input type="text" id="newPromptTitle" placeholder="Titolo del prompt">
+            <textarea id="newPromptText" placeholder="Testo del prompt"></textarea>
+            <button id="addPromptBtn" class="btn btn-new prompt-btn">Aggiungi Prompt</button>
         </div>
     </div>
 
@@ -54,21 +54,12 @@
                     <button class="btn btn-delete delete-category-btn">Elimina categoria</button>
                 </div>
             </div>
-            <div class="prompt-input" style="display: none;">
-                <input type="text" class="new-prompt-title" placeholder="Titolo del prompt">
-                <textarea class="new-prompt-text" placeholder="Testo del prompt"></textarea>
-                <button class="btn btn-new add-prompt-btn">Aggiungi</button>
-            </div>
             <div class="prompts-container" style="display: none;"></div>
         `;
 
             var categoryHeader = categoryDiv.querySelector('.category-header');
             var newPromptBtn = categoryDiv.querySelector('.new-prompt-btn');
-            var promptInput = categoryDiv.querySelector('.prompt-input');
-            var addPromptBtn = categoryDiv.querySelector('.add-prompt-btn');
             var deleteCategoryBtn = categoryDiv.querySelector('.delete-category-btn');
-            var newPromptTitle = categoryDiv.querySelector('.new-prompt-title');
-            var newPromptText = categoryDiv.querySelector('.new-prompt-text');
             var promptsContainer = categoryDiv.querySelector('.prompts-container');
 
             categoryHeader.addEventListener('click', function (event) {
@@ -81,21 +72,8 @@
                 event.stopPropagation();
                 // Visualizza il form per aggiungere un nuovo prompt e memorizza l'indice della categoria corrente
                 document.getElementById('newPromptForm').style.display = 'flex';
+                updatePromptCategorySelect(); // Aggiorna le opzioni del menu a tendina
                 currentCategoryIndex = index; // Imposta l'indice della categoria corrente
-            });
-
-            addPromptBtn.addEventListener('click', function () {
-                var promptTitle = newPromptTitle.value.trim();
-                var promptText = newPromptText.value.trim();
-                if (promptTitle && promptText) {
-                    category.prompts.push({ title: promptTitle, text: promptText });
-                    newPromptTitle.value = '';
-                    newPromptText.value = '';
-                    renderPrompts(categoryDiv, category);
-                    promptInput.style.display = 'none';
-                    promptsContainer.style.display = 'block';
-                    saveToLocalStorage();
-                }
             });
 
             deleteCategoryBtn.addEventListener('click', function (event) {
@@ -185,6 +163,18 @@
             categories.forEach(function (category, index) {
                 container.appendChild(createCategoryElement(category, index));
             });
+            updatePromptCategorySelect(); // Aggiorna il menu a tendina dopo aver renderizzato le categorie
+        }
+
+        function updatePromptCategorySelect() {
+            var select = document.getElementById('promptCategorySelect');
+            select.innerHTML = ''; // Svuota le opzioni esistenti
+            categories.forEach(function (category, index) {
+                var option = document.createElement('option');
+                option.value = index; // Imposta il valore dell'opzione come indice della categoria
+                option.text = category.name;
+                select.add(option);
+            });
         }
 
         loadFromLocalStorage();
@@ -202,13 +192,14 @@
         });
 
         document.getElementById('addPromptBtn').addEventListener('click', function () {
+            var selectedCategoryIndex = document.getElementById('promptCategorySelect').value;
             var promptTitle = document.getElementById('newPromptTitle').value.trim();
             var promptText = document.getElementById('newPromptText').value.trim();
-            if (promptTitle && promptText && currentCategoryIndex !== null) {
-                categories[currentCategoryIndex].prompts.push({ title: promptTitle, text: promptText });
+            if (promptTitle && promptText && selectedCategoryIndex !== null) {
+                categories[selectedCategoryIndex].prompts.push({ title: promptTitle, text: promptText });
                 document.getElementById('newPromptTitle').value = '';
                 document.getElementById('newPromptText').value = '';
-                renderPrompts(document.querySelectorAll('.category')[currentCategoryIndex], categories[currentCategoryIndex]);
+                renderCategories(); // Rirenderizza le categorie per mostrare il nuovo prompt
                 saveToLocalStorage();
             }
         });
