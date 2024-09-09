@@ -154,6 +154,15 @@
         .edit-mode textarea {
             width: calc(100% - 22px);
         }
+
+        #editPromptForm {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 10px;
+            display: none;
+        }
     </style>
 </head>
 
@@ -171,6 +180,14 @@
                     <textarea id="newPromptText" placeholder="Testo del prompt"></textarea>
                     <button id="addPromptBtn" class="btn btn-new prompt-btn">Aggiungi Prompt</button>
                 </div>
+
+                <!-- Form per modificare un prompt -->
+                <div id="editPromptForm" class="new-prompt-inputs">
+                    <input type="text" id="editPromptTitle" placeholder="Modifica titolo del prompt">
+                    <textarea id="editPromptText" placeholder="Modifica testo del prompt"></textarea>
+                    <button id="saveEditPromptBtn" class="btn btn-new prompt-btn">Salva</button>
+                    <button id="cancelEditPromptBtn" class="btn btn-delete prompt-btn">Annulla</button>
+                </div>
             </div>
 
             <div id="categories"></div>
@@ -180,6 +197,7 @@
     <script>
         var categories = [];
         var currentCategoryIndex = null; // Variabile per tracciare la categoria corrente
+        var currentPromptIndex = null; // Variabile per tracciare il prompt corrente durante la modifica
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
@@ -231,6 +249,7 @@
                 // Visualizza il form per aggiungere un nuovo prompt e memorizza l'indice della categoria corrente
                 currentCategoryIndex = index; // Imposta l'indice della categoria corrente
                 document.getElementById('newPromptForm').style.display = 'flex';
+                document.getElementById('editPromptForm').style.display = 'none'; // Nasconde il modulo di modifica
             });
 
             addPromptBtn.addEventListener('click', function () {
@@ -285,34 +304,14 @@
 
                 editPromptBtn.addEventListener('click', function (event) {
                     event.stopPropagation();
-                    promptElement.innerHTML = `
-                    <input type="text" value="${prompt.title}" class="edit-prompt-title">
-                    <textarea class="edit-prompt-text">${prompt.text}</textarea>
-                    <div>
-                        <button class="btn btn-new save-edit-btn">Salva</button>
-                        <button class="btn btn-delete cancel-edit-btn">Annulla</button>
-                    </div>
-                `;
-                    promptElement.classList.add('edit-mode');
-
-                    var saveEditBtn = promptElement.querySelector('.save-edit-btn');
-                    var cancelEditBtn = promptElement.querySelector('.cancel-edit-btn');
-                    var editPromptTitle = promptElement.querySelector('.edit-prompt-title');
-                    var editPromptText = promptElement.querySelector('.edit-prompt-text');
-
-                    saveEditBtn.addEventListener('click', function () {
-                        var newTitle = editPromptTitle.value.trim();
-                        var newText = editPromptText.value.trim();
-                        if (newTitle && newText) {
-                            category.prompts[promptIndex] = { title: newTitle, text: newText };
-                            renderPrompts(categoryDiv, category);
-                            saveToLocalStorage();
-                        }
-                    });
-
-                    cancelEditBtn.addEventListener('click', function () {
-                        renderPrompts(categoryDiv, category);
-                    });
+                    // Mostra il modulo di modifica e nasconde quello di aggiunta
+                    document.getElementById('newPromptForm').style.display = 'none';
+                    document.getElementById('editPromptForm').style.display = 'flex';
+                    // Imposta i valori correnti del prompt nel modulo di modifica
+                    document.getElementById('editPromptTitle').value = prompt.title;
+                    document.getElementById('editPromptText').value = prompt.text;
+                    currentCategoryIndex = categories.indexOf(category); // Imposta l'indice della categoria corrente
+                    currentPromptIndex = promptIndex; // Imposta l'indice del prompt corrente
                 });
 
                 deletePromptBtn.addEventListener('click', function (event) {
@@ -361,6 +360,23 @@
                 saveToLocalStorage();
                 document.getElementById('newPromptForm').style.display = 'none'; // Nasconde il modulo dopo l'uso
             }
+        });
+
+        document.getElementById('saveEditPromptBtn').addEventListener('click', function () {
+            var newTitle = document.getElementById('editPromptTitle').value.trim();
+            var newText = document.getElementById('editPromptText').value.trim();
+            if (newTitle && newText && currentCategoryIndex !== null && currentPromptIndex !== null) {
+                categories[currentCategoryIndex].prompts[currentPromptIndex] = { title: newTitle, text: newText };
+                renderCategories();
+                saveToLocalStorage();
+                // Nasconde il modulo di modifica dopo il salvataggio
+                document.getElementById('editPromptForm').style.display = 'none';
+            }
+        });
+
+        document.getElementById('cancelEditPromptBtn').addEventListener('click', function () {
+            // Nasconde il modulo di modifica senza salvare
+            document.getElementById('editPromptForm').style.display = 'none';
         });
     </script>
 </body>
