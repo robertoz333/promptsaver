@@ -165,6 +165,10 @@
             line-height: 1.4; /* Aumenta leggermente l'interlinea per il testo del prompt */
         }
 
+        .expanded .prompt-text {
+            display: block;
+        }
+
         .edit-mode input[type="text"],
         .edit-mode textarea {
             width: calc(100% - 22px);
@@ -194,11 +198,6 @@
                     <input type="text" id="newPromptTitle" placeholder="Titolo del prompt">
                     <textarea id="newPromptText" placeholder="Testo del prompt"></textarea>
                     <button id="addPromptBtn" class="btn btn-new prompt-btn">Aggiungi Prompt</button>
-                </div>
-
-                <!-- Form per visualizzare il testo di un prompt -->
-                <div id="viewPromptForm" class="new-prompt-inputs" style="display: none;">
-                    <textarea id="viewPromptText" readonly></textarea>
                 </div>
 
                 <!-- Form per modificare un prompt -->
@@ -272,7 +271,6 @@
                 currentCategoryIndex = index; // Imposta l'indice della categoria corrente
                 document.getElementById('newPromptForm').style.display = 'flex';
                 document.getElementById('editPromptForm').style.display = 'none'; // Nasconde il modulo di modifica
-                document.getElementById('viewPromptForm').style.display = 'none'; // Nasconde il modulo di visualizzazione
             });
 
             addPromptBtn.addEventListener('click', function () {
@@ -322,19 +320,13 @@
                 var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
 
                 promptTitleElement.addEventListener('click', function () {
-                    // Mostra il modulo di visualizzazione e imposta il testo del prompt
-                    document.getElementById('viewPromptForm').style.display = 'flex';
-                    document.getElementById('viewPromptText').value = prompt.text;
-                    // Nascondi gli altri moduli
-                    document.getElementById('newPromptForm').style.display = 'none';
-                    document.getElementById('editPromptForm').style.display = 'none';
+                    promptElement.classList.toggle('expanded');
                 });
 
                 editPromptBtn.addEventListener('click', function (event) {
                     event.stopPropagation();
-                    // Mostra il modulo di modifica e nasconde quello di aggiunta e visualizzazione
+                    // Mostra il modulo di modifica e nasconde quello di aggiunta
                     document.getElementById('newPromptForm').style.display = 'none';
-                    document.getElementById('viewPromptForm').style.display = 'none';
                     document.getElementById('editPromptForm').style.display = 'flex';
                     // Imposta i valori correnti del prompt nel modulo di modifica
                     document.getElementById('editPromptTitle').value = prompt.title;
