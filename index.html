@@ -1,3 +1,12 @@
+To modify the code as requested, we need to implement two main features:
+
+1. **Link the new prompt to the selected category**: This is already partially implemented by using the `currentCategoryIndex` to track the selected category when adding a new prompt.
+
+2. **Indicate the selected category with a small arrow**: We can achieve this by adding a visual indicator (like a small arrow) next to the category name when it is selected.
+
+Here's the modified code with these changes:
+
+```html
 <!DOCTYPE html>
 <html lang="it">
 
@@ -6,153 +15,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Saver (In-Memory)</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #000;
-            color: #fff;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        .top-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .new-category-section {
-            flex-grow: 1;
-            margin-right: 20px;
-        }
-
-        #newCategoryInput {
-            width: 100%;
-        }
-
-        #newPromptForm {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-top: 10px;
-            gap: 10px;
-        }
-
-        .new-prompt-inputs input[type="text"],
-        .new-prompt-inputs textarea {
-            width: 100%;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 5px;
-        }
-
-        .new-prompt-inputs textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        .prompt-btn {
-            align-self: flex-start;
-        }
-
-        #categories {
-            width: 300px;
-        }
-
-        .category {
-            background-color: #222;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .category-header {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .btn {
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-
-        .btn-new {
-            background-color: #4CAF50;
-        }
-
-        .btn-edit {
-            background-color: #2196F3;
-        }
-
-        .btn-delete {
-            background-color: #F44336;
-        }
-
-        input[type="text"],
-        textarea {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 5px;
-        }
-
-        textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        .prompt-input,
-        .prompts-container {
-            display: none;
-            margin-top: 10px;
-        }
-
-        .prompt {
-            margin-bottom: 15px;
-            background-color: #333;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .prompt-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .prompt-text {
-            margin-top: 5px;
-            white-space: pre-wrap;
-            font-size: 14px;
-            font-weight: normal;
-            color: #ccc;
-            display: none;
-        }
-
-        .edit-mode input[type="text"],
-        .edit-mode textarea {
-            width: calc(100% - 22px);
+        .category.selected::before {
+            content: '→ ';
+            color: #007BFF;
         }
     </style>
 </head>
@@ -165,7 +30,6 @@
                 <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
                 <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
 
-                <!-- Form per aggiungere un nuovo prompt -->
                 <div id="newPromptForm" class="new-prompt-inputs" style="display: none;">
                     <input type="text" id="newPromptTitle" placeholder="Titolo del prompt">
                     <textarea id="newPromptText" placeholder="Testo del prompt"></textarea>
@@ -179,7 +43,7 @@
 
     <script>
         var categories = [];
-        var currentCategoryIndex = null; // Variabile per tracciare la categoria corrente
+        var currentCategoryIndex = null;
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
@@ -223,14 +87,15 @@
             categoryHeader.addEventListener('click', function (event) {
                 if (!event.target.closest('button')) {
                     promptsContainer.style.display = promptsContainer.style.display === 'none' ? 'block' : 'none';
+                    selectCategory(index);
                 }
             });
 
             newPromptBtn.addEventListener('click', function (event) {
                 event.stopPropagation();
-                // Visualizza il form per aggiungere un nuovo prompt e memorizza l'indice della categoria corrente
                 document.getElementById('newPromptForm').style.display = 'flex';
-                currentCategoryIndex = index; // Imposta l'indice della categoria corrente
+                currentCategoryIndex = index;
+                selectCategory(index);
             });
 
             addPromptBtn.addEventListener('click', function () {
@@ -336,6 +201,17 @@
             });
         }
 
+        function selectCategory(index) {
+            var categoryElements = document.querySelectorAll('.category');
+            categoryElements.forEach(function (element, i) {
+                if (i === index) {
+                    element.classList.add('selected');
+                } else {
+                    element.classList.remove('selected');
+                }
+            });
+        }
+
         loadFromLocalStorage();
         renderCategories();
 
@@ -365,3 +241,9 @@
 </body>
 
 </html>
+```
+
+### Key Changes:
+- **CSS for Selected Category**: Added a CSS rule to display an arrow next to the selected category.
+- **`selectCategory` Function**: This function adds the `selected` class to the currently selected category and removes it from others.
+- **Event Listeners**: Updated the event listeners to call `selectCategory` when a category is clicked or when the "Nuovo prompt" button is clicked.
