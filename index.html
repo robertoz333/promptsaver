@@ -41,10 +41,10 @@
 
         #newPromptForm {
             display: flex;
-            flex-direction: column; /* Layout verticale */
+            flex-direction: column;
             align-items: flex-start;
             margin-top: 10px;
-            gap: 10px; /* Spazio tra i campi */
+            gap: 10px;
         }
 
         .new-prompt-inputs input[type="text"],
@@ -63,7 +63,7 @@
         }
 
         .prompt-btn {
-            align-self: flex-start; /* Pulsante allineato a sinistra */
+            align-self: flex-start;
         }
 
         #categories {
@@ -147,7 +147,7 @@
             font-size: 14px;
             font-weight: normal;
             color: #ccc;
-            display: none; /* Nascondi il testo del prompt per impostazione predefinita */
+            display: none;
         }
 
         .edit-mode input[type="text"],
@@ -179,6 +179,7 @@
 
     <script>
         var categories = [];
+        var currentCategoryIndex = null; // Variabile per tracciare la categoria corrente
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
@@ -227,8 +228,9 @@
 
             newPromptBtn.addEventListener('click', function (event) {
                 event.stopPropagation();
-                // Visualizza il form per aggiungere un nuovo prompt sotto il campo di input
+                // Visualizza il form per aggiungere un nuovo prompt e memorizza l'indice della categoria corrente
                 document.getElementById('newPromptForm').style.display = 'flex';
+                currentCategoryIndex = index; // Imposta l'indice della categoria corrente
             });
 
             addPromptBtn.addEventListener('click', function () {
@@ -277,7 +279,6 @@
                 var editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
                 var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
 
-                // Toggle per mostrare/nascondere il testo del prompt
                 promptTitleElement.addEventListener('click', function () {
                     promptTextElement.style.display = promptTextElement.style.display === 'none' ? 'block' : 'none';
                 });
@@ -352,8 +353,8 @@
         document.getElementById('addPromptBtn').addEventListener('click', function () {
             var promptTitle = document.getElementById('newPromptTitle').value.trim();
             var promptText = document.getElementById('newPromptText').value.trim();
-            if (promptTitle && promptText) {
-                categories[0].prompts.push({ title: promptTitle, text: promptText }); // Aggiunge al primo elemento
+            if (promptTitle && promptText && currentCategoryIndex !== null) {
+                categories[currentCategoryIndex].prompts.push({ title: promptTitle, text: promptText });
                 document.getElementById('newPromptTitle').value = '';
                 document.getElementById('newPromptText').value = '';
                 renderCategories();
