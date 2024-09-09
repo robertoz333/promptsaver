@@ -41,9 +41,10 @@
 
         #newPromptForm {
             display: flex;
+            flex-direction: column; /* Layout verticale */
             align-items: flex-start;
             margin-top: 10px;
-            gap: 10px;
+            gap: 10px; /* Spazio tra i campi */
         }
 
         .new-prompt-inputs input[type="text"],
@@ -62,7 +63,7 @@
         }
 
         .prompt-btn {
-            align-self: center;
+            align-self: flex-start; /* Pulsante allineato a sinistra */
         }
 
         #categories {
