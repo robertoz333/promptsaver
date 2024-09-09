@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver (Modifica Robusta)</title>
+    <title>Prompt Saver (Stile Testo Migliorato)</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -14,15 +14,18 @@
         .btn-new { background-color: #4CAF50; }
         .btn-edit { background-color: #2196F3; }
         .btn-delete { background-color: #F44336; }
-        input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px; }
+        input[type="text"], textarea { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px; }
+        textarea { height: 100px; resize: vertical; }
         .prompt-input, .prompts-container { display: none; margin-top: 10px; }
-        .prompt { margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .edit-mode input[type="text"] { width: calc(100% - 150px); }
+        .prompt { margin-bottom: 15px; background-color: #333; padding: 10px; border-radius: 5px; }
+        .prompt-title { font-weight: bold; margin-bottom: 5px; font-size: 18px; }
+        .prompt-text { margin-bottom: 10px; white-space: pre-wrap; font-size: 14px; font-weight: normal; color: #ccc; }
+        .edit-mode input[type="text"], .edit-mode textarea { width: calc(100% - 22px); }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Prompt Saver (Modifica Robusta)</h1>
+        <h1>Prompt Saver (Stile Testo Migliorato)</h1>
         <div>
             <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
             <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
@@ -45,7 +48,8 @@
                 </div>
             </div>
             <div class="prompt-input" style="display: none;">
-                <input type="text" class="new-prompt-input" placeholder="Inserisci nuovo prompt">
+                <input type="text" class="new-prompt-title" placeholder="Titolo del prompt">
+                <textarea class="new-prompt-text" placeholder="Testo del prompt"></textarea>
                 <button class="btn btn-new add-prompt-btn">Aggiungi</button>
             </div>
             <div class="prompts-container" style="display: none;"></div>
@@ -56,7 +60,8 @@
         const promptInput = categoryDiv.querySelector('.prompt-input');
         const addPromptBtn = categoryDiv.querySelector('.add-prompt-btn');
         const deleteCategoryBtn = categoryDiv.querySelector('.delete-category-btn');
-        const newPromptInput = categoryDiv.querySelector('.new-prompt-input');
+        const newPromptTitle = categoryDiv.querySelector('.new-prompt-title');
+        const newPromptText = categoryDiv.querySelector('.new-prompt-text');
         const promptsContainer = categoryDiv.querySelector('.prompts-container');
 
         categoryHeader.addEventListener('click', (event) => {
@@ -71,10 +76,12 @@
         });
 
         addPromptBtn.addEventListener('click', () => {
-            const promptText = newPromptInput.value.trim();
-            if (promptText) {
-                category.prompts.push(promptText);
-                newPromptInput.value = '';
+            const promptTitle = newPromptTitle.value.trim();
+            const promptText = newPromptText.value.trim();
+            if (promptTitle && promptText) {
+                category.prompts.push({ title: promptTitle, text: promptText });
+                newPromptTitle.value = '';
+                newPromptText.value = '';
                 renderPrompts(categoryDiv, category);
                 promptInput.style.display = 'none';
                 promptsContainer.style.display = 'block';
@@ -100,7 +107,8 @@
             const promptElement = document.createElement('div');
             promptElement.className = 'prompt';
             promptElement.innerHTML = `
-                <span>${prompt}</span>
+                <div class="prompt-title">${prompt.title}</div>
+                <div class="prompt-text">${prompt.text}</div>
                 <div>
                     <button class="btn btn-edit edit-prompt-btn">Modifica</button>
                     <button class="btn btn-delete delete-prompt-btn">Elimina</button>
@@ -112,7 +120,8 @@
             editPromptBtn.addEventListener('click', (event) => {
                 event.stopPropagation();
                 promptElement.innerHTML = `
-                    <input type="text" value="${prompt}" class="edit-prompt-input">
+                    <input type="text" value="${prompt.title}" class="edit-prompt-title">
+                    <textarea class="edit-prompt-text">${prompt.text}</textarea>
                     <div>
                         <button class="btn btn-new save-edit-btn">Salva</button>
                         <button class="btn btn-delete cancel-edit-btn">Annulla</button>
@@ -122,12 +131,14 @@
 
                 const saveEditBtn = promptElement.querySelector('.save-edit-btn');
                 const cancelEditBtn = promptElement.querySelector('.cancel-edit-btn');
-                const editPromptInput = promptElement.querySelector('.edit-prompt-input');
+                const editPromptTitle = promptElement.querySelector('.edit-prompt-title');
+                const editPromptText = promptElement.querySelector('.edit-prompt-text');
 
                 saveEditBtn.addEventListener('click', () => {
-                    const newPrompt = editPromptInput.value.trim();
-                    if (newPrompt !== '') {
-                        category.prompts[promptIndex] = newPrompt;
+                    const newTitle = editPromptTitle.value.trim();
+                    const newText = editPromptText.value.trim();
+                    if (newTitle && newText) {
+                        category.prompts[promptIndex] = { title: newTitle, text: newText };
                         renderPrompts(categoryDiv, category);
                     }
                 });
