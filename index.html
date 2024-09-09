@@ -121,6 +121,19 @@
     <script>
         var categories = [];
 
+        // Funzione per salvare le categorie nel localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('categories', JSON.stringify(categories));
+        }
+
+        // Funzione per caricare le categorie dal localStorage
+        function loadFromLocalStorage() {
+            var savedCategories = localStorage.getItem('categories');
+            if (savedCategories) {
+                categories = JSON.parse(savedCategories);
+            }
+        }
+
         function createCategoryElement(category, index) {
             var categoryDiv = document.createElement('div');
             categoryDiv.className = 'category';
@@ -170,6 +183,7 @@
                     renderPrompts(categoryDiv, category);
                     promptInput.style.display = 'none';
                     promptsContainer.style.display = 'block';
+                    saveToLocalStorage();  // Salva ogni volta che aggiungi un prompt
                 }
             });
 
@@ -178,6 +192,7 @@
                 if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
                     categories.splice(index, 1);
                     renderCategories();
+                    saveToLocalStorage();  // Salva dopo l'eliminazione
                 }
             });
 
@@ -225,6 +240,7 @@
                         if (newTitle && newText) {
                             category.prompts[promptIndex] = { title: newTitle, text: newText };
                             renderPrompts(categoryDiv, category);
+                            saveToLocalStorage();  // Salva dopo la modifica
                         }
                     });
 
@@ -238,6 +254,7 @@
                     if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
                         category.prompts.splice(promptIndex, 1);
                         renderPrompts(categoryDiv, category);
+                        saveToLocalStorage();  // Salva dopo l'eliminazione
                     }
                 });
                 promptsContainer.appendChild(promptElement);
@@ -252,6 +269,10 @@
             });
         }
 
+        // Carica le categorie salvate al caricamento della pagina
+        loadFromLocalStorage();
+        renderCategories();
+
         document.getElementById('addCategoryBtn').addEventListener('click', function () {
             var input = document.getElementById('newCategoryInput');
             var name = input.value.trim();
@@ -259,10 +280,9 @@
                 categories.push({ name: name, prompts: [] });
                 input.value = '';
                 renderCategories();
+                saveToLocalStorage();  // Salva dopo aver aggiunto una nuova categoria
             }
         });
-
-        renderCategories();
     </script>
 </body>
 
