@@ -165,10 +165,6 @@
             line-height: 1.4; /* Aumenta leggermente l'interlinea per il testo del prompt */
         }
 
-        .expanded .prompt-text {
-            display: block;
-        }
-
         .edit-mode input[type="text"],
         .edit-mode textarea {
             width: calc(100% - 22px);
@@ -320,17 +316,21 @@
                 var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
 
                 promptTitleElement.addEventListener('click', function () {
-                    promptElement.classList.toggle('expanded');
+                    promptTextElement.style.display = promptTextElement.style.display === 'none' ? 'block' : 'none';
                 });
 
                 editPromptBtn.addEventListener('click', function (event) {
                     event.stopPropagation();
                     // Mostra il modulo di modifica e nasconde quello di aggiunta
                     document.getElementById('newPromptForm').style.display = 'none';
-                    document.getElementById('editPromptForm').style.display = 'flex';
+                    var editPromptForm = document.getElementById('editPromptForm');
+                    editPromptForm.style.display = 'flex';
                     // Imposta i valori correnti del prompt nel modulo di modifica
-                    document.getElementById('editPromptTitle').value = prompt.title;
-                    document.getElementById('editPromptText').value = prompt.text;
+                    var editPromptTitle = document.getElementById('editPromptTitle');
+                    var editPromptText = document.getElementById('editPromptText');
+                    editPromptTitle.value = prompt.title;
+                    editPromptText.value = prompt.text;
+                    editPromptText.style.height = editPromptText.scrollHeight + 'px'; // Allunga il textarea per visualizzare tutto il testo
                     currentCategoryIndex = categories.indexOf(category); // Imposta l'indice della categoria corrente
                     currentPromptIndex = promptIndex; // Imposta l'indice del prompt corrente
                 });
