@@ -90,7 +90,7 @@
         }
 
         .category-buttons {
-            display: flex;
+            display: none;
             flex-direction: column;
             gap: 10px;
         }
@@ -265,10 +265,19 @@
                 });
             }
 
+            function hideAllCategoryButtons() {
+                var categoryButtons = document.querySelectorAll('.category-buttons');
+                categoryButtons.forEach(function (buttons) {
+                    buttons.style.display = 'none';
+                });
+            }
+
             categoryHeader.addEventListener('click', function (event) {
                 if (!event.target.closest('button')) {
                     closeAllPrompts();
+                    hideAllCategoryButtons(); // Nasconde i bottoni di tutte le categorie
                     promptsContainer.style.display = promptsContainer.style.display === 'none' ? 'block' : 'none';
+                    categoryDiv.querySelector('.category-buttons').style.display = 'flex';
                 }
             });
 
@@ -423,8 +432,16 @@
                 promptsContainers.forEach(function (container) {
                     container.style.display = 'none';
                 });
+                hideAllCategoryButtons();
             }
         });
+
+        function hideAllCategoryButtons() {
+            var categoryButtons = document.querySelectorAll('.category-buttons');
+            categoryButtons.forEach(function (buttons) {
+                buttons.style.display = 'none';
+            });
+        }
     </script>
 </body>
 
