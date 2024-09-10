@@ -72,15 +72,15 @@
 
         #categories {
             width: 300px;
-            max-height: 300px; /* Altezza massima del box delle categorie */
-            overflow-y: auto; /* Barra di scorrimento se il contenuto supera l'altezza massima */
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .category {
             background-color: #222;
             border-radius: 10px;
-            padding: 10px 15px; /* Riduce l'altezza del padding */
-            margin-bottom: 10px; /* Riduce lo spazio tra le categorie */
+            padding: 10px 15px;
+            margin-bottom: 10px;
         }
 
         .category-header {
@@ -88,7 +88,7 @@
         }
 
         .category-header h3 {
-            margin: 0; /* Rimuove il margine inferiore */
+            margin: 0;
         }
 
         .category-buttons {
@@ -280,10 +280,13 @@
 
             categoryHeader.addEventListener('click', function (event) {
                 if (!event.target.closest('button')) {
+                    var isOpen = promptsContainer.style.display === 'block';
                     closeAllCategoriesAndButtons();
                     closeAllPrompts();
-                    promptsContainer.style.display = promptsContainer.style.display === 'none' ? 'block' : 'none';
-                    categoryDiv.querySelector('.category-buttons').style.display = 'flex';
+                    if (!isOpen) {
+                        promptsContainer.style.display = 'block';
+                        categoryDiv.querySelector('.category-buttons').style.display = 'flex';
+                    }
                 }
             });
 
