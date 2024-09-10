@@ -279,6 +279,10 @@
                 promptBox.className = 'prompt-box';
                 promptBox.textContent = prompt.title;
 
+                var promptText = document.createElement('div');
+                promptText.className = 'prompt-text';
+                promptText.textContent = prompt.text;
+
                 var actionsDiv = document.createElement('div');
                 actionsDiv.className = 'prompt-actions';
                 actionsDiv.innerHTML = `
@@ -287,9 +291,10 @@
                     <button class="btn btn-delete">Elimina</button>
                 `;
                 
-                // Add click event to show action buttons
+                // Add click event to show action buttons and toggle prompt text
                 promptBox.addEventListener('click', function () {
                     actionsDiv.style.display = actionsDiv.style.display === 'block' ? 'none' : 'block';
+                    promptText.style.display = promptText.style.display === 'block' ? 'none' : 'block';
                 });
 
                 // Handle button actions
@@ -314,6 +319,7 @@
                     }
                 });
 
+                promptBox.appendChild(promptText);
                 promptBox.appendChild(actionsDiv);
                 promptsDisplayContainer.appendChild(promptBox);
             });
