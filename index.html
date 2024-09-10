@@ -325,38 +325,37 @@
 
         function searchPrompts() {
             var searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            var promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = '';
+            var matchingCategoryIndex = -1;
+            var matchingPromptIndex = -1;
 
-            categories.forEach(function(category, categoryIndex) {
-                var matchingPrompts = category.prompts.filter(function(prompt) {
-                    return prompt.title.toLowerCase().includes(searchTerm) || prompt.text.toLowerCase().includes(searchTerm);
-                });
-
-                if (category.name.toLowerCase().includes(searchTerm) || matchingPrompts.length > 0) {
-                    var categoryTitle = document.createElement('h2');
-                    categoryTitle.textContent = category.name;
-                    promptsDisplayContainer.appendChild(categoryTitle);
-
-                    matchingPrompts.forEach(function(prompt, promptIndex) {
-                        var promptBox = document.createElement('div');
-                        promptBox.className = 'prompt-box';
-                        promptBox.innerHTML = `
-                            <div class="prompt-title">${prompt.title}</div>
-                            <div class="prompt-text">${prompt.text}</div>
-                            <div class="prompt-actions">
-                                <button class="btn btn-copy">Copia</button>
-                                <button class="btn btn-edit">Modifica</button>
-                                <button class="btn btn-delete">Elimina</button>
-                            </div>
-                        `;
-                        
-                        // ... (aggiungere gli event listener come nella funzione displayPromptsVertically)
-
-                        promptsDisplayContainer.appendChild(promptBox);
-                    });
+            categories.some(function(category, categoryIndex) {
+                if (category.name.toLowerCase().includes(searchTerm)) {
+                    matchingCategoryIndex = categoryIndex;
+                    return true;
                 }
+
+                category.prompts.some(function(prompt, promptIndex) {
+                    if (prompt.title.toLowerCase().includes(searchTerm) || prompt.text.toLowerCase().includes(searchTerm)) {
+                        matchingCategoryIndex = categoryIndex;
+                        matchingPromptIndex = promptIndex;
+                        return true;
+                    }
+                });
             });
+
+            if (matchingCategoryIndex !== -1) {
+                var category = categories[matchingCategoryIndex];
+                displayPromptsVertically(category, matchingCategoryIndex);
+                if (matchingPromptIndex !== -1) {
+                    var promptBox = document.querySelector('.prompt-box');
+                    promptBox.querySelector('.prompt-title').click();
+                    promptBox.querySelector('.prompt-text').style.display = 'block';
+                    promptBox.querySelector('.prompt-actions').style.display = 'block';
+                }
+            } else {
+                var promptsDisplayContainer = document.getElementById('prompts-display-container');
+                promptsDisplayContainer.innerHTML = '<h2>Nessun risultato trovato</h2>';
+            }
         }
 
         loadFromLocalStorage();
