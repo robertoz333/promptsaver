@@ -93,6 +93,7 @@
 
         .prompt-btn {
             align-self: flex-start;
+            margin-top: 10px;
         }
 
         #categories {
@@ -194,18 +195,55 @@
             var promptsDisplayContainer = document.getElementById('prompts-display-container');
             promptsDisplayContainer.innerHTML = `<h2>${category.name}</h2>`;
 
-            category.prompts.forEach(prompt => {
-                var promptDiv = document.createElement('div');
+            const newPromptBtn = document.createElement('button');
+            newPromptBtn.className = 'btn btn-new';
+            newPromptBtn.textContent = 'Nuovo Prompt';
+            newPromptBtn.onclick = () => {
+                showNewPromptForm(categoryIndex);
+            };
+            promptsDisplayContainer.appendChild(newPromptBtn);
+
+            const deleteCategoryBtn = document.createElement('button');
+            deleteCategoryBtn.className = 'btn btn-delete';
+            deleteCategoryBtn.textContent = 'Elimina Categoria';
+            deleteCategoryBtn.onclick = () => {
+                if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
+                    categories.splice(categoryIndex, 1);
+                    renderCategories();
+                    saveToLocalStorage();
+                }
+            };
+            promptsDisplayContainer.appendChild(deleteCategoryBtn);
+
+            category.prompts.forEach((prompt, promptIndex) => {
+                const promptDiv = document.createElement('div');
                 promptDiv.className = 'prompt-box';
                 promptDiv.innerHTML = `
                     <div>${prompt.title}</div>
                     <div style="display: none;">${prompt.text}</div>
+                    <div>
+                        <button class="btn btn-save">Salva</button>
+                        <button class="btn btn-edit">Modifica</button>
+                        <button class="btn btn-copy">Copia</button>
+                        <button class="btn btn-delete">Elimina</button>
+                    </div>
                 `;
                 promptDiv.onclick = () => {
                     promptDiv.children[1].style.display = promptDiv.children[1].style.display === 'none' ? '' : 'none';
+                    promptDiv.children[2].style.display = promptDiv.children[2].style.display === 'none' ? '' : 'none';
                 };
                 promptsDisplayContainer.appendChild(promptDiv);
             });
+        }
+
+        function showNewPromptForm(categoryIndex) {
+            const title = prompt("Enter prompt title:");
+            const text = prompt("Enter prompt text:");
+            if (title && text) {
+                categories[categoryIndex].prompts.push({ title, text });
+                saveToLocalStorage();
+                displayPromptsVertically(categories[categoryIndex], categoryIndex);
+            }
         }
 
         document.getElementById('addCategoryBtn').addEventListener('click', () => {
