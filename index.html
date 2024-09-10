@@ -53,7 +53,7 @@
         .top-section {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             margin-bottom: 20px;
         }
 
@@ -96,31 +96,18 @@
         }
 
         #categories {
-            width: 300px;
-            max-height: 300px;
-            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .category {
+            padding: 5px 10px;
             background-color: #222;
-            border-radius: 10px;
-            padding: 10px 15px;
-            margin-bottom: 10px;
-        }
-
-        .category-header {
+            color: #fff;
+            border-radius: 5px;
             cursor: pointer;
-        }
-
-        .category-header h3 {
-            margin: 0;
-        }
-
-        .category-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
         }
 
         .btn {
@@ -169,27 +156,8 @@
             <div class="new-category-section">
                 <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
                 <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
-
-                <div id="newPromptForm" class="new-prompt-inputs">
-                    <input type="text" id="newPromptTitle" placeholder="Titolo del prompt">
-                    <textarea id="newPromptText" placeholder="Testo del prompt"></textarea>
-                    <div class="prompt-btns">
-                        <button id="saveNewPromptBtn" class="btn btn-new prompt-btn">Salva</button>
-                        <button id="cancelNewPromptBtn" class="btn btn-delete prompt-btn">Annulla</button>
-                    </div>
-                </div>
-
-                <div id="editPromptForm" class="new-prompt-inputs">
-                    <input type="text" id="editPromptTitle" placeholder="Modifica titolo del prompt">
-                    <textarea id="editPromptText" placeholder="Modifica testo del prompt"></textarea>
-                    <div class="prompt-btns">
-                        <button id="saveEditPromptBtn" class="btn btn-new prompt-btn">Salva</button>
-                        <button id="cancelEditPromptBtn" class="btn btn-delete prompt-btn">Annulla</button>
-                    </div>
-                </div>
+                <div id="categories"></div>
             </div>
-
-            <div id="categories"></div>
         </div>
 
         <div id="prompts-display-container"></div>
@@ -197,8 +165,6 @@
 
     <script>
         var categories = [];
-        var currentCategoryIndex = -1;
-        var currentPromptIndex = -1;
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
@@ -208,214 +174,51 @@
             var savedCategories = localStorage.getItem('categories');
             if (savedCategories) {
                 categories = JSON.parse(savedCategories);
+                renderCategories();
             }
-        }
-
-        function displayPromptsVertically(category, categoryIndex) {
-            var promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = '';
-
-            var categoryTitle = document.createElement('h2');
-            categoryTitle.textContent = category.name;
-            promptsDisplayContainer.appendChild(categoryTitle);
-
-            var actionButtons = document.createElement('div');
-            actionButtons.style.display = 'flex';
-            actionButtons.style.gap = '10px';
-
-            var newPromptBtn = document.createElement('button');
-            newPromptBtn.className = 'btn btn-new';
-            newPromptBtn.textContent = 'Nuovo Prompt';
-            newPromptBtn.addEventListener('click', function() {
-                showNewPromptForm(categoryIndex);
-            });
-            actionButtons.appendChild(newPromptBtn);
-
-            var deleteCategoryBtn = document.createElement('button');
-            deleteCategoryBtn.className = 'btn btn-delete';
-            deleteCategoryBtn.textContent = 'Elimina Categoria';
-            deleteCategoryBtn.addEventListener('click', function() {
-                if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
-                    categories.splice(categoryIndex, 1);
-                    renderCategories();
-                    saveToLocalStorage();
-                }
-            });
-            actionButtons.appendChild(deleteCategoryBtn);
-
-            promptsDisplayContainer.appendChild(actionButtons);
-
-            category.prompts.forEach(function(prompt, promptIndex) {
-                var promptBox = document.createElement('div');
-                promptBox.className = 'prompt-box';
-                promptBox.innerHTML = `
-                    <div class="prompt-title">${prompt.title}</div>
-                    <div class="prompt-text">${prompt.text}</div>
-                    <div class="prompt-actions">
-                        <button class="btn btn-copy">Copia</button>
-                        <button class="btn btn-edit">Modifica</button>
-                        <button class="btn btn-delete">Elimina</button>
-                    </div>
-                `;
-                
-                promptBox.querySelector('.prompt-title').addEventListener('click', function() {
-                    var promptText = promptBox.querySelector('.prompt-text');
-                    var promptActions = promptBox.querySelector('.prompt-actions');
-                    promptText.style.display = promptText.style.display === 'none' ? 'block' : 'none';
-                    promptActions.style.display = promptActions.style.display === 'none' ? 'block' : 'none';
-                });
-
-                promptBox.querySelector('.btn-copy').addEventListener('click', function(event) {
-                    event.stopPropagation();
-                    navigator.clipboard.writeText(prompt.text);
-                    alert('Testo copiato');
-                });
-
-                promptBox.querySelector('.btn-edit').addEventListener('click', function(event) {
-                    event.stopPropagation();
-                    showEditPromptForm(categoryIndex, promptIndex);
-                });
-
-                promptBox.querySelector('.btn-delete').addEventListener('click', function(event) {
-                    event.stopPropagation();
-                    if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
-                        category.prompts.splice(promptIndex, 1);
-                        displayPromptsVertically(category, categoryIndex);
-                        saveToLocalStorage();
-                    }
-                });
-
-                promptsDisplayContainer.appendChild(promptBox);
-            });
-        }
-
-        function createCategoryElement(category, index) {
-            var categoryDiv = document.createElement('div');
-            categoryDiv.className = 'category';
-            categoryDiv.innerHTML = `
-                <div class="category-header">
-                    <h3>${category.name}</h3>
-                </div>
-            `;
-
-            categoryDiv.querySelector('.category-header').addEventListener('click', function() {
-                displayPromptsVertically(category, index);
-            });
-
-            return categoryDiv;
         }
 
         function renderCategories() {
             var container = document.getElementById('categories');
             container.innerHTML = '';
-            categories.forEach(function(category, index) {
-                container.appendChild(createCategoryElement(category, index));
+            categories.forEach((category, index) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.textContent = category.name;
+                categoryDiv.onclick = () => displayPromptsVertically(category, index);
+                container.appendChild(categoryDiv);
             });
         }
 
-        function showNewPromptForm(categoryIndex) {
-            currentCategoryIndex = categoryIndex;
-            document.getElementById('newPromptForm').style.display = 'flex';
-            document.getElementById('editPromptForm').style.display = 'none';
-        }
+        function displayPromptsVertically(category, categoryIndex) {
+            var promptsDisplayContainer = document.getElementById('prompts-display-container');
+            promptsDisplayContainer.innerHTML = `<h2>${category.name}</h2>`;
 
-        function showEditPromptForm(categoryIndex, promptIndex) {
-            currentCategoryIndex = categoryIndex;
-            currentPromptIndex = promptIndex;
-            var prompt = categories[categoryIndex].prompts[promptIndex];
-            document.getElementById('editPromptTitle').value = prompt.title;
-            document.getElementById('editPromptText').value = prompt.text;
-            document.getElementById('editPromptForm').style.display = 'flex';
-            document.getElementById('newPromptForm').style.display = 'none';
-        }
-
-        function searchPrompts() {
-            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            var matchingCategoryIndex = -1;
-            var matchingPromptIndex = -1;
-
-            categories.some(function(category, categoryIndex) {
-                if (category.name.toLowerCase().includes(searchTerm)) {
-                    matchingCategoryIndex = categoryIndex;
-                    return true;
-                }
-
-                category.prompts.some(function(prompt, promptIndex) {
-                    if (prompt.title.toLowerCase().includes(searchTerm) || prompt.text.toLowerCase().includes(searchTerm)) {
-                        matchingCategoryIndex = categoryIndex;
-                        matchingPromptIndex = promptIndex;
-                        return true;
-                    }
-                });
+            category.prompts.forEach(prompt => {
+                var promptDiv = document.createElement('div');
+                promptDiv.className = 'prompt-box';
+                promptDiv.innerHTML = `
+                    <div>${prompt.title}</div>
+                    <div style="display: none;">${prompt.text}</div>
+                `;
+                promptDiv.onclick = () => {
+                    promptDiv.children[1].style.display = promptDiv.children[1].style.display === 'none' ? '' : 'none';
+                };
+                promptsDisplayContainer.appendChild(promptDiv);
             });
-
-            if (matchingCategoryIndex !== -1) {
-                var category = categories[matchingCategoryIndex];
-                displayPromptsVertically(category, matchingCategoryIndex);
-                if (matchingPromptIndex !== -1) {
-                    var promptBox = document.querySelector('.prompt-box');
-                    promptBox.querySelector('.prompt-title').click();
-                    promptBox.querySelector('.prompt-text').style.display = 'block';
-                    promptBox.querySelector('.prompt-actions').style.display = 'block';
-                }
-            } else {
-                var promptsDisplayContainer = document.getElementById('prompts-display-container');
-                promptsDisplayContainer.innerHTML = '<h2>Nessun risultato trovato</h2>';
-            }
         }
 
-        loadFromLocalStorage();
-        renderCategories();
-
-        document.getElementById('addCategoryBtn').addEventListener('click', function() {
-            var input = document.getElementById('newCategoryInput');
-            var name = input.value.trim();
-            if (name) {
-                categories.push({ name: name, prompts: [] });
-                input.value = '';
+        document.getElementById('addCategoryBtn').addEventListener('click', () => {
+            var categoryName = document.getElementById('newCategoryInput').value.trim();
+            if (categoryName) {
+                categories.push({ name: categoryName, prompts: [] });
+                document.getElementById('newCategoryInput').value = '';
                 renderCategories();
                 saveToLocalStorage();
             }
         });
 
-        document.getElementById('saveNewPromptBtn').addEventListener('click', function() {
-            var promptTitle = document.getElementById('newPromptTitle').value.trim();
-            var promptText = document.getElementById('newPromptText').value.trim();
-            if (promptTitle && promptText && currentCategoryIndex !== -1) {
-                categories[currentCategoryIndex].prompts.push({ title: promptTitle, text: promptText });
-                document.getElementById('newPromptTitle').value = '';
-                document.getElementById('newPromptText').value = '';
-                displayPromptsVertically(categories[currentCategoryIndex], currentCategoryIndex);
-                saveToLocalStorage();
-                document.getElementById('newPromptForm').style.display = 'none';
-            }
-        });
-
-        document.getElementById('cancelNewPromptBtn').addEventListener('click', function() {
-            document.getElementById('newPromptForm').style.display = 'none';
-        });
-
-        document.getElementById('saveEditPromptBtn').addEventListener('click', function() {
-            var newTitle = document.getElementById('editPromptTitle').value.trim();
-            var newText = document.getElementById('editPromptText').value.trim();
-            if (newTitle && newText && currentCategoryIndex !== -1 && currentPromptIndex !== -1) {
-                categories[currentCategoryIndex].prompts[currentPromptIndex] = { title: newTitle, text: newText };
-                displayPromptsVertically(categories[currentCategoryIndex], currentCategoryIndex);
-                saveToLocalStorage();
-                document.getElementById('editPromptForm').style.display = 'none';
-            }
-        });
-
-        document.getElementById('cancelEditPromptBtn').addEventListener('click', function() {
-            document.getElementById('editPromptForm').style.display = 'none';
-        });
-
-        document.getElementById('searchBtn').addEventListener('click', searchPrompts);
-        document.getElementById('searchInput').addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                searchPrompts();
-            }
-        });
+        loadFromLocalStorage();
     </script>
 </body>
 
