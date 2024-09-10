@@ -279,14 +279,6 @@
                 });
             }
 
-            function calculateContainerHeight(container) {
-                var totalHeight = 0;
-                container.querySelectorAll('.prompt').forEach(function (prompt) {
-                    totalHeight += prompt.offsetHeight + parseFloat(getComputedStyle(prompt).marginBottom);
-                });
-                return totalHeight;
-            }
-
             categoryHeader.addEventListener('click', function (event) {
                 if (!event.target.closest('button')) {
                     var isOpen = promptsContainer.style.display === 'block';
@@ -294,7 +286,7 @@
                     closeAllPrompts();
                     if (!isOpen) {
                         promptsContainer.style.display = 'block';
-                        promptsContainer.style.maxHeight = calculateContainerHeight(promptsContainer) + 'px';
+                        promptsContainer.style.maxHeight = 'none';
                         categoryDiv.querySelector('.category-buttons').style.display = 'flex';
                     }
                 }
@@ -317,7 +309,7 @@
                     renderPrompts(categoryDiv, category);
                     promptInput.style.display = 'none';
                     promptsContainer.style.display = 'block';
-                    promptsContainer.style.maxHeight = calculateContainerHeight(promptsContainer) + 'px';
+                    promptsContainer.style.maxHeight = 'none';
                     saveToLocalStorage();
                 }
             });
@@ -353,8 +345,6 @@
                 var promptTextElement = promptElement.querySelector('.prompt-text');
                 var editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
                 var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
-
-                promptTextElement.style.display = 'none'; // Ensure only titles are shown initially
 
                 promptTitleElement.addEventListener('click', function () {
                     promptTextElement.style.display = promptTextElement.style.display === 'none' ? 'block' : 'none';
