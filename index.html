@@ -85,23 +85,24 @@
                 });
 
                 // Handle button actions
-                actionsDiv.querySelector('.btn-copy').addEventListener('click', function (e) {
-                    e.stopPropagation();
+                actionsDiv.querySelector('.btn-copy').addEventListener('click', function (event) {
+                    event.stopPropagation();
                     navigator.clipboard.writeText(prompt.text);
                     alert('Testo copiato');
                 });
 
-                actionsDiv.querySelector('.btn-edit').addEventListener('click', function (e) {
-                    e.stopPropagation();
+                actionsDiv.querySelector('.btn-edit').addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    currentCategoryIndex = categories.indexOf(category);
+                    currentPromptIndex = promptIndex;
                     document.getElementById('editPromptTitle').value = prompt.title;
                     document.getElementById('editPromptText').value = prompt.text;
                     document.getElementById('editPromptForm').style.display = 'flex';
-                    currentCategoryIndex = categories.indexOf(category);
-                    currentPromptIndex = promptIndex;
+                    document.getElementById('newPromptForm').style.display = 'none';
                 });
 
-                actionsDiv.querySelector('.btn-delete').addEventListener('click', function (e) {
-                    e.stopPropagation();
+                actionsDiv.querySelector('.btn-delete').addEventListener('click', function (event) {
+                    event.stopPropagation();
                     if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
                         category.prompts.splice(promptIndex, 1);
                         displayPromptsVertically(category);
@@ -116,6 +117,7 @@
         }
 
         // ... (resto del codice JavaScript invariato) ...
+
     </script>
 </body>
 
