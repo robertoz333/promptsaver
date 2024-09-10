@@ -184,6 +184,24 @@
             margin-top: 10px;
             display: none;
         }
+
+        /* New horizontal prompts display */
+        #prompts-display-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .prompt-box {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            width: 200px;
+            cursor: pointer;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -214,6 +232,9 @@
 
             <div id="categories"></div>
         </div>
+
+        <!-- New prompts display container -->
+        <div id="prompts-display-container"></div>
     </div>
 
     <script>
@@ -241,6 +262,24 @@
             });
             allCategoryButtons.forEach(function (buttons) {
                 buttons.style.display = 'none';
+            });
+        }
+
+        function displayPromptsHorizontally(category) {
+            var promptsDisplayContainer = document.getElementById('prompts-display-container');
+            promptsDisplayContainer.innerHTML = '';
+
+            category.prompts.forEach(function (prompt) {
+                var promptBox = document.createElement('div');
+                promptBox.className = 'prompt-box';
+                promptBox.textContent = prompt.title;
+
+                // Optional: Add click event to show the full prompt text
+                promptBox.addEventListener('click', function () {
+                    alert(`Titolo: ${prompt.title}\n\nTesto: ${prompt.text}`);
+                });
+
+                promptsDisplayContainer.appendChild(promptBox);
             });
         }
 
@@ -272,26 +311,8 @@
             var newPromptText = categoryDiv.querySelector('.new-prompt-text');
             var promptsContainer = categoryDiv.querySelector('.prompts-container');
 
-            function closeAllPrompts() {
-                var allPromptTexts = document.querySelectorAll('.prompt-text');
-                allPromptTexts.forEach(function (promptText) {
-                    promptText.style.display = 'none';
-                });
-            }
-
-            categoryHeader.addEventListener('click', function (event) {
-                if (!event.target.closest('button')) {
-                    var isOpen = promptsContainer.style.display === 'block';
-                    closeAllCategoriesAndButtons();
-                    closeAllPrompts();
-                    if (!isOpen) {
-                        promptsContainer.style.display = 'block';
-                        categoryDiv.querySelector('.category-buttons').style.display = 'flex';
-                        renderPrompts(categoryDiv, category); // Invoca il rendering dei prompt
-                    } else {
-                        promptsContainer.style.display = 'none'; // Chiude la categoria se è aperta
-                    }
-                }
+            categoryHeader.addEventListener('click', function () {
+                displayPromptsHorizontally(category);
             });
 
             newPromptBtn.addEventListener('click', function (event) {
@@ -308,9 +329,7 @@
                     category.prompts.push({ title: promptTitle, text: promptText });
                     newPromptTitle.value = '';
                     newPromptText.value = '';
-                    renderPrompts(categoryDiv, category);
-                    promptInput.style.display = 'none';
-                    promptsContainer.style.display = 'block';
+                    displayPromptsHorizontally(category);
                     saveToLocalStorage();
                 }
             });
@@ -324,60 +343,7 @@
                 }
             });
 
-            renderPrompts(categoryDiv, category);
             return categoryDiv;
-        }
-
-        function renderPrompts(categoryDiv, category) {
-            var promptsContainer = categoryDiv.querySelector('.prompts-container');
-            promptsContainer.innerHTML = '';
-            category.prompts.forEach(function (prompt, promptIndex) {
-                var promptElement = document.createElement('div');
-                promptElement.className = 'prompt';
-                promptElement.innerHTML = `
-                <div class="prompt-title">${prompt.title}</div>
-                <div class="prompt-text">${prompt.text}</div>
-                <div>
-                    <button class="btn btn-edit edit-prompt-btn">Modifica</button>
-                    <button class="btn btn-delete delete-prompt-btn">Elimina</button>
-                </div>
-            `;
-                var promptTitleElement = promptElement.querySelector('.prompt-title');
-                var promptTextElement = promptElement.querySelector('.prompt-text');
-                var editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
-                var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
-
-                promptTextElement.style.display = 'none'; // Assicurati che i dettagli siano inizialmente nascosti
-
-                promptTitleElement.addEventListener('click', function () {
-                    promptTextElement.style.display = promptTextElement.style.display === 'none' ? 'block' : 'none';
-                });
-
-                editPromptBtn.addEventListener('click', function (event) {
-                    event.stopPropagation();
-                    document.getElementById('newPromptForm').style.display = 'none';
-                    var editPromptForm = document.getElementById('editPromptForm');
-                    editPromptForm.style.display = 'flex';
-                    var editPromptTitle = document.getElementById('editPromptTitle');
-                    var editPromptText = document.getElementById('editPromptText');
-                    editPromptTitle.value = prompt.title;
-                    editPromptText.value = prompt.text;
-                    editPromptText.style.height = editPromptText.scrollHeight + 'px';
-                    currentCategoryIndex = categories.indexOf(category);
-                    currentPromptIndex = promptIndex;
-                });
-
-                deletePromptBtn.addEventListener('click', function (event) {
-                    event.stopPropagation();
-                    if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
-                        category.prompts.splice(promptIndex, 1);
-                        renderPrompts(categoryDiv, category);
-                        saveToLocalStorage();
-                    }
-                });
-
-                promptsContainer.appendChild(promptElement);
-            });
         }
 
         function renderCategories() {
@@ -410,7 +376,7 @@
                 categories[currentCategoryIndex].prompts.push({ title: promptTitle, text: promptText });
                 document.getElementById('newPromptTitle').value = '';
                 document.getElementById('newPromptText').value = '';
-                renderCategories();
+                displayPromptsHorizontally(categories[currentCategoryIndex]);
                 saveToLocalStorage();
                 document.getElementById('newPromptForm').style.display = 'none';
             }
@@ -421,7 +387,7 @@
             var newText = document.getElementById('editPromptText').value.trim();
             if (newTitle && newText && currentCategoryIndex !== null && currentPromptIndex !== null) {
                 categories[currentCategoryIndex].prompts[currentPromptIndex] = { title: newTitle, text: newText };
-                renderCategories();
+                displayPromptsHorizontally(categories[currentCategoryIndex]);
                 saveToLocalStorage();
                 document.getElementById('editPromptForm').style.display = 'none';
             }
@@ -438,21 +404,6 @@
             }).catch(err => {
                 console.error('Errore nella copia del testo: ', err);
             });
-        });
-
-        document.addEventListener('click', function (event) {
-            var isClickInsideCategory = event.target.closest('.category');
-            if (!isClickInsideCategory) {
-                var promptsContainers = document.querySelectorAll('.prompts-container');
-                promptsContainers.forEach(function (container) {
-                    container.style.display = 'none';
-                    container.style.maxHeight = '';
-                });
-                var categoryButtons = document.querySelectorAll('.category-buttons');
-                categoryButtons.forEach(function (buttons) {
-                    buttons.style.display = 'none';
-                });
-            }
         });
     </script>
 </body>
