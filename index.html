@@ -219,13 +219,31 @@
             categoryTitle.textContent = category.name;
             promptsDisplayContainer.appendChild(categoryTitle);
 
+            var actionButtons = document.createElement('div');
+            actionButtons.style.display = 'flex';
+            actionButtons.style.gap = '10px';
+
             var newPromptBtn = document.createElement('button');
             newPromptBtn.className = 'btn btn-new';
             newPromptBtn.textContent = 'Nuovo Prompt';
             newPromptBtn.addEventListener('click', function() {
                 showNewPromptForm(categoryIndex);
             });
-            promptsDisplayContainer.appendChild(newPromptBtn);
+            actionButtons.appendChild(newPromptBtn);
+
+            var deleteCategoryBtn = document.createElement('button');
+            deleteCategoryBtn.className = 'btn btn-delete';
+            deleteCategoryBtn.textContent = 'Elimina Categoria';
+            deleteCategoryBtn.addEventListener('click', function() {
+                if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
+                    categories.splice(categoryIndex, 1);
+                    renderCategories();
+                    saveToLocalStorage();
+                }
+            });
+            actionButtons.appendChild(deleteCategoryBtn);
+
+            promptsDisplayContainer.appendChild(actionButtons);
 
             category.prompts.forEach(function(prompt, promptIndex) {
                 var promptBox = document.createElement('div');
@@ -278,22 +296,10 @@
                 <div class="category-header">
                     <h3>${category.name}</h3>
                 </div>
-                <div class="category-buttons">
-                    <button class="btn btn-delete delete-category-btn">Elimina categoria</button>
-                </div>
             `;
 
             categoryDiv.querySelector('.category-header').addEventListener('click', function() {
                 displayPromptsVertically(category, index);
-            });
-
-            categoryDiv.querySelector('.delete-category-btn').addEventListener('click', function(event) {
-                event.stopPropagation();
-                if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
-                    categories.splice(index, 1);
-                    renderCategories();
-                    saveToLocalStorage();
-                }
             });
 
             return categoryDiv;
