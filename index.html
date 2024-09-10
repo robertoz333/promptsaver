@@ -184,22 +184,6 @@
             margin-top: 10px;
             display: none;
         }
-
-        #promptDisplay {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .prompt-box {
-            background-color: #333;
-            padding: 10px;
-            border-radius: 5px;
-            color: #fff;
-            max-width: 300px;
-            flex: 1;
-        }
     </style>
 </head>
 
@@ -230,7 +214,6 @@
 
             <div id="categories"></div>
         </div>
-        <div id="promptDisplay"></div> <!-- Container per visualizzare i prompt -->
     </div>
 
     <script>
@@ -296,25 +279,18 @@
                 });
             }
 
-            function renderPromptsInDisplay(category) {
-                var promptDisplay = document.getElementById('promptDisplay');
-                promptDisplay.innerHTML = '';
-                category.prompts.forEach(function (prompt) {
-                    var promptBox = document.createElement('div');
-                    promptBox.className = 'prompt-box';
-                    promptBox.innerHTML = `
-                    <h3 class="prompt-title">${prompt.title}</h3>
-                    <p class="prompt-text">${prompt.text}</p>
-                `;
-                    promptDisplay.appendChild(promptBox);
-                });
-            }
-
             categoryHeader.addEventListener('click', function (event) {
                 if (!event.target.closest('button')) {
+                    var isOpen = promptsContainer.style.display === 'block';
                     closeAllCategoriesAndButtons();
                     closeAllPrompts();
-                    renderPromptsInDisplay(category);
+                    if (!isOpen) {
+                        promptsContainer.style.display = 'block';
+                        categoryDiv.querySelector('.category-buttons').style.display = 'flex';
+                        renderPrompts(categoryDiv, category); // Invoca il rendering dei prompt
+                    } else {
+                        promptsContainer.style.display = 'none'; // Chiude la categoria se è aperta
+                    }
                 }
             });
 
@@ -335,7 +311,6 @@
                     renderPrompts(categoryDiv, category);
                     promptInput.style.display = 'none';
                     promptsContainer.style.display = 'block';
-                    promptsContainer.style.maxHeight = 'none';
                     saveToLocalStorage();
                 }
             });
@@ -372,7 +347,7 @@
                 var editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
                 var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
 
-                promptTextElement.style.display = 'none'; // Ensure only titles are shown initially
+                promptTextElement.style.display = 'none'; // Assicurati che i dettagli siano inizialmente nascosti
 
                 promptTitleElement.addEventListener('click', function () {
                     promptTextElement.style.display = promptTextElement.style.display === 'none' ? 'block' : 'none';
@@ -477,7 +452,6 @@
                 categoryButtons.forEach(function (buttons) {
                     buttons.style.display = 'none';
                 });
-                document.getElementById('promptDisplay').innerHTML = '';
             }
         });
     </script>
