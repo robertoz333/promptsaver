@@ -237,6 +237,7 @@
             var allCategoryButtons = document.querySelectorAll('.category-buttons');
             allPromptsContainers.forEach(function (container) {
                 container.style.display = 'none';
+                container.style.maxHeight = '';
             });
             allCategoryButtons.forEach(function (buttons) {
                 buttons.style.display = 'none';
@@ -285,6 +286,7 @@
                     closeAllPrompts();
                     if (!isOpen) {
                         promptsContainer.style.display = 'block';
+                        promptsContainer.style.maxHeight = 'none';
                         categoryDiv.querySelector('.category-buttons').style.display = 'flex';
                     }
                 }
@@ -307,6 +309,7 @@
                     renderPrompts(categoryDiv, category);
                     promptInput.style.display = 'none';
                     promptsContainer.style.display = 'block';
+                    promptsContainer.style.maxHeight = 'none';
                     saveToLocalStorage();
                 }
             });
@@ -440,6 +443,7 @@
                 var promptsContainers = document.querySelectorAll('.prompts-container');
                 promptsContainers.forEach(function (container) {
                     container.style.display = 'none';
+                    container.style.maxHeight = '';
                 });
                 var categoryButtons = document.querySelectorAll('.category-buttons');
                 categoryButtons.forEach(function (buttons) {
