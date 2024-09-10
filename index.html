@@ -286,7 +286,7 @@
                     closeAllPrompts();
                     if (!isOpen) {
                         promptsContainer.style.display = 'block';
-                        promptsContainer.style.maxHeight = 'none';
+                        promptsContainer.style.maxHeight = 'none'; // ensure container height fits all titles
                         categoryDiv.querySelector('.category-buttons').style.display = 'flex';
                     }
                 }
@@ -309,7 +309,7 @@
                     renderPrompts(categoryDiv, category);
                     promptInput.style.display = 'none';
                     promptsContainer.style.display = 'block';
-                    promptsContainer.style.maxHeight = 'none';
+                    promptsContainer.style.maxHeight = 'none'; // ensure container height fits all titles
                     saveToLocalStorage();
                 }
             });
@@ -345,6 +345,8 @@
                 var promptTextElement = promptElement.querySelector('.prompt-text');
                 var editPromptBtn = promptElement.querySelector('.edit-prompt-btn');
                 var deletePromptBtn = promptElement.querySelector('.delete-prompt-btn');
+
+                promptTextElement.style.display = 'none'; // Ensure only titles are shown initially
 
                 promptTitleElement.addEventListener('click', function () {
                     promptTextElement.style.display = promptTextElement.style.display === 'none' ? 'block' : 'none';
