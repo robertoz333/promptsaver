@@ -185,11 +185,9 @@
             display: none;
         }
 
-        /* New horizontal prompts display */
+        /* New vertical prompts display */
         #prompts-display-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: block;
             margin-top: 20px;
         }
 
@@ -198,9 +196,13 @@
             color: #fff;
             padding: 10px;
             border-radius: 5px;
-            width: 200px;
+            margin-bottom: 10px;
             cursor: pointer;
-            text-align: center;
+        }
+
+        .prompt-actions {
+            display: none;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -265,20 +267,54 @@
             });
         }
 
-        function displayPromptsHorizontally(category) {
+        function displayPromptsVertically(category) {
             var promptsDisplayContainer = document.getElementById('prompts-display-container');
             promptsDisplayContainer.innerHTML = '';
 
-            category.prompts.forEach(function (prompt) {
+            // Sort prompts alphabetically
+            category.prompts.sort((a, b) => a.title.localeCompare(b.title));
+
+            category.prompts.forEach(function (prompt, promptIndex) {
                 var promptBox = document.createElement('div');
                 promptBox.className = 'prompt-box';
                 promptBox.textContent = prompt.title;
 
-                // Optional: Add click event to show the full prompt text
+                var actionsDiv = document.createElement('div');
+                actionsDiv.className = 'prompt-actions';
+                actionsDiv.innerHTML = `
+                    <button class="btn btn-copy">Copia</button>
+                    <button class="btn btn-new">Salva</button>
+                    <button class="btn btn-delete">Elimina</button>
+                `;
+                
+                // Add click event to show action buttons
                 promptBox.addEventListener('click', function () {
-                    alert(`Titolo: ${prompt.title}\n\nTesto: ${prompt.text}`);
+                    actionsDiv.style.display = actionsDiv.style.display === 'block' ? 'none' : 'block';
                 });
 
+                // Handle button actions
+                actionsDiv.querySelector('.btn-copy').addEventListener('click', function () {
+                    navigator.clipboard.writeText(prompt.text);
+                    alert('Testo copiato');
+                });
+
+                actionsDiv.querySelector('.btn-new').addEventListener('click', function () {
+                    var newTitle = promptBox.textContent;
+                    var newText = prompt.text;
+                    categories[currentCategoryIndex].prompts[promptIndex] = { title: newTitle, text: newText };
+                    saveToLocalStorage();
+                    alert('Prompt salvato');
+                });
+
+                actionsDiv.querySelector('.btn-delete').addEventListener('click', function () {
+                    if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                        category.prompts.splice(promptIndex, 1);
+                        displayPromptsVertically(category);
+                        saveToLocalStorage();
+                    }
+                });
+
+                promptBox.appendChild(actionsDiv);
                 promptsDisplayContainer.appendChild(promptBox);
             });
         }
@@ -312,7 +348,7 @@
             var promptsContainer = categoryDiv.querySelector('.prompts-container');
 
             categoryHeader.addEventListener('click', function () {
-                displayPromptsHorizontally(category);
+                displayPromptsVertically(category);
             });
 
             newPromptBtn.addEventListener('click', function (event) {
@@ -329,7 +365,7 @@
                     category.prompts.push({ title: promptTitle, text: promptText });
                     newPromptTitle.value = '';
                     newPromptText.value = '';
-                    displayPromptsHorizontally(category);
+                    displayPromptsVertically(category);
                     saveToLocalStorage();
                 }
             });
@@ -376,7 +412,7 @@
                 categories[currentCategoryIndex].prompts.push({ title: promptTitle, text: promptText });
                 document.getElementById('newPromptTitle').value = '';
                 document.getElementById('newPromptText').value = '';
-                displayPromptsHorizontally(categories[currentCategoryIndex]);
+                displayPromptsVertically(categories[currentCategoryIndex]);
                 saveToLocalStorage();
                 document.getElementById('newPromptForm').style.display = 'none';
             }
@@ -387,7 +423,7 @@
             var newText = document.getElementById('editPromptText').value.trim();
             if (newTitle && newText && currentCategoryIndex !== null && currentPromptIndex !== null) {
                 categories[currentCategoryIndex].prompts[currentPromptIndex] = { title: newTitle, text: newText };
-                displayPromptsHorizontally(categories[currentCategoryIndex]);
+                displayPromptsVertically(categories[currentCategoryIndex]);
                 saveToLocalStorage();
                 document.getElementById('editPromptForm').style.display = 'none';
             }
