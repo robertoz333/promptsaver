@@ -67,6 +67,21 @@
             line-height: 1.4;
         }
 
+        #categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category {
+            padding: 5px 10px;
+            background-color: #222;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
         #prompts-display-container {
             display: block;
             margin-top: 20px;
@@ -90,7 +105,8 @@
             padding: 10px;
         }
 
-        .prompt-text, .prompt-actions {
+        .prompt-text,
+        .prompt-actions {
             display: none;
             margin-top: 10px;
         }
@@ -104,10 +120,21 @@
             margin-right: 5px;
         }
 
-        .btn-new { background-color: #4CAF50; }
-        .btn-edit { background-color: #2196F3; }
-        .btn-delete { background-color: #F44336; }
-        .btn-copy { background-color: #FFC107; }
+        .btn-new {
+            background-color: #4CAF50;
+        }
+
+        .btn-edit {
+            background-color: #2196F3;
+        }
+
+        .btn-delete {
+            background-color: #F44336;
+        }
+
+        .btn-copy {
+            background-color: #FFC107;
+        }
     </style>
 </head>
 
@@ -203,6 +230,46 @@
                     promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
                 };
 
+                // Funzione di modifica
+                promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
+                    e.stopPropagation();
+                    const titleInput = promptDiv.querySelector('.prompt-title');
+                    const textArea = promptDiv.querySelector('.prompt-text');
+                    if (titleInput.readOnly) {
+                        titleInput.readOnly = false;
+                        textArea.readOnly = false;
+                        textArea.style.height = '100px'; // Rende il textarea ridimensionabile
+                        e.target.textContent = 'Salva Modifiche';
+                    } else {
+                        titleInput.readOnly = true;
+                        textArea.readOnly = true;
+                        textArea.style.height = 'auto'; // Ripristina l'altezza del textarea
+                        categories[categoryIndex].prompts[promptIndex] = { title: titleInput.value, text: textArea.value };
+                        saveToLocalStorage();
+                        e.target.textContent = 'Modifica';
+                    }
+                };
+
+                // Funzione di copia
+                promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(promptDiv.querySelector('.prompt-text').value).then(() => {
+                        alert("Testo copiato negli appunti!");
+                    }).catch(err => {
+                        console.error("Errore nella copia del testo: ", err);
+                    });
+                };
+
+                // Funzione di eliminazione
+                promptDiv.querySelector('.btn.btn-delete').onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                        categories[categoryIndex].prompts.splice(promptIndex, 1);
+                        saveToLocalStorage();
+                        displayPromptsVertically(categories[categoryIndex], categoryIndex);
+                    }
+                };
+
                 promptsDisplayContainer.appendChild(promptDiv);
             });
         }
@@ -234,22 +301,87 @@
                 category.prompts.some(prompt => prompt.title.toLowerCase().includes(searchText) || prompt.text.toLowerCase().includes(searchText))
             );
 
-            if (filteredCategories.length > 0) {
-                renderSearchResults(filteredCategories);
-            } else {
-                document.getElementById('prompts-display-container').innerHTML = '<p>Nessun risultato trovato.</p>';
-            }
+            renderSearchResults(filteredCategories);
         }
 
-        function renderSearchResults(categories) {
-            var container = document.getElementById('prompts-display-container');
-            container.innerHTML = '';
-            categories.forEach((category, index) => {
+        function renderSearchResults(filteredCategories) {
+            var promptsDisplayContainer = document.getElementById('prompts-display-container');
+            promptsDisplayContainer.innerHTML = '';
+
+            filteredCategories.forEach((category, categoryIndex) => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
                 categoryDiv.textContent = category.name;
-                categoryDiv.onclick = () => displayPromptsVertically(category, index);
-                container.appendChild(categoryDiv);
+                categoryDiv.onclick = () => displayPromptsVertically(category, categoryIndex);
+                promptsDisplayContainer.appendChild(categoryDiv);
+
+                category.prompts.forEach((prompt, promptIndex) => {
+                    if (category.name.toLowerCase().includes(searchText) || prompt.title.toLowerCase().includes(searchText) || prompt.text.toLowerCase().includes(searchText)) {
+                        const promptDiv = document.createElement('div');
+                        promptDiv.className = 'prompt-box';
+                        promptDiv.innerHTML = `
+                            <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
+                            <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
+                            <div class="prompt-actions">
+                                <button class="btn btn-edit">Modifica</button>
+                                <button class="btn btn-copy">Copia</button>
+                                <button class="btn btn-delete">Elimina</button>
+                            </div>
+                        `;
+
+                        // Gestisci il click sul titolo per chiudere i prompt aperti
+                        promptDiv.querySelector('.prompt-title').onclick = (e) => {
+                            e.stopPropagation();
+                            closeAllPromptsExcept(promptDiv);
+
+                            const textArea = promptDiv.querySelector('.prompt-text');
+                            textArea.style.display = textArea.style.display === 'none' ? 'block' : 'none';
+                            promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
+                        };
+
+                        // Funzione di modifica
+                        promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
+                            e.stopPropagation();
+                            const titleInput = promptDiv.querySelector('.prompt-title');
+                            const textArea = promptDiv.querySelector('.prompt-text');
+                            if (titleInput.readOnly) {
+                                titleInput.readOnly = false;
+                                textArea.readOnly = false;
+                                textArea.style.height = '100px'; // Rende il textarea ridimensionabile
+                                e.target.textContent = 'Salva Modifiche';
+                            } else {
+                                titleInput.readOnly = true;
+                                textArea.readOnly = true;
+                                textArea.style.height = 'auto'; // Ripristina l'altezza del textarea
+                                categories[categoryIndex].prompts[promptIndex] = { title: titleInput.value, text: textArea.value };
+                                saveToLocalStorage();
+                                e.target.textContent = 'Modifica';
+                            }
+                        };
+
+                        // Funzione di copia
+                        promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(promptDiv.querySelector('.prompt-text').value).then(() => {
+                                alert("Testo copiato negli appunti!");
+                            }).catch(err => {
+                                console.error("Errore nella copia del testo: ", err);
+                            });
+                        };
+
+                        // Funzione di eliminazione
+                        promptDiv.querySelector('.btn.btn-delete').onclick = (e) => {
+                            e.stopPropagation();
+                            if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                                categories[categoryIndex].prompts.splice(promptIndex, 1);
+                                saveToLocalStorage();
+                                displayPromptsVertically(categories[categoryIndex], categoryIndex);
+                            }
+                        };
+
+                        promptsDisplayContainer.appendChild(promptDiv);
+                    }
+                });
             });
         }
 
