@@ -1,5 +1,3 @@
-Aggiungi questa funzione al codice: Quando clicco su un prompt chiudi quello o quelli aperti. Dammi il codice completo, questo è il codice da modificare:
-
 <!DOCTYPE html>
 <html lang="it">
 
@@ -8,152 +6,7 @@ Aggiungi questa funzione al codice: Quando clicco su un prompt chiudi quello o q
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Saver (In-Memory)</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #000;
-            color: #fff;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            text-align: center;
-            line-height: 1.4;
-        }
-
-        .search-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .search-container input {
-            width: 70%;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 5px 0 0 5px;
-        }
-
-        .search-container button {
-            padding: 10px;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-        }
-
-        .top-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .new-category-section {
-            flex-grow: 1;
-            margin-right: 20px;
-        }
-
-        #newCategoryInput {
-            width: 100%;
-            line-height: 1.4;
-        }
-
-        #newPromptForm, #editPromptForm {
-            display: none;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-top: 10px;
-            gap: 10px;
-        }
-
-        .new-prompt-inputs input[type="text"],
-        .new-prompt-inputs textarea {
-            width: 100%;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 5px;
-            line-height: 1.4;
-        }
-
-        .new-prompt-inputs textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        .prompt-btn {
-            align-self: flex-start;
-            margin-top: 10px;
-        }
-
-        #categories {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .category {
-            padding: 5px 10px;
-            background-color: #222;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn {
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-
-        .btn-new { background-color: #4CAF50; }
-        .btn-edit { background-color: #2196F3; }
-        .btn-delete { background-color: #F44336; }
-        .btn-copy { background-color: #FFC107; }
-
-        #prompts-display-container {
-            display: block;
-            margin-top: 20px;
-        }
-
-        .prompt-box {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        .prompt-text, .prompt-actions {
-            display: none;
-            margin-top: 10px;
-        }
-
-        .prompt-input {
-            width: 100%;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 5px;
-            padding: 10px;
-        }
+        /* ... */
     </style>
 </head>
 
@@ -177,6 +30,7 @@ Aggiungi questa funzione al codice: Quando clicco su un prompt chiudi quello o q
 
     <script>
         var categories = [];
+        var promptActive = false;
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
@@ -210,7 +64,10 @@ Aggiungi questa funzione al codice: Quando clicco su un prompt chiudi quello o q
             newPromptBtn.className = 'btn btn-new';
             newPromptBtn.textContent = 'Nuovo Prompt';
             newPromptBtn.onclick = () => {
-                showNewPromptForm(categoryIndex);
+                if (!promptActive) {
+                    promptActive = true;
+                    showNewPromptForm(categoryIndex);
+                }
             };
             promptsDisplayContainer.appendChild(newPromptBtn);
 
@@ -298,6 +155,7 @@ Aggiungi questa funzione al codice: Quando clicco su un prompt chiudi quello o q
                 saveToLocalStorage();
                 displayPromptsVertically(categories[categoryIndex], categoryIndex);
             }
+            promptActive = false; // Imposta promptActive a false dopo aver chiuso il prompt
         }
 
         document.getElementById('addCategoryBtn').addEventListener('click', () => {
