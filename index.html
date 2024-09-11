@@ -225,8 +225,16 @@
                     closeAllPromptsExcept(promptDiv);
 
                     const textArea = promptDiv.querySelector('.prompt-text');
-                    textArea.style.display = textArea.style.display === 'none' ? 'block' : 'none';
-                    promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
+                    const promptActions = promptDiv.querySelector('.prompt-actions');
+
+                    if (textArea.style.display === 'none') {
+                        textArea.style.display = 'block';
+                        textArea.style.height = textArea.scrollHeight + 'px'; // Espande il box in base al contenuto
+                        promptActions.style.display = 'block';
+                    } else {
+                        textArea.style.display = 'none';
+                        promptActions.style.display = 'none';
+                    }
                 };
 
                 promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
@@ -236,12 +244,12 @@
                     if (titleInput.readOnly) {
                         titleInput.readOnly = false;
                         textArea.readOnly = false;
-                        textArea.style.height = '100px'; // Rende il textarea ridimensionabile
+                        textArea.style.height = 'auto'; // Permette il ridimensionamento
                         e.target.textContent = 'Salva Modifiche';
                     } else {
                         titleInput.readOnly = true;
                         textArea.readOnly = true;
-                        textArea.style.height = 'auto'; // Ripristina l'altezza del textarea
+                        textArea.style.height = textArea.scrollHeight + 'px'; // Ricalcola l'altezza al salvataggio
                         categories[categoryIndex].prompts[promptIndex] = { title: titleInput.value, text: textArea.value };
                         saveToLocalStorage();
                         e.target.textContent = 'Modifica';
@@ -284,7 +292,6 @@
             const title = prompt("Enter prompt title:");
             const text = prompt("Enter prompt text:");
             if (title && text) {
-                categories[categoryIndex].prom
                 categories[categoryIndex].prompts.push({ title, text });
                 saveToLocalStorage();
                 displayPromptsVertically(categories[categoryIndex], categoryIndex);
@@ -292,80 +299,33 @@
         }
 
         function searchPrompts() {
-            const searchText = document.getElementById('searchInput').value.toLowerCase();
-            let categoryFound = false;
-            let promptFound = false;
-            let foundCategoryIndex = -1;
-            let foundPromptIndex = -1;
-
-            // Controlla se il testo inserito corrisponde a una categoria
-            categories.forEach((category, categoryIndex) => {
-                if (category.name.toLowerCase() === searchText) {
-                    categoryFound = true;
-                    foundCategoryIndex = categoryIndex;
-                }
-
-                // Cerca il prompt se non è già stata trovata una categoria esatta
-                category.prompts.forEach((prompt, promptIndex) => {
-                    if (prompt.title.toLowerCase().includes(searchText) || prompt.text.toLowerCase().includes(searchText)) {
-                        promptFound = true;
-                        foundCategoryIndex = categoryIndex;
-                        foundPromptIndex = promptIndex;
-                    }
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                categories.forEach(category => {
+                    category.prompts.forEach(prompt => {
+                        if (prompt.title.toLowerCase().includes(searchTerm) || prompt.text.toLowerCase().includes(searchTerm)) {
+                            alert("Risultato trovato in categoria: " + category.name + "\nPrompt: " + prompt.title);
+                        }
+                    });
                 });
-            });
-
-            if (categoryFound) {
-                // Mostra solo la categoria trovata
-                displayPromptsVertically(categories[foundCategoryIndex], foundCategoryIndex);
-            } else if (promptFound) {
-                // Mostra la categoria e il prompt trovato
-                displayPromptsWithSpecificPrompt(foundCategoryIndex, foundPromptIndex);
             } else {
-                alert("Nessuna categoria o prompt corrispondente trovato.");
+                alert("Inserisci un termine di ricerca.");
             }
-        }
-
-        function displayPromptsWithSpecificPrompt(categoryIndex, promptIndex) {
-            var promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = `<h2>${categories[categoryIndex].name}</h2>`;
-
-            const prompt = categories[categoryIndex].prompts[promptIndex];
-            const promptDiv = document.createElement('div');
-            promptDiv.className = 'prompt-box';
-            promptDiv.innerHTML = `
-                <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
-                <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
-                <div class="prompt-actions">
-                    <button class="btn btn-edit">Modifica</button>
-                    <button class="btn btn-copy">Copia</button>
-                    <button class="btn btn-delete">Elimina</button>
-                </div>
-            `;
-
-            promptDiv.querySelector('.prompt-title').onclick = (e) => {
-                e.stopPropagation();
-                closeAllPromptsExcept(promptDiv);
-
-                const textArea = promptDiv.querySelector('.prompt-text');
-                textArea.style.display = textArea.style.display === 'none' ? 'block' : 'none';
-                promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
-            };
-
-            promptsDisplayContainer.appendChild(promptDiv);
         }
 
         document.getElementById('addCategoryBtn').addEventListener('click', () => {
-            var categoryName = document.getElementById('newCategoryInput').value.trim();
-            if (categoryName) {
-                categories.push({ name: categoryName, prompts: [] });
-                document.getElementById('newCategoryInput').value = '';
+            const newCategoryName = document.getElementById('newCategoryInput').value;
+            if (newCategoryName) {
+                categories.push({ name: newCategoryName, prompts: [] });
                 renderCategories();
                 saveToLocalStorage();
+                document.getElementById('newCategoryInput').value = '';
             }
         });
 
-        loadFromLocalStorage();
+        window.onload = function() {
+            loadFromLocalStorage();
+        };
     </script>
 </body>
 
