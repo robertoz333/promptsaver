@@ -340,6 +340,10 @@
             var categoryName = document.getElementById('newCategoryInput').value;
             if (categoryName) {
                 categories.push({ name: categoryName, prompts: [] });
+
+                // Ordina le categorie in ordine alfabetico
+                categories.sort((a, b) => a.name.localeCompare(b.name));
+
                 saveToLocalStorage();
                 renderCategories();
                 document.getElementById('newCategoryInput').value = '';
