@@ -143,6 +143,11 @@
             display: none;
             margin-top: 10px;
         }
+
+        .prompt-input {
+            display: none;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -219,32 +224,43 @@
                 const promptDiv = document.createElement('div');
                 promptDiv.className = 'prompt-box';
                 promptDiv.innerHTML = `
-                    <div>${prompt.title}</div>
+                    <div class="prompt-title">${prompt.title}</div>
                     <div class="prompt-text">${prompt.text}</div>
                     <div class="prompt-actions">
-                        <button class="btn btn-save">Salva</button>
                         <button class="btn btn-edit">Modifica</button>
                         <button class="btn btn-copy">Copia</button>
                         <button class="btn btn-delete">Elimina</button>
+                    </div>
+                    <div class="prompt-input">
+                        <input type="text" class="edit-title" placeholder="Modifica titolo" value="${prompt.title}" />
+                        <textarea class="edit-text" placeholder="Modifica testo">${prompt.text}</textarea>
                     </div>
                 `;
 
                 promptDiv.children[0].onclick = (e) => {
                     e.stopPropagation();
-                    promptDiv.children[1].style.display = promptDiv.children[1].style.display === 'none' ? 'block' : 'none';
-                    promptDiv.children[2].style.display = promptDiv.children[2].style.display === 'none' ? 'block' : 'none';
+                    const inputDiv = promptDiv.querySelector('.prompt-input');
+                    inputDiv.style.display = inputDiv.style.display === 'none' ? 'block' : 'none';
                 };
 
                 // Funzione di modifica
                 promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
                     e.stopPropagation();
-                    const newTitle = prompt("Modifica titolo del prompt:", prompt.title);
-                    const newText = prompt("Modifica testo del prompt:", prompt.text);
-                    if (newTitle && newText) {
-                        categories[categoryIndex].prompts[promptIndex] = { title: newTitle, text: newText };
-                        saveToLocalStorage();
-                        displayPromptsVertically(categories[categoryIndex], categoryIndex);
-                    }
+                    const inputDiv = promptDiv.querySelector('.prompt-input');
+                    inputDiv.style.display = 'block';
+                    const titleInput = inputDiv.querySelector('.edit-title');
+                    const textInput = inputDiv.querySelector('.edit-text');
+
+                    titleInput.onblur = () => {
+                        const newTitle = titleInput.value;
+                        const newText = textInput.value;
+                        if (newTitle && newText) {
+                            categories[categoryIndex].prompts[promptIndex] = { title: newTitle, text: newText };
+                            saveToLocalStorage();
+                            displayPromptsVertically(categories[categoryIndex], categoryIndex);
+                        }
+                    };
+                    textInput.onblur = titleInput.onblur;  // Sincronizza il salvataggio
                 };
 
                 // Funzione di copia
