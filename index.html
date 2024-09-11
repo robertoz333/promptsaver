@@ -143,7 +143,7 @@
         <h1>Prompt Saver</h1>
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="Cerca prompt o categoria...">
-            <button id="searchBtn" onclick="searchPrompts()">🔍</button>
+            <button id="searchBtn" onclick="searchDatabase()">🔍</button>
         </div>
         <div class="top-section">
             <div class="new-category-section">
@@ -298,6 +298,60 @@
                 saveToLocalStorage();
                 displayPromptsVertically(categories[categoryIndex], categoryIndex);
             }
+        }
+
+        // Funzione per simulare una ricerca collegata a un database
+        function searchDatabase() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            // Simula una chiamata al database (può essere sostituita da una chiamata reale)
+            fetch('/api/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: searchTerm })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.categories.length > 0 || data.prompts.length > 0) {
+                    renderSearchResults(data);
+                } else {
+                    alert('Nessun risultato trovato.');
+                }
+            })
+            .catch(error => {
+                console.error('Errore durante la ricerca:', error);
+                alert('Errore durante la ricerca.');
+            });
+        }
+
+        // Funzione per renderizzare i risultati della ricerca
+        function renderSearchResults(data) {
+            const promptsDisplayContainer = document.getElementById('prompts-display-container');
+            promptsDisplayContainer.innerHTML = '';  // Svuota il contenitore
+
+            data.categories.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.textContent = category.name;
+                categoryDiv.onclick = () => displayPromptsVertically(category, categories.indexOf(category));
+                promptsDisplayContainer.appendChild(categoryDiv);
+            });
+
+            data.prompts.forEach(prompt => {
+                const promptDiv = document.createElement('div');
+                promptDiv.className = 'prompt-box';
+                promptDiv.innerHTML = `
+                    <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
+                    <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
+                    <div class="prompt-actions">
+                        <button class="btn btn-edit">Modifica</button>
+                        <button class="btn btn-copy">Copia</button>
+                        <button class="btn btn-delete">Elimina</button>
+                    </div>
+                `;
+
+                promptsDisplayContainer.appendChild(promptDiv);
+            });
         }
 
         document.getElementById('addCategoryBtn').onclick = function () {
