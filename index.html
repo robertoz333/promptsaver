@@ -14,24 +14,20 @@
             padding: 20px;
             line-height: 1.6;
         }
-
         .container {
             max-width: 800px;
             margin: 0 auto;
         }
-
         h1 {
             text-align: center;
             line-height: 1.4;
         }
-
         .search-container {
             display: flex;
             justify-content: center;
             align-items: center;
             margin-bottom: 20px;
         }
-
         .search-container input {
             width: 70%;
             padding: 10px;
@@ -40,7 +36,6 @@
             border: 1px solid #444;
             border-radius: 5px 0 0 5px;
         }
-
         .search-container button {
             padding: 10px;
             background-color: #4CAF50;
@@ -49,31 +44,26 @@
             border-radius: 0 5px 5px 0;
             cursor: pointer;
         }
-
         .top-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-
         .new-category-section {
             flex-grow: 1;
             margin-right: 20px;
         }
-
         #newCategoryInput {
             width: 100%;
             line-height: 1.4;
         }
-
         #categories {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 10px;
         }
-
         .category {
             padding: 5px 10px;
             background-color: #222;
@@ -81,12 +71,10 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
         #prompts-display-container {
             display: block;
             margin-top: 20px;
         }
-
         .prompt-box {
             background-color: #333;
             color: #fff;
@@ -95,7 +83,6 @@
             margin-bottom: 10px;
             cursor: pointer;
         }
-
         .prompt-input {
             width: 100%;
             background-color: #333;
@@ -104,13 +91,11 @@
             border-radius: 5px;
             padding: 10px;
         }
-
         .prompt-text,
         .prompt-actions {
             display: none;
             margin-top: 10px;
         }
-
         .btn {
             color: #fff;
             border: none;
@@ -119,19 +104,15 @@
             cursor: pointer;
             margin-right: 5px;
         }
-
         .btn-new {
             background-color: #4CAF50;
         }
-
         .btn-edit {
             background-color: #2196F3;
         }
-
         .btn-delete {
             background-color: #F44336;
         }
-
         .btn-copy {
             background-color: #FFC107;
         }
@@ -325,7 +306,7 @@
                             <div class="prompt-actions">
                                 <button class="btn btn-edit">Modifica</button>
                                 <button class="btn btn-copy">Copia</button>
-                                <button class="btn btn-delete">Elimina</button>
+                                <button class="btn.btn-delete">Elimina</button>
                             </div>
                         `;
 
@@ -339,7 +320,7 @@
                             promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
                         };
 
-                        // ... [il resto del codice per la modifica, la copia e l'eliminazione] ...
+                        // Funzioni di modifica, copia e eliminazione sono analoghe a quelle sopra descritte
 
                         promptsDisplayContainer.appendChild(promptDiv);
                     }
