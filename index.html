@@ -145,8 +145,12 @@
         }
 
         .prompt-input {
-            display: none;
-            margin-top: 10px;
+            width: 100%;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 10px;
         }
     </style>
 </head>
@@ -224,49 +228,46 @@
                 const promptDiv = document.createElement('div');
                 promptDiv.className = 'prompt-box';
                 promptDiv.innerHTML = `
-                    <div class="prompt-title">${prompt.title}</div>
-                    <div class="prompt-text">${prompt.text}</div>
+                    <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
+                    <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
                     <div class="prompt-actions">
                         <button class="btn btn-edit">Modifica</button>
                         <button class="btn btn-copy">Copia</button>
                         <button class="btn btn-delete">Elimina</button>
                     </div>
-                    <div class="prompt-input">
-                        <input type="text" class="edit-title" placeholder="Modifica titolo" value="${prompt.title}" />
-                        <textarea class="edit-text" placeholder="Modifica testo">${prompt.text}</textarea>
-                    </div>
                 `;
 
-                promptDiv.children[0].onclick = (e) => {
+                promptDiv.querySelector('.prompt-title').onclick = (e) => {
                     e.stopPropagation();
-                    const inputDiv = promptDiv.querySelector('.prompt-input');
-                    inputDiv.style.display = inputDiv.style.display === 'none' ? 'block' : 'none';
+                    const textArea = promptDiv.querySelector('.prompt-text');
+                    textArea.style.display = textArea.style.display === 'none' ? 'block' : 'none';
+                    promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
                 };
 
                 // Funzione di modifica
                 promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
                     e.stopPropagation();
-                    const inputDiv = promptDiv.querySelector('.prompt-input');
-                    inputDiv.style.display = 'block';
-                    const titleInput = inputDiv.querySelector('.edit-title');
-                    const textInput = inputDiv.querySelector('.edit-text');
-
-                    titleInput.onblur = () => {
-                        const newTitle = titleInput.value;
-                        const newText = textInput.value;
-                        if (newTitle && newText) {
-                            categories[categoryIndex].prompts[promptIndex] = { title: newTitle, text: newText };
-                            saveToLocalStorage();
-                            displayPromptsVertically(categories[categoryIndex], categoryIndex);
-                        }
-                    };
-                    textInput.onblur = titleInput.onblur;  // Sincronizza il salvataggio
+                    const titleInput = promptDiv.querySelector('.prompt-title');
+                    const textArea = promptDiv.querySelector('.prompt-text');
+                    if (titleInput.readOnly) {
+                        titleInput.readOnly = false;
+                        textArea.readOnly = false;
+                        textArea.style.height = '100px'; // Rende il textarea ridimensionabile
+                        e.target.textContent = 'Salva Modifiche';
+                    } else {
+                        titleInput.readOnly = true;
+                        textArea.readOnly = true;
+                        textArea.style.height = 'auto'; // Ripristina l'altezza del textarea
+                        categories[categoryIndex].prompts[promptIndex] = { title: titleInput.value, text: textArea.value };
+                        saveToLocalStorage();
+                        e.target.textContent = 'Modifica';
+                    }
                 };
 
                 // Funzione di copia
                 promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
                     e.stopPropagation();
-                    navigator.clipboard.writeText(prompt.text).then(() => {
+                    navigator.clipboard.writeText(promptDiv.querySelector('.prompt-text').value).then(() => {
                         alert("Testo copiato negli appunti!");
                     }).catch(err => {
                         console.error("Errore nella copia del testo: ", err);
