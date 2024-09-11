@@ -67,35 +67,6 @@
             line-height: 1.4;
         }
 
-        #categories {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .category {
-            padding: 5px 10px;
-            background-color: #222;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn {
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-
-        .btn-new { background-color: #4CAF50; }
-        .btn-edit { background-color: #2196F3; }
-        .btn-delete { background-color: #F44336; }
-        .btn-copy { background-color: #FFC107; }
-
         #prompts-display-container {
             display: block;
             margin-top: 20px;
@@ -119,29 +90,38 @@
             padding: 10px;
         }
 
-        .prompt-title {
-            font-weight: bold;
-        }
-
-        .prompt-actions {
-            display: flex;
-            justify-content: flex-end;
+        .prompt-text, .prompt-actions {
+            display: none;
             margin-top: 10px;
         }
+
+        .btn {
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .btn-new { background-color: #4CAF50; }
+        .btn-edit { background-color: #2196F3; }
+        .btn-delete { background-color: #F44336; }
+        .btn-copy { background-color: #FFC107; }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Prompt Saver</h1>
+        <h1 style="color: #fff; text-align: center;">Prompt Saver</h1>
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Cerca prompt o categoria...">
-            <button id="searchBtn">🔍</button>
+            <input type="text" id="searchInput" placeholder="Cerca prompt o categoria..." style="width: 70%; padding: 10px; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px 0 0 5px;">
+            <button id="searchBtn" style="padding: 10px; background-color: #4CAF50; color: #fff; border: none; border-radius: 0 5px 5px 0; cursor: pointer;">🔍</button>
         </div>
         <div class="top-section">
             <div class="new-category-section">
-                <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
-                <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
+                <input type="text" id="newCategoryInput" placeholder="Nuova categoria" style="width: 100%; line-height: 1.4;">
+                <button id="addCategoryBtn" class="btn btn-new" style="background-color: #4CAF50;">Aggiungi Categoria</button>
                 <div id="categories"></div>
             </div>
         </div>
@@ -178,7 +158,7 @@
 
         function displayPromptsVertically(category, categoryIndex) {
             var promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = `<h2>${category.name}</h2>`;
+            promptsDisplayContainer.innerHTML = `<h2 style="color: #fff;">${category.name}</h2>`;
 
             const newPromptBtn = document.createElement('button');
             newPromptBtn.className = 'btn btn-new';
@@ -204,23 +184,22 @@
                 const promptDiv = document.createElement('div');
                 promptDiv.className = 'prompt-box';
                 promptDiv.innerHTML = `
-                    <div class="prompt-title">${prompt.title}</div>
-                    <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
+                    <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly style="width: 100%; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px; padding: 10px;">
+                    <textarea class="prompt-input prompt-text" readonly style="width: 100%; background-color: #333; color: #fff; border: 1px solid #444; border-radius: 5px; padding: 10px;">${prompt.text}</textarea>
                     <div class="prompt-actions">
-                        <button class="btn btn-edit">Modifica</button>
-                        <button class="btn btn-copy">Copia</button>
-                        <button class="btn btn-delete">Elimina</button>
+                        <button class="btn btn-edit" style="background-color: #2196F3;">Modifica</button>
+                        <button class="btn btn-copy" style="background-color: #FFC107;">Copia</button>
+                        <button class="btn btn-delete" style="background-color: #F44336;">Elimina</button>
                     </div>
                 `;
 
-                // Gestisci il click sul titolo per chiudere i prompt aperti
                 promptDiv.querySelector('.prompt-title').onclick = (e) => {
                     e.stopPropagation();
                     closeAllPromptsExcept(promptDiv);
 
                     const textArea = promptDiv.querySelector('.prompt-text');
                     textArea.style.display = textArea.style.display === 'none' ? 'block' : 'none';
-                    promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'flex' : 'none';
+                    promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
                 };
 
                 // Funzione di modifica
@@ -228,16 +207,16 @@
                     e.stopPropagation();
                     const titleInput = promptDiv.querySelector('.prompt-title');
                     const textArea = promptDiv.querySelector('.prompt-text');
-                    if (titleInput.textContent === prompt.title) {
-                        titleInput.contentEditable = true;
+                    if (titleInput.readOnly) {
+                        titleInput.readOnly = false;
                         textArea.readOnly = false;
-                        textArea.style.height = '100px'; // Rende il textarea ridimensionabile
+                        textArea.style.height = '100px';
                         e.target.textContent = 'Salva Modifiche';
                     } else {
-                        titleInput.contentEditable = false;
+                        titleInput.readOnly = true;
                         textArea.readOnly = true;
-                        textArea.style.height = 'auto'; // Ripristina l'altezza del textarea
-                        categories[categoryIndex].prompts[promptIndex] = { title: titleInput.textContent, text: textArea.value };
+                        textArea.style.height = 'auto';
+                        categories[categoryIndex].prompts[promptIndex] = { title: titleInput.value, text: textArea.value };
                         saveToLocalStorage();
                         e.target.textContent = 'Modifica';
                     }
@@ -246,7 +225,7 @@
                 // Funzione di copia
                 promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
                     e.stopPropagation();
-                    navigator.clipboard.writeText(prompt.text).then(() => {
+                    navigator.clipboard.writeText(promptDiv.querySelector('.prompt-text').value).then(() => {
                         alert("Testo copiato negli appunti!");
                     }).catch(err => {
                         console.error("Errore nella copia del testo: ", err);
@@ -285,6 +264,28 @@
                 saveToLocalStorage();
                 displayPromptsVertically(categories[categoryIndex], categoryIndex);
             }
+        }
+
+        // Ricerca
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase();
+            const filteredCategories = categories.filter(category => 
+                category.name.toLowerCase().includes(searchTerm) || 
+                category.prompts.some(prompt => prompt.title.toLowerCase().includes(searchTerm)));
+
+            renderFilteredCategories(filteredCategories);
+        });
+
+        function renderFilteredCategories(filteredCategories) {
+            const container = document.getElementById('categories');
+            container.innerHTML = '';
+            filteredCategories.forEach((category, index) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.textContent = category.name;
+                categoryDiv.onclick = () => displayPromptsVertically(category, index);
+                container.appendChild(categoryDiv);
+            });
         }
 
         document.getElementById('addCategoryBtn').addEventListener('click', () => {
