@@ -14,20 +14,24 @@
             padding: 20px;
             line-height: 1.6;
         }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
         }
+
         h1 {
             text-align: center;
             line-height: 1.4;
         }
+
         .search-container {
             display: flex;
             justify-content: center;
             align-items: center;
             margin-bottom: 20px;
         }
+
         .search-container input {
             width: 70%;
             padding: 10px;
@@ -36,6 +40,7 @@
             border: 1px solid #444;
             border-radius: 5px 0 0 5px;
         }
+
         .search-container button {
             padding: 10px;
             background-color: #4CAF50;
@@ -44,26 +49,31 @@
             border-radius: 0 5px 5px 0;
             cursor: pointer;
         }
+
         .top-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
+
         .new-category-section {
             flex-grow: 1;
             margin-right: 20px;
         }
+
         #newCategoryInput {
             width: 100%;
             line-height: 1.4;
         }
+
         #categories {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 10px;
         }
+
         .category {
             padding: 5px 10px;
             background-color: #222;
@@ -71,10 +81,12 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         #prompts-display-container {
             display: block;
             margin-top: 20px;
         }
+
         .prompt-box {
             background-color: #333;
             color: #fff;
@@ -83,6 +95,7 @@
             margin-bottom: 10px;
             cursor: pointer;
         }
+
         .prompt-input {
             width: 100%;
             background-color: #333;
@@ -91,11 +104,13 @@
             border-radius: 5px;
             padding: 10px;
         }
+
         .prompt-text,
         .prompt-actions {
             display: none;
             margin-top: 10px;
         }
+
         .btn {
             color: #fff;
             border: none;
@@ -104,15 +119,19 @@
             cursor: pointer;
             margin-right: 5px;
         }
+
         .btn-new {
             background-color: #4CAF50;
         }
+
         .btn-edit {
             background-color: #2196F3;
         }
+
         .btn-delete {
             background-color: #F44336;
         }
+
         .btn-copy {
             background-color: #FFC107;
         }
@@ -201,7 +220,6 @@
                     </div>
                 `;
 
-                // Gestisci il click sul titolo per chiudere i prompt aperti
                 promptDiv.querySelector('.prompt-title').onclick = (e) => {
                     e.stopPropagation();
                     closeAllPromptsExcept(promptDiv);
@@ -211,7 +229,6 @@
                     promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
                 };
 
-                // Funzione di modifica
                 promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
                     e.stopPropagation();
                     const titleInput = promptDiv.querySelector('.prompt-title');
@@ -231,7 +248,6 @@
                     }
                 };
 
-                // Funzione di copia
                 promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
                     e.stopPropagation();
                     navigator.clipboard.writeText(promptDiv.querySelector('.prompt-text').value).then(() => {
@@ -241,7 +257,6 @@
                     });
                 };
 
-                // Funzione di eliminazione
                 promptDiv.querySelector('.btn.btn-delete').onclick = (e) => {
                     e.stopPropagation();
                     if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
@@ -269,6 +284,7 @@
             const title = prompt("Enter prompt title:");
             const text = prompt("Enter prompt text:");
             if (title && text) {
+                categories[categoryIndex].prom
                 categories[categoryIndex].prompts.push({ title, text });
                 saveToLocalStorage();
                 displayPromptsVertically(categories[categoryIndex], categoryIndex);
@@ -277,55 +293,66 @@
 
         function searchPrompts() {
             const searchText = document.getElementById('searchInput').value.toLowerCase();
-            const filteredCategories = categories.filter(category =>
-                category.name.toLowerCase().includes(searchText) ||
-                category.prompts.some(prompt => prompt.title.toLowerCase().includes(searchText) || prompt.text.toLowerCase().includes(searchText))
-            );
+            let categoryFound = false;
+            let promptFound = false;
+            let foundCategoryIndex = -1;
+            let foundPromptIndex = -1;
 
-            renderSearchResults(filteredCategories, searchText); // Passa searchText a renderSearchResults
-        }
+            // Controlla se il testo inserito corrisponde a una categoria
+            categories.forEach((category, categoryIndex) => {
+                if (category.name.toLowerCase() === searchText) {
+                    categoryFound = true;
+                    foundCategoryIndex = categoryIndex;
+                }
 
-        function renderSearchResults(filteredCategories, searchText) {
-            var promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = '';
-
-            filteredCategories.forEach((category, categoryIndex) => {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category';
-                categoryDiv.textContent = category.name;
-                categoryDiv.onclick = () => displayPromptsVertically(category, categoryIndex);
-                promptsDisplayContainer.appendChild(categoryDiv);
-
+                // Cerca il prompt se non è già stata trovata una categoria esatta
                 category.prompts.forEach((prompt, promptIndex) => {
-                    if (category.name.toLowerCase().includes(searchText) || prompt.title.toLowerCase().includes(searchText) || prompt.text.toLowerCase().includes(searchText)) {
-                        const promptDiv = document.createElement('div');
-                        promptDiv.className = 'prompt-box';
-                        promptDiv.innerHTML = `
-                            <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
-                            <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
-                            <div class="prompt-actions">
-                                <button class="btn btn-edit">Modifica</button>
-                                <button class="btn btn-copy">Copia</button>
-                                <button class="btn.btn-delete">Elimina</button>
-                            </div>
-                        `;
-
-                        // Gestisci il click sul titolo per chiudere i prompt aperti
-                        promptDiv.querySelector('.prompt-title').onclick = (e) => {
-                            e.stopPropagation();
-                            closeAllPromptsExcept(promptDiv);
-
-                            const textArea = promptDiv.querySelector('.prompt-text');
-                            textArea.style.display = textArea.style.display === 'none' ? 'block' : 'none';
-                            promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
-                        };
-
-                        // Funzioni di modifica, copia e eliminazione sono analoghe a quelle sopra descritte
-
-                        promptsDisplayContainer.appendChild(promptDiv);
+                    if (prompt.title.toLowerCase().includes(searchText) || prompt.text.toLowerCase().includes(searchText)) {
+                        promptFound = true;
+                        foundCategoryIndex = categoryIndex;
+                        foundPromptIndex = promptIndex;
                     }
                 });
             });
+
+            if (categoryFound) {
+                // Mostra solo la categoria trovata
+                displayPromptsVertically(categories[foundCategoryIndex], foundCategoryIndex);
+            } else if (promptFound) {
+                // Mostra la categoria e il prompt trovato
+                displayPromptsWithSpecificPrompt(foundCategoryIndex, foundPromptIndex);
+            } else {
+                alert("Nessuna categoria o prompt corrispondente trovato.");
+            }
+        }
+
+        function displayPromptsWithSpecificPrompt(categoryIndex, promptIndex) {
+            var promptsDisplayContainer = document.getElementById('prompts-display-container');
+            promptsDisplayContainer.innerHTML = `<h2>${categories[categoryIndex].name}</h2>`;
+
+            const prompt = categories[categoryIndex].prompts[promptIndex];
+            const promptDiv = document.createElement('div');
+            promptDiv.className = 'prompt-box';
+            promptDiv.innerHTML = `
+                <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
+                <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
+                <div class="prompt-actions">
+                    <button class="btn btn-edit">Modifica</button>
+                    <button class="btn btn-copy">Copia</button>
+                    <button class="btn btn-delete">Elimina</button>
+                </div>
+            `;
+
+            promptDiv.querySelector('.prompt-title').onclick = (e) => {
+                e.stopPropagation();
+                closeAllPromptsExcept(promptDiv);
+
+                const textArea = promptDiv.querySelector('.prompt-text');
+                textArea.style.display = textArea.style.display === 'none' ? 'block' : 'none';
+                promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
+            };
+
+            promptsDisplayContainer.appendChild(promptDiv);
         }
 
         document.getElementById('addCategoryBtn').addEventListener('click', () => {
