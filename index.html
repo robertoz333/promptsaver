@@ -235,9 +235,36 @@
                     promptDiv.children[2].style.display = promptDiv.children[2].style.display === 'none' ? 'block' : 'none';
                 };
 
+                // Funzione di modifica
                 promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
                     e.stopPropagation();
-                    alert("La funzione di modifica non è ancora implementata.");
+                    const newTitle = prompt("Modifica titolo del prompt:", prompt.title);
+                    const newText = prompt("Modifica testo del prompt:", prompt.text);
+                    if (newTitle && newText) {
+                        categories[categoryIndex].prompts[promptIndex] = { title: newTitle, text: newText };
+                        saveToLocalStorage();
+                        displayPromptsVertically(categories[categoryIndex], categoryIndex);
+                    }
+                };
+
+                // Funzione di copia
+                promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(prompt.text).then(() => {
+                        alert("Testo copiato negli appunti!");
+                    }).catch(err => {
+                        console.error("Errore nella copia del testo: ", err);
+                    });
+                };
+
+                // Funzione di eliminazione
+                promptDiv.querySelector('.btn.btn-delete').onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                        categories[categoryIndex].prompts.splice(promptIndex, 1);
+                        saveToLocalStorage();
+                        displayPromptsVertically(categories[categoryIndex], categoryIndex);
+                    }
                 };
 
                 promptsDisplayContainer.appendChild(promptDiv);
