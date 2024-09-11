@@ -67,6 +67,35 @@
             line-height: 1.4;
         }
 
+        #categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category {
+            padding: 5px 10px;
+            background-color: #222;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn {
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .btn-new { background-color: #4CAF50; }
+        .btn-edit { background-color: #2196F3; }
+        .btn-delete { background-color: #F44336; }
+        .btn-copy { background-color: #FFC107; }
+
         #prompts-display-container {
             display: block;
             margin-top: 20px;
@@ -88,6 +117,16 @@
             border: 1px solid #444;
             border-radius: 5px;
             padding: 10px;
+        }
+
+        .prompt-title {
+            font-weight: bold;
+        }
+
+        .prompt-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -165,7 +204,7 @@
                 const promptDiv = document.createElement('div');
                 promptDiv.className = 'prompt-box';
                 promptDiv.innerHTML = `
-                    <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
+                    <div class="prompt-title">${prompt.title}</div>
                     <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
                     <div class="prompt-actions">
                         <button class="btn btn-edit">Modifica</button>
@@ -181,7 +220,7 @@
 
                     const textArea = promptDiv.querySelector('.prompt-text');
                     textArea.style.display = textArea.style.display === 'none' ? 'block' : 'none';
-                    promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
+                    promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'flex' : 'none';
                 };
 
                 // Funzione di modifica
@@ -189,16 +228,16 @@
                     e.stopPropagation();
                     const titleInput = promptDiv.querySelector('.prompt-title');
                     const textArea = promptDiv.querySelector('.prompt-text');
-                    if (titleInput.readOnly) {
-                        titleInput.readOnly = false;
+                    if (titleInput.textContent === prompt.title) {
+                        titleInput.contentEditable = true;
                         textArea.readOnly = false;
                         textArea.style.height = '100px'; // Rende il textarea ridimensionabile
                         e.target.textContent = 'Salva Modifiche';
                     } else {
-                        titleInput.readOnly = true;
+                        titleInput.contentEditable = false;
                         textArea.readOnly = true;
                         textArea.style.height = 'auto'; // Ripristina l'altezza del textarea
-                        categories[categoryIndex].prompts[promptIndex] = { title: titleInput.value, text: textArea.value };
+                        categories[categoryIndex].prompts[promptIndex] = { title: titleInput.textContent, text: textArea.value };
                         saveToLocalStorage();
                         e.target.textContent = 'Modifica';
                     }
@@ -207,7 +246,7 @@
                 // Funzione di copia
                 promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
                     e.stopPropagation();
-                    navigator.clipboard.writeText(promptDiv.querySelector('.prompt-text').value).then(() => {
+                    navigator.clipboard.writeText(prompt.text).then(() => {
                         alert("Testo copiato negli appunti!");
                     }).catch(err => {
                         console.error("Errore nella copia del testo: ", err);
