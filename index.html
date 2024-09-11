@@ -93,7 +93,6 @@
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 10px;
-            cursor: pointer;
         }
 
         .prompt-input {
@@ -103,6 +102,10 @@
             border: 1px solid #444;
             border-radius: 5px;
             padding: 10px;
+        }
+
+        .prompt-title {
+            cursor: pointer;
         }
 
         .prompt-text,
@@ -227,26 +230,17 @@
                 </div>
             `;
 
+            const titleInput = promptDiv.querySelector('.prompt-title');
             const textArea = promptDiv.querySelector('.prompt-text');
             const promptActions = promptDiv.querySelector('.prompt-actions');
 
-            promptDiv.querySelector('.prompt-title').onclick = (e) => {
+            titleInput.onclick = (e) => {
                 e.stopPropagation();
-                closeAllPromptsExcept(promptDiv);
-
-                if (textArea.style.display === 'none') {
-                    textArea.style.display = 'block';
-                    textArea.style.height = textArea.scrollHeight + 'px';
-                    promptActions.style.display = 'block';
-                } else {
-                    textArea.style.display = 'none';
-                    promptActions.style.display = 'none';
-                }
+                togglePrompt(promptDiv);
             };
 
             promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
                 e.stopPropagation();
-                const titleInput = promptDiv.querySelector('.prompt-title');
                 if (titleInput.readOnly) {
                     titleInput.readOnly = false;
                     textArea.readOnly = false;
@@ -265,7 +259,7 @@
 
             promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
                 e.stopPropagation();
-                navigator.clipboard.writeText(promptDiv.querySelector('.prompt-text').value).then(() => {
+                navigator.clipboard.writeText(textArea.value).then(() => {
                     alert("Testo copiato negli appunti!");
                 }).catch(err => {
                     console.error("Errore nella copia del testo: ", err);
@@ -284,13 +278,26 @@
             return promptDiv;
         }
 
-        function closeAllPromptsExcept(currentPromptDiv) {
+        function togglePrompt(promptDiv) {
+            const textArea = promptDiv.querySelector('.prompt-text');
+            const promptActions = promptDiv.querySelector('.prompt-actions');
+            
+            if (textArea.style.display === 'none' || textArea.style.display === '') {
+                closeAllPrompts();
+                textArea.style.display = 'block';
+                textArea.style.height = textArea.scrollHeight + 'px';
+                promptActions.style.display = 'block';
+            } else {
+                textArea.style.display = 'none';
+                promptActions.style.display = 'none';
+            }
+        }
+
+        function closeAllPrompts() {
             const prompts = document.querySelectorAll('.prompt-box');
             prompts.forEach(prompt => {
-                if (prompt !== currentPromptDiv) {
-                    prompt.querySelector('.prompt-text').style.display = 'none';
-                    prompt.querySelector('.prompt-actions').style.display = 'none';
-                }
+                prompt.querySelector('.prompt-text').style.display = 'none';
+                prompt.querySelector('.prompt-actions').style.display = 'none';
             });
         }
 
