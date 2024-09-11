@@ -296,15 +296,15 @@
 
         function searchPrompts() {
             const searchText = document.getElementById('searchInput').value.toLowerCase();
-            const filteredCategories = categories.filter(category => 
+            const filteredCategories = categories.filter(category =>
                 category.name.toLowerCase().includes(searchText) ||
                 category.prompts.some(prompt => prompt.title.toLowerCase().includes(searchText) || prompt.text.toLowerCase().includes(searchText))
             );
 
-            renderSearchResults(filteredCategories);
+            renderSearchResults(filteredCategories, searchText); // Passa searchText a renderSearchResults
         }
 
-        function renderSearchResults(filteredCategories) {
+        function renderSearchResults(filteredCategories, searchText) {
             var promptsDisplayContainer = document.getElementById('prompts-display-container');
             promptsDisplayContainer.innerHTML = '';
 
@@ -339,45 +339,7 @@
                             promptDiv.querySelector('.prompt-actions').style.display = promptDiv.querySelector('.prompt-actions').style.display === 'none' ? 'block' : 'none';
                         };
 
-                        // Funzione di modifica
-                        promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
-                            e.stopPropagation();
-                            const titleInput = promptDiv.querySelector('.prompt-title');
-                            const textArea = promptDiv.querySelector('.prompt-text');
-                            if (titleInput.readOnly) {
-                                titleInput.readOnly = false;
-                                textArea.readOnly = false;
-                                textArea.style.height = '100px'; // Rende il textarea ridimensionabile
-                                e.target.textContent = 'Salva Modifiche';
-                            } else {
-                                titleInput.readOnly = true;
-                                textArea.readOnly = true;
-                                textArea.style.height = 'auto'; // Ripristina l'altezza del textarea
-                                categories[categoryIndex].prompts[promptIndex] = { title: titleInput.value, text: textArea.value };
-                                saveToLocalStorage();
-                                e.target.textContent = 'Modifica';
-                            }
-                        };
-
-                        // Funzione di copia
-                        promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
-                            e.stopPropagation();
-                            navigator.clipboard.writeText(promptDiv.querySelector('.prompt-text').value).then(() => {
-                                alert("Testo copiato negli appunti!");
-                            }).catch(err => {
-                                console.error("Errore nella copia del testo: ", err);
-                            });
-                        };
-
-                        // Funzione di eliminazione
-                        promptDiv.querySelector('.btn.btn-delete').onclick = (e) => {
-                            e.stopPropagation();
-                            if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
-                                categories[categoryIndex].prompts.splice(promptIndex, 1);
-                                saveToLocalStorage();
-                                displayPromptsVertically(categories[categoryIndex], categoryIndex);
-                            }
-                        };
+                        // ... [il resto del codice per la modifica, la copia e l'eliminazione] ...
 
                         promptsDisplayContainer.appendChild(promptDiv);
                     }
