@@ -157,7 +157,22 @@
     </div>
 
     <script>
-        var categories = [];
+        var categories = [
+            {
+                name: 'Categoria 1',
+                prompts: [
+                    { title: 'Prompt 1', text: 'Testo del prompt 1' },
+                    { title: 'Prompt 2', text: 'Testo del prompt 2' }
+                ]
+            },
+            {
+                name: 'Categoria 2',
+                prompts: [
+                    { title: 'Prompt A', text: 'Testo del prompt A' },
+                    { title: 'Prompt B', text: 'Testo del prompt B' }
+                ]
+            }
+        ];
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
@@ -241,14 +256,12 @@
                     e.stopPropagation();
                     const titleInput = promptDiv.querySelector('.prompt-title');
                     if (titleInput.readOnly) {
-                        // Entra in modalità modifica
                         titleInput.readOnly = false;
                         textArea.readOnly = false;
-                        textArea.style.height = 'auto'; // Ripristina l'altezza automatica per il ridimensionamento
+                        textArea.style.height = 'auto'; // Permette il ridimensionamento
                         textArea.style.height = textArea.scrollHeight + 'px'; // Ricalcola l'altezza in base al contenuto
                         e.target.textContent = 'Salva Modifiche';
                     } else {
-                        // Salva le modifiche
                         titleInput.readOnly = true;
                         textArea.readOnly = true;
                         textArea.style.height = textArea.scrollHeight + 'px'; // Mantiene l'altezza regolata
@@ -291,8 +304,8 @@
         }
 
         function showNewPromptForm(categoryIndex) {
-            const title = prompt("Enter prompt title:");
-            const text = prompt("Enter prompt text:");
+            const title = prompt("Inserisci il titolo del prompt:");
+            const text = prompt("Inserisci il testo del prompt:");
             if (title && text) {
                 categories[categoryIndex].prompts.push({ title, text });
                 saveToLocalStorage();
@@ -300,57 +313,48 @@
             }
         }
 
-        // Funzione per simulare una ricerca collegata a un database
+        // Funzione di ricerca simulata
         function searchDatabase() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Simula una ricerca nei dati esistenti (database simulato in memoria)
+            const filteredCategories = categories.filter(category =>
+                category.name.toLowerCase().includes(searchTerm) ||
+                category.prompts.some(prompt => prompt.title.toLowerCase().includes(searchTerm) || prompt.text.toLowerCase().includes(searchTerm))
+            );
 
-            // Simula una chiamata al database (può essere sostituita da una chiamata reale)
-            fetch('/api/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: searchTerm })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.categories.length > 0 || data.prompts.length > 0) {
-                    renderSearchResults(data);
-                } else {
-                    alert('Nessun risultato trovato.');
-                }
-            })
-            .catch(error => {
-                console.error('Errore durante la ricerca:', error);
-                alert('Errore durante la ricerca.');
-            });
+            if (filteredCategories.length > 0) {
+                renderSearchResults(filteredCategories);
+            } else {
+                alert('Nessun risultato trovato.');
+            }
         }
 
         // Funzione per renderizzare i risultati della ricerca
-        function renderSearchResults(data) {
+        function renderSearchResults(filteredCategories) {
             const promptsDisplayContainer = document.getElementById('prompts-display-container');
             promptsDisplayContainer.innerHTML = '';  // Svuota il contenitore
 
-            data.categories.forEach(category => {
+            filteredCategories.forEach(category => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
                 categoryDiv.textContent = category.name;
-                categoryDiv.onclick = () => displayPromptsVertically(category, categories.indexOf(category));
                 promptsDisplayContainer.appendChild(categoryDiv);
-            });
 
-            data.prompts.forEach(prompt => {
-                const promptDiv = document.createElement('div');
-                promptDiv.className = 'prompt-box';
-                promptDiv.innerHTML = `
-                    <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
-                    <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
-                    <div class="prompt-actions">
-                        <button class="btn btn-edit">Modifica</button>
-                        <button class="btn btn-copy">Copia</button>
-                        <button class="btn btn-delete">Elimina</button>
-                    </div>
-                `;
-
-                promptsDisplayContainer.appendChild(promptDiv);
+                category.prompts.forEach(prompt => {
+                    const promptDiv = document.createElement('div');
+                    promptDiv.className = 'prompt-box';
+                    promptDiv.innerHTML = `
+                        <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
+                        <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
+                        <div class="prompt-actions">
+                            <button class="btn btn-edit">Modifica</button>
+                            <button class="btn btn-copy">Copia</button>
+                            <button class="btn btn-delete">Elimina</button>
+                        </div>
+                    `;
+                    promptsDisplayContainer.appendChild(promptDiv);
+                });
             });
         }
 
