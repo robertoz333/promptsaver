@@ -79,18 +79,17 @@
             background-color: #222;
             color: #fff;
             border-radius: 5px;
-            display: flex;
-            align-items: center;
-            position: relative;
             cursor: pointer;
+            width: 100%;
         }
 
-        .category-actions {
+        .category-box {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
             display: none;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
         }
 
         .prompt-box {
@@ -135,6 +134,10 @@
 
         .btn-edit {
             background-color: #2196F3;
+        }
+
+        .btn-save {
+            background-color: #4CAF50;
         }
 
         .btn-delete {
@@ -195,67 +198,82 @@
             categories.forEach((category, index) => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
+                categoryDiv.textContent = category.name;
 
-                const categoryInput = document.createElement('input');
-                categoryInput.type = 'text';
-                categoryInput.value = category.name;
-                categoryInput.className = 'category-input';
-                categoryInput.readOnly = true;
-                categoryDiv.appendChild(categoryInput);
-
-                const categoryActions = document.createElement('div');
-                categoryActions.className = 'category-actions';
-
-                const editBtn = document.createElement('button');
-                editBtn.className = 'btn btn-edit';
-                editBtn.textContent = 'Modifica';
-                editBtn.onclick = (e) => {
-                    e.stopPropagation(); // Evita la chiusura quando si clicca sul bottone
-                    toggleEditCategory(categoryInput, editBtn, index);
-                };
-                categoryActions.appendChild(editBtn);
-
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-delete';
-                deleteBtn.textContent = 'Elimina';
-                deleteBtn.onclick = (e) => {
-                    e.stopPropagation(); // Evita la chiusura quando si clicca sul bottone
-                    deleteCategory(index);
-                };
-                categoryActions.appendChild(deleteBtn);
-
-                categoryDiv.appendChild(categoryActions);
-
+                // Gestione click per mostrare i dettagli
                 categoryDiv.onclick = () => {
-                    displayPromptsVertically(category, index);
-                    toggleCategoryActions(categoryActions);
+                    toggleCategoryBox(categoryDiv, index);
                 };
 
                 container.appendChild(categoryDiv);
+
+                // Crea l'area di dettagli della categoria (simile ai prompt)
+                const categoryBox = createCategoryBox(category, index);
+                container.appendChild(categoryBox);
             });
         }
 
-        function toggleEditCategory(categoryInput, editBtn, categoryIndex) {
-            if (categoryInput.readOnly) {
+        function createCategoryBox(category, categoryIndex) {
+            const categoryBox = document.createElement('div');
+            categoryBox.className = 'category-box';
+
+            const categoryInput = document.createElement('input');
+            categoryInput.type = 'text';
+            categoryInput.value = category.name;
+            categoryInput.className = 'category-input';
+            categoryInput.readOnly = true;
+            categoryBox.appendChild(categoryInput);
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-edit';
+            editBtn.textContent = 'Modifica';
+            categoryBox.appendChild(editBtn);
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn btn-save';
+            saveBtn.textContent = 'Salva';
+            saveBtn.style.display = 'none'; // Inizia nascosto
+            categoryBox.appendChild(saveBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-delete';
+            deleteBtn.textContent = 'Elimina';
+            categoryBox.appendChild(deleteBtn);
+
+            // Eventi per modifica e salvataggio
+            editBtn.onclick = () => {
                 categoryInput.readOnly = false;
-                editBtn.textContent = 'Salva';
-            } else {
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline';
+            };
+
+            saveBtn.onclick = () => {
                 categoryInput.readOnly = true;
-                editBtn.textContent = 'Modifica';
+                editBtn.style.display = 'inline';
+                saveBtn.style.display = 'none';
                 categories[categoryIndex].name = categoryInput.value;
                 saveToLocalStorage();
-                renderCategories(); // Re-render to update changes
-            }
+                renderCategories();
+            };
+
+            deleteBtn.onclick = () => {
+                deleteCategory(categoryIndex);
+            };
+
+            return categoryBox;
         }
 
-        function toggleCategoryActions(actionsDiv) {
-            // Chiudi tutte le azioni attive
-            const allActions = document.querySelectorAll('.category-actions');
-            allActions.forEach(action => {
-                action.style.display = 'none';
+        function toggleCategoryBox(categoryDiv, categoryIndex) {
+            const categoryBox = categoryDiv.nextElementSibling;
+
+            // Chiudi tutte le altre categorie aperte
+            const allCategoryBoxes = document.querySelectorAll('.category-box');
+            allCategoryBoxes.forEach(box => {
+                box.style.display = 'none';
             });
-            // Mostra le azioni per la categoria cliccata
-            actionsDiv.style.display = 'flex';
+
+            // Mostra/nascondi la categoria cliccata
+            categoryBox.style.display = (categoryBox.style.display === 'none' || categoryBox.style.display === '') ? 'block' : 'none';
         }
 
         function deleteCategory(categoryIndex) {
