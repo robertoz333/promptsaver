@@ -495,7 +495,7 @@
                         if (prompt.title.toLowerCase() === searchQuery) {
                             resultsFound = true;
                             const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-                            promptDiv.insertAdjacentHTML('afterbegin', <h3>${category.name}</h3>);
+                            promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
                             promptsDisplayContainer.appendChild(promptDiv);
                         }
                     });
