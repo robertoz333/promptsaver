@@ -124,6 +124,11 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            background-color: #555; /* Grigio chiaro */
+            color: #fff;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
         }
 
         .prompt-text {
@@ -214,7 +219,7 @@
         </div>
 
         <div id="prompts-display-container"></div>
-        <div id="category-boxes-container"></div> <!-- Aggiunto container per le category boxes -->
+        <div id="category-boxes-container"></div>
     </div>
 
     <script>
@@ -234,7 +239,7 @@
 
         function renderCategories() {
             var container = document.getElementById('categories');
-            var categoryBoxesContainer = document.getElementById('category-boxes-container'); // Nuovo container
+            var categoryBoxesContainer = document.getElementById('category-boxes-container');
             container.innerHTML = '';
             categoryBoxesContainer.innerHTML = '';
 
@@ -325,11 +330,20 @@
 
         function toggleCategoryBox(categoryDiv, categoryIndex) {
             const categoryBoxes = document.querySelectorAll('.category-box');
+            const categoryDivs = document.querySelectorAll('.category');
             categoryBoxes.forEach((box, idx) => {
                 if (idx === categoryIndex) {
-                    box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+                    const isVisible = box.style.display === 'block';
+                    box.style.display = isVisible ? 'none' : 'block';
+                    // Cambia il colore di sfondo del pulsante della categoria
+                    if (isVisible) {
+                        categoryDivs[idx].style.backgroundColor = '#222'; // Colore originale
+                    } else {
+                        categoryDivs[idx].style.backgroundColor = '#4CAF50'; // Verde
+                    }
                 } else {
                     box.style.display = 'none';
+                    categoryDivs[idx].style.backgroundColor = '#222'; // Resetta gli altri
                 }
             });
         }
@@ -339,7 +353,7 @@
             promptDiv.className = 'prompt-box';
 
             promptDiv.innerHTML = `
-                <input type="text" class="prompt-title" value="${prompt.title}" readonly style="font-size: 16px; width: 100%; margin-bottom: 10px;">
+                <input type="text" class="prompt-title" value="${prompt.title}" readonly>
                 <textarea class="prompt-input prompt-text" readonly style="font-size: 14px; line-height: 1.6;">${prompt.text}</textarea>
                 <div class="prompt-actions">
                     <button class="btn btn-edit">Modifica</button>
@@ -507,7 +521,6 @@
 
         document.getElementById('searchBtn').onclick = searchPrompts;
 
-        // Aggiunto evento per il tasto "Enter" nel campo di ricerca
         document.getElementById('searchInput').addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
                 searchPrompts();
