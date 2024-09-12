@@ -93,7 +93,6 @@
             width: 100%;
         }
 
-        /* Modifica per layout orizzontale dei box prompt */
         .prompt-grid {
             display: flex;
             flex-wrap: wrap;
@@ -140,11 +139,6 @@
             text-overflow: initial;
         }
 
-        /* Quando un prompt è aperto, gli altri vanno disposti in verticale */
-        .prompt-box:not(.open) {
-            flex: 1 1 100%;
-        }
-
         .prompt-text {
             width: 100%;
             background-color: #333;
@@ -154,6 +148,7 @@
             padding: 10px;
             resize: none;
             white-space: pre-wrap;
+            overflow: hidden; /* Impedisce lo scroll e permette l'adattamento dinamico */
         }
 
         .btn {
@@ -359,6 +354,12 @@
             const editBtn = promptDiv.querySelector('.btn.btn-edit');
             const saveBtn = promptDiv.querySelector('.btn.btn-save');
 
+            // Funzione per adattare dinamicamente l'altezza del textarea
+            function autoResizeTextArea(element) {
+                element.style.height = 'auto';
+                element.style.height = element.scrollHeight + 'px';
+            }
+
             // Mostra o nasconde il prompt
             titleInput.onclick = (e) => {
                 e.stopPropagation();
@@ -375,8 +376,7 @@
                     promptDiv.classList.add('open');
                     textArea.style.display = 'block';
                     actionsDiv.style.display = 'block';
-                    textArea.style.height = 'auto';
-                    textArea.style.height = textArea.scrollHeight + 'px';
+                    autoResizeTextArea(textArea); // Aggiorna l'altezza dinamicamente
                 } else {
                     promptDiv.classList.remove('open');
                     textArea.style.display = 'none';
@@ -429,8 +429,7 @@
                 e.stopPropagation();
                 let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
                 textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
-                textArea.style.height = 'auto';
-                textArea.style.height = textArea.scrollHeight + 'px';
+                autoResizeTextArea(textArea); // Aggiorna l'altezza dopo l'aumento del font
             };
 
             return promptDiv;
