@@ -106,10 +106,11 @@
             cursor: pointer;
             width: calc(33.33% - 10px); /* Disposizione in 3 colonne */
             box-sizing: border-box;
+            position: relative;
         }
 
         .prompt-box.open {
-            width: 100%;
+            width: calc(33.33% - 10px); /* Mantiene la larghezza della colonna */
         }
 
         .prompt-title {
@@ -126,6 +127,16 @@
         .prompt-box.open .prompt-text,
         .prompt-box.open .prompt-actions {
             display: block;
+        }
+
+        .prompt-text {
+            width: 100%; /* Imposta la larghezza del box del testo */
+            background-color: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: #fff;
+            padding: 10px;
+            resize: none;
         }
 
         .btn {
@@ -314,7 +325,7 @@
             promptDiv.className = 'prompt-box';
             promptDiv.innerHTML = `
                 <div class="prompt-title">${prompt.title}</div>
-                <textarea class="prompt-input prompt-text" readonly style="font-size: 14px; line-height: 1.6; display: none;">${prompt.text}</textarea>
+                <textarea class="prompt-input prompt-text" readonly style="font-size: 14px; line-height: 1.6; display: none; width: 100%;">${prompt.text}</textarea>
                 <div class="prompt-actions" style="display: none;">
                     <button class="btn btn-edit">Modifica</button>
                     <button class="btn btn-copy">Copia</button>
