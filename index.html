@@ -115,7 +115,6 @@
         }
 
         .prompt-title {
-            cursor: pointer;
             font-size: 16px;
         }
 
@@ -324,21 +323,25 @@
             promptDiv.className = 'prompt-box';
 
             promptDiv.innerHTML = `
-                <div class="prompt-title">${prompt.title}</div>
+                <input type="text" class="prompt-title" value="${prompt.title}" readonly style="font-size: 16px; width: 100%; margin-bottom: 10px;">
                 <textarea class="prompt-input prompt-text" readonly style="font-size: 14px; line-height: 1.6; display: none; width: 100%;">${prompt.text}</textarea>
                 <div class="prompt-actions" style="display: none;">
                     <button class="btn btn-edit">Modifica</button>
+                    <button class="btn btn-save" style="display:none;">Salva</button>
                     <button class="btn btn-copy">Copia</button>
                     <button class="btn btn-delete">Elimina</button>
                     <button class="btn btn-font">Aumenta Font</button>
                 </div>
             `;
 
-            const titleDiv = promptDiv.querySelector('.prompt-title');
+            const titleInput = promptDiv.querySelector('.prompt-title');
             const textArea = promptDiv.querySelector('.prompt-text');
             const actionsDiv = promptDiv.querySelector('.prompt-actions');
+            const editBtn = promptDiv.querySelector('.btn.btn-edit');
+            const saveBtn = promptDiv.querySelector('.btn.btn-save');
 
-            titleDiv.onclick = (e) => {
+            // Mostra o nasconde il prompt
+            titleInput.onclick = (e) => {
                 e.stopPropagation();
                 const isOpen = promptDiv.classList.contains('open');
 
@@ -362,11 +365,27 @@
                 }
             };
 
-            promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
+            // Abilita la modifica
+            editBtn.onclick = (e) => {
                 e.stopPropagation();
+                titleInput.readOnly = false;
                 textArea.readOnly = false;
-                textArea.focus(); // Apre la textarea per la modifica
-                e.target.style.display = 'none'; // Nasconde il bottone Modifica
+                titleInput.focus();
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline';
+            };
+
+            // Salva le modifiche
+            saveBtn.onclick = (e) => {
+                e.stopPropagation();
+                titleInput.readOnly = true;
+                textArea.readOnly = true;
+                editBtn.style.display = 'inline';
+                saveBtn.style.display = 'none';
+
+                categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
+                categories[categoryIndex].prompts[promptIndex].text = textArea.value;
+                saveToLocalStorage();
             };
 
             promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
