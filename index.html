@@ -4,226 +4,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver (In-Memory) con Archivio</title>
+    <title>Prompt Saver con Bootstrap</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
             background-color: #000;
             color: #fff;
-            margin: 0;
             padding: 20px;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            text-align: center;
-            line-height: 1.4;
-        }
-
-        .search-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .search-container input {
-            width: 70%;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 5px 0 0 5px;
-        }
-
-        .search-container button {
-            padding: 10px;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-        }
-
-        .top-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .new-category-section {
-            flex-grow: 1;
-            margin-right: 20px;
-        }
-
-        #newCategoryInput {
-            width: 100%;
-            line-height: 1.4;
-        }
-
-        #prompts-display-container {
-            display: flex;
-            flex-direction: column-reverse;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        #categories {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .category {
-            padding: 5px 10px;
-            background-color: #222;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-            flex: 1 1 auto;
-            min-width: 100px;
-            text-align: center;
         }
 
         .category-box {
             background-color: #333;
-            color: #fff;
-            padding: 10px;
+            padding: 20px;
             border-radius: 5px;
-            margin-top: 10px;
-            display: none;
-            width: 100%;
-        }
-
-        /* Aggiunto stile per separare la categoria dai titoli dei prompt */
-        .category-header {
-            margin-bottom: 20px; /* Aggiunge spazio sotto la categoria */
-        }
-
-        .prompt-titles-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .prompt-title-div {
-            padding: 5px 10px;
-            background-color: #555;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .prompt-title-div:hover {
-            background-color: #666;
+            margin-top: 20px;
         }
 
         .prompt-title-div.active {
-            background-color: #4CAF50;
-        }
-
-        .selected-prompt-container {
-            margin-top: 10px;
+            background-color: #28a745; /* Colore "success" di Bootstrap */
+            color: #fff;
         }
 
         .prompt-content {
             background-color: #444;
-            padding: 10px;
+            padding: 20px;
             border-radius: 5px;
+        }
+
+        .prompt-title-input,
+        .prompt-text {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 5px;
+            margin-bottom: 15px;
         }
 
         .prompt-title-input {
-            width: 100%;
-            background-color: #333;
-            border: 1px solid #555;
-            border-radius: 5px;
-            color: #fff;
-            padding: 8px;
-            margin-bottom: 10px;
-            font-size: 16px;
+            padding: 10px;
+            font-size: 18px;
         }
 
         .prompt-text {
-            width: 100%;
-            background-color: #333;
-            border: 1px solid #555;
-            border-radius: 5px;
-            color: #fff;
             padding: 10px;
+            font-size: 16px;
             resize: none;
-            white-space: pre-wrap;
-            overflow: hidden;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 10px;
+            height: auto;
         }
 
-        .prompt-actions {
-            text-align: right;
+        .category-header {
+            margin-bottom: 20px;
         }
 
-        .btn {
+        .prompt-titles-container {
+            margin-bottom: 20px;
+        }
+
+        /* Pulsanti personalizzati per mantenere i colori originali */
+        .btn-custom {
             color: #fff;
             border: none;
-            padding: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
             margin-right: 5px;
         }
 
         .btn-new {
-            background-color: #4CAF50;
+            background-color: #28a745;
         }
 
         .btn-edit {
-            background-color: #2196F3;
+            background-color: #17a2b8;
         }
 
         .btn-save {
-            background-color: #4CAF50;
+            background-color: #28a745;
             display: none;
         }
 
         .btn-delete {
-            background-color: #F44336;
+            background-color: #dc3545;
         }
 
         .btn-copy {
-            background-color: #FFC107;
+            background-color: #ffc107;
         }
 
         .btn-font {
-            background-color: #FF9800;
-        }
-
-        @media (max-width: 600px) {
-            .prompt-titles-container {
-                flex-direction: column;
-            }
+            background-color: #ff9800;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Prompt Saver</h1>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Cerca prompt o categoria...">
-            <button id="searchBtn">🔍</button>
+        <h1 class="text-center">Prompt Saver</h1>
+
+        <div class="search-container mb-4">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Cerca prompt o categoria...">
+                <div class="input-group-append">
+                    <button id="searchBtn" class="btn btn-success">🔍</button>
+                </div>
+            </div>
         </div>
-        <div class="top-section">
-            <div class="new-category-section">
-                <input type="text" id="newCategoryInput" placeholder="Nuova categoria">
-                <button id="addCategoryBtn" class="btn btn-new">Aggiungi Categoria</button>
-                <div id="categories"></div>
+
+        <div class="top-section mb-4">
+            <div class="new-category-section w-100">
+                <div class="input-group">
+                    <input type="text" id="newCategoryInput" class="form-control" placeholder="Nuova categoria">
+                    <div class="input-group-append">
+                        <button id="addCategoryBtn" class="btn btn-success">Aggiungi Categoria</button>
+                    </div>
+                </div>
+                <div id="categories" class="mt-3 d-flex flex-wrap"></div>
             </div>
         </div>
 
@@ -231,6 +126,37 @@
         <div id="category-boxes-container"></div>
     </div>
 
+    <!-- Modale per aggiungere un nuovo prompt -->
+    <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="newPromptForm">
+              <div class="form-group">
+                <label for="promptTitle">Titolo</label>
+                <input type="text" class="form-control" id="promptTitle" required>
+              </div>
+              <div class="form-group">
+                <label for="promptText">Testo</label>
+                <textarea class="form-control" id="promptText" rows="5" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-success">Aggiungi</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Include jQuery, Popper.js, and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         var categories = [];
 
@@ -255,8 +181,8 @@
             categories.sort((a, b) => a.name.localeCompare(b.name));
 
             categories.forEach((category, index) => {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category';
+                const categoryDiv = document.createElement('button');
+                categoryDiv.className = 'btn btn-secondary mr-2 mb-2';
                 categoryDiv.textContent = category.name;
 
                 categoryDiv.onclick = () => {
@@ -276,26 +202,27 @@
 
             // Creazione di un contenitore per la categoria e i pulsanti
             const categoryHeader = document.createElement('div');
-            categoryHeader.className = 'category-header';
+            categoryHeader.className = 'category-header d-flex align-items-center';
 
             const categoryInput = document.createElement('input');
             categoryInput.type = 'text';
             categoryInput.value = category.name;
-            categoryInput.className = 'category-input';
+            categoryInput.className = 'form-control mr-2';
+            categoryInput.readOnly = true;
             categoryHeader.appendChild(categoryInput);
 
             const editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-edit';
+            editBtn.className = 'btn btn-info btn-edit btn-custom';
             editBtn.textContent = 'Modifica';
             categoryHeader.appendChild(editBtn);
 
             const saveBtn = document.createElement('button');
-            saveBtn.className = 'btn btn-save';
+            saveBtn.className = 'btn btn-success btn-save btn-custom';
             saveBtn.textContent = 'Salva';
             categoryHeader.appendChild(saveBtn);
 
             const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn btn-delete';
+            deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
             deleteBtn.textContent = 'Elimina';
             categoryHeader.appendChild(deleteBtn);
 
@@ -322,7 +249,7 @@
 
             // Creazione dei contenitori per i titoli dei prompt e il prompt selezionato
             const promptTitlesContainer = document.createElement('div');
-            promptTitlesContainer.className = 'prompt-titles-container';
+            promptTitlesContainer.className = 'prompt-titles-container d-flex flex-wrap';
 
             const selectedPromptContainer = document.createElement('div');
             selectedPromptContainer.className = 'selected-prompt-container';
@@ -338,7 +265,7 @@
             categoryBox.appendChild(selectedPromptContainer);
 
             const newPromptBtn = document.createElement('button');
-            newPromptBtn.className = 'btn btn-new';
+            newPromptBtn.className = 'btn btn-success btn-new mt-3';
             newPromptBtn.textContent = 'Nuovo Prompt';
             newPromptBtn.onclick = () => {
                 showNewPromptForm(categoryIndex);
@@ -349,8 +276,8 @@
         }
 
         function createPromptTitleDiv(prompt, categoryIndex, promptIndex) {
-            const promptTitleDiv = document.createElement('div');
-            promptTitleDiv.className = 'prompt-title-div';
+            const promptTitleDiv = document.createElement('button');
+            promptTitleDiv.className = 'btn btn-secondary mr-2 mb-2';
             promptTitleDiv.textContent = prompt.title;
 
             promptTitleDiv.onclick = () => {
@@ -376,7 +303,7 @@
             autoResizeTextArea(textArea);
 
             // Aggiorna il colore di sfondo del titolo del prompt selezionato
-            const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.prompt-title-div');
+            const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.btn');
             promptTitleDivs.forEach(div => {
                 div.classList.remove('active');
             });
@@ -390,41 +317,41 @@
             // Input per il titolo del prompt
             const titleInput = document.createElement('input');
             titleInput.type = 'text';
-            titleInput.className = 'prompt-title-input';
+            titleInput.className = 'prompt-title-input form-control';
             titleInput.value = prompt.title;
             titleInput.readOnly = true;
 
             promptDiv.appendChild(titleInput);
 
             const textArea = document.createElement('textarea');
-            textArea.className = 'prompt-input prompt-text';
+            textArea.className = 'prompt-text form-control';
             textArea.value = prompt.text;
             textArea.readOnly = true;
 
             promptDiv.appendChild(textArea);
 
             const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'prompt-actions';
+            actionsDiv.className = 'prompt-actions mt-3';
 
             const editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-edit';
+            editBtn.className = 'btn btn-info btn-edit btn-custom';
             editBtn.textContent = 'Modifica';
 
             const saveBtn = document.createElement('button');
-            saveBtn.className = 'btn btn-save';
+            saveBtn.className = 'btn btn-success btn-save btn-custom';
             saveBtn.textContent = 'Salva';
             saveBtn.style.display = 'none';
 
             const copyBtn = document.createElement('button');
-            copyBtn.className = 'btn btn-copy';
+            copyBtn.className = 'btn btn-warning btn-copy btn-custom';
             copyBtn.textContent = 'Copia';
 
             const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn btn-delete';
+            deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
             deleteBtn.textContent = 'Elimina';
 
             const fontBtn = document.createElement('button');
-            fontBtn.className = 'btn btn-font';
+            fontBtn.className = 'btn btn-secondary btn-font btn-custom';
             fontBtn.textContent = 'Aumenta Font';
 
             actionsDiv.appendChild(editBtn);
@@ -457,7 +384,7 @@
 
                 // Aggiorna il titolo nel promptTitleDiv
                 const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
-                const promptTitleDivs = promptTitlesContainer.querySelectorAll('.prompt-title-div');
+                const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
                 promptTitleDivs[promptIndex].textContent = titleInput.value;
             };
 
@@ -491,32 +418,44 @@
 
         function toggleCategoryBox(categoryDiv, categoryIndex) {
             const categoryBoxes = document.querySelectorAll('.category-box');
-            const categoryDivs = document.querySelectorAll('.category');
+            const categoryDivs = document.querySelectorAll('#categories .btn');
             categoryBoxes.forEach((box, idx) => {
                 if (idx === categoryIndex) {
                     const isVisible = box.style.display === 'block';
                     box.style.display = isVisible ? 'none' : 'block';
                     // Cambia il colore di sfondo del pulsante della categoria
                     if (isVisible) {
-                        categoryDivs[idx].style.backgroundColor = '#222'; // Colore originale
+                        categoryDivs[idx].classList.remove('btn-success');
+                        categoryDivs[idx].classList.add('btn-secondary');
                     } else {
-                        categoryDivs[idx].style.backgroundColor = '#4CAF50'; // Verde
+                        categoryDivs[idx].classList.remove('btn-secondary');
+                        categoryDivs[idx].classList.add('btn-success');
                     }
                 } else {
                     box.style.display = 'none';
-                    categoryDivs[idx].style.backgroundColor = '#222'; // Resetta gli altri
+                    categoryDivs[idx].classList.remove('btn-success');
+                    categoryDivs[idx].classList.add('btn-secondary');
                 }
             });
         }
 
         function showNewPromptForm(categoryIndex) {
-            const title = prompt("Inserisci il titolo del prompt:");
-            const text = prompt("Inserisci il testo del prompt:");
-            if (title && text) {
-                categories[categoryIndex].prompts.push({ title, text });
-                saveToLocalStorage();
-                renderCategories();
-            }
+            $('#newPromptModal').modal('show'); // Mostra il modale
+
+            $('#newPromptForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
+                const title = $('#promptTitle').val();
+                const text = $('#promptText').val();
+                if (title && text) {
+                    categories[categoryIndex].prompts.push({ title, text });
+                    saveToLocalStorage();
+                    renderCategories();
+                    $('#newPromptModal').modal('hide'); // Nasconde il modale
+                    // Pulisce i campi del form
+                    $('#promptTitle').val('');
+                    $('#promptText').val('');
+                }
+            });
         }
 
         function deleteCategory(categoryIndex) {
