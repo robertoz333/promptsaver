@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 
@@ -143,7 +142,7 @@
         .prompt-actions {
             display: none;
             margin-top: 10px;
-            text-align: right; /* Allinea i pulsanti a destra */
+            text-align: right;
         }
 
         .prompt-box.open .prompt-text,
@@ -353,13 +352,11 @@
             const editBtn = promptDiv.querySelector('.btn.btn-edit');
             const saveBtn = promptDiv.querySelector('.btn.btn-save');
 
-            // Funzione per adattare dinamicamente l'altezza del textarea
             function autoResizeTextArea(element) {
-                element.style.height = 'auto';  // Resetta altezza
-                element.style.height = element.scrollHeight + 'px';  // Adatta altezza al contenuto
+                element.style.height = 'auto';
+                element.style.height = element.scrollHeight + 'px';
             }
 
-            // Mostra o nasconde il prompt
             titleInput.onclick = (e) => {
                 e.stopPropagation();
                 const isOpen = promptDiv.classList.contains('open');
@@ -375,8 +372,8 @@
                     promptDiv.classList.add('open');
                     textArea.style.display = 'block';
                     actionsDiv.style.display = 'block';
-                    autoResizeTextArea(textArea); // Aggiorna l'altezza dinamicamente
-                    promptDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Scorri verso il prompt aperto
+                    autoResizeTextArea(textArea);
+                    promptDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 } else {
                     promptDiv.classList.remove('open');
                     textArea.style.display = 'none';
@@ -384,7 +381,6 @@
                 }
             };
 
-            // Abilita la modifica
             editBtn.onclick = (e) => {
                 e.stopPropagation();
                 titleInput.readOnly = false;
@@ -394,7 +390,6 @@
                 saveBtn.style.display = 'inline';
             };
 
-            // Salva le modifiche
             saveBtn.onclick = (e) => {
                 e.stopPropagation();
                 titleInput.readOnly = true;
@@ -429,10 +424,9 @@
                 e.stopPropagation();
                 let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
                 textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
-                autoResizeTextArea(textArea); // Aggiorna l'altezza dopo l'aumento del font
+                autoResizeTextArea(textArea);
             };
 
-            // Adatta l'altezza del textarea al contenuto iniziale
             autoResizeTextArea(textArea);
 
             return promptDiv;
@@ -457,23 +451,39 @@
         }
 
         function searchPrompts() {
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
             const promptsDisplayContainer = document.getElementById('prompts-display-container');
             promptsDisplayContainer.innerHTML = '<h2>Risultati della ricerca</h2>';
 
             let resultsFound = false;
 
             categories.forEach((category, categoryIndex) => {
-                category.prompts.forEach((prompt, promptIndex) => {
-                    if (prompt.title.toLowerCase().includes(searchQuery) ||
-                        prompt.text.toLowerCase().includes(searchQuery) ||
-                        category.name.toLowerCase().includes(searchQuery)) {
-                        resultsFound = true;
+                if (category.name.toLowerCase() === searchQuery) {
+                    resultsFound = true;
+
+                    const categoryHeader = document.createElement('h3');
+                    categoryHeader.textContent = category.name;
+                    promptsDisplayContainer.appendChild(categoryHeader);
+
+                    const promptGrid = document.createElement('div');
+                    promptGrid.className = 'prompt-grid';
+
+                    category.prompts.forEach((prompt, promptIndex) => {
                         const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
-                        promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
-                        promptsDisplayContainer.appendChild(promptDiv);
-                    }
-                });
+                        promptGrid.appendChild(promptDiv);
+                    });
+
+                    promptsDisplayContainer.appendChild(promptGrid);
+                } else {
+                    category.prompts.forEach((prompt, promptIndex) => {
+                        if (prompt.title.toLowerCase() === searchQuery) {
+                            resultsFound = true;
+                            const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
+                            promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
+                            promptsDisplayContainer.appendChild(promptDiv);
+                        }
+                    });
+                }
             });
 
             if (!resultsFound) {
