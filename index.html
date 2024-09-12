@@ -16,7 +16,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -93,6 +93,7 @@
             width: 100%;
         }
 
+        /* Modifica per layout orizzontale dei box prompt */
         .prompt-grid {
             display: flex;
             flex-wrap: wrap;
@@ -105,17 +106,15 @@
             color: #fff;
             padding: 10px;
             border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
+            width: 200px; /* Larghezza fissa per il layout orizzontale */
             box-sizing: border-box;
-        }
-
-        .prompt-box.open {
-            display: block;
         }
 
         .prompt-title {
             font-size: 16px;
+            white-space: nowrap; /* Mantiene il titolo su una riga */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Mostra i ... se il titolo è troppo lungo */
         }
 
         .prompt-text,
@@ -173,10 +172,9 @@
             background-color: #FF9800;
         }
 
-        /* Responsività: imposta larghezza al 100% per schermi piccoli */
+        /* Imposta il layout verticale per schermi piccoli */
         @media (max-width: 600px) {
-            .prompt-box,
-            .category-box {
+            .prompt-box {
                 width: 100%;
             }
         }
