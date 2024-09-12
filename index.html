@@ -356,8 +356,8 @@
 
             // Funzione per adattare dinamicamente l'altezza del textarea
             function autoResizeTextArea(element) {
-                element.style.height = 'auto';
-                element.style.height = element.scrollHeight + 'px';
+                element.style.height = 'auto';  // Resetta l'altezza
+                element.style.height = element.scrollHeight + 'px';  // Adatta l'altezza all'effettiva lunghezza del testo
             }
 
             // Mostra o nasconde il prompt
