@@ -79,7 +79,8 @@
             background-color: #222;
             color: #fff;
             border-radius: 5px;
-            cursor: pointer;
+            display: flex;
+            align-items: center;
         }
 
         #prompts-display-container {
@@ -142,10 +143,6 @@
         .btn-font {
             background-color: #FF9800;
         }
-
-        .btn-sort {
-            background-color: #9C27B0;
-        }
     </style>
 </head>
 
@@ -188,10 +185,51 @@
             categories.forEach((category, index) => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
-                categoryDiv.textContent = category.name;
+
+                const categoryInput = document.createElement('input');
+                categoryInput.type = 'text';
+                categoryInput.value = category.name;
+                categoryInput.className = 'category-input';
+                categoryInput.readOnly = true;
+                categoryDiv.appendChild(categoryInput);
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn btn-edit';
+                editBtn.textContent = 'Modifica';
+                editBtn.onclick = () => toggleEditCategory(categoryInput, editBtn, index);
+                categoryDiv.appendChild(editBtn);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-delete';
+                deleteBtn.textContent = 'Elimina';
+                deleteBtn.onclick = () => deleteCategory(index);
+                categoryDiv.appendChild(deleteBtn);
+
                 categoryDiv.onclick = () => displayPromptsVertically(category, index);
                 container.appendChild(categoryDiv);
             });
+        }
+
+        function toggleEditCategory(categoryInput, editBtn, categoryIndex) {
+            if (categoryInput.readOnly) {
+                categoryInput.readOnly = false;
+                editBtn.textContent = 'Salva';
+            } else {
+                categoryInput.readOnly = true;
+                editBtn.textContent = 'Modifica';
+                categories[categoryIndex].name = categoryInput.value;
+                saveToLocalStorage();
+                renderCategories(); // Re-render to update changes
+            }
+        }
+
+        function deleteCategory(categoryIndex) {
+            if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
+                categories.splice(categoryIndex, 1);
+                saveToLocalStorage();
+                renderCategories();
+                document.getElementById('prompts-display-container').innerHTML = '';
+            }
         }
 
         function displayPromptsVertically(category, categoryIndex) {
@@ -205,14 +243,6 @@
                 showNewPromptForm(categoryIndex);
             };
             promptsDisplayContainer.appendChild(newPromptBtn);
-
-            const sortPromptBtn = document.createElement('button');
-            sortPromptBtn.className = 'btn btn-sort';
-            sortPromptBtn.textContent = 'Ordina Alfabeticamente';
-            sortPromptBtn.onclick = () => {
-                sortPrompts(categoryIndex);
-            };
-            promptsDisplayContainer.appendChild(sortPromptBtn);
 
             const deleteCategoryBtn = document.createElement('button');
             deleteCategoryBtn.className = 'btn btn-delete';
@@ -305,13 +335,6 @@
             };
 
             return promptDiv;
-        }
-
-        function sortPrompts(categoryIndex) {
-            // Ordina i prompt in ordine alfabetico per titolo
-            categories[categoryIndex].prompts.sort((a, b) => a.title.localeCompare(b.title));
-            saveToLocalStorage();
-            displayPromptsVertically(categories[categoryIndex], categoryIndex);
         }
 
         function togglePrompt(promptDiv) {
