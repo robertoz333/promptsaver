@@ -131,7 +131,6 @@
             white-space: pre-wrap;
             overflow: hidden;
             display: none;
-            max-height: 200px; /* Altezza massima del box dei testi del prompt */
         }
 
         .prompt-actions {
@@ -427,6 +426,9 @@
                 textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
                 autoResizeTextArea(textArea); // Aggiorna l'altezza dopo l'aumento del font
             };
+
+            // Adatta l'altezza del textarea al contenuto iniziale
+            autoResizeTextArea(textArea);
 
             return promptDiv;
         }
