@@ -92,25 +92,15 @@
             display: none;
         }
 
-        .prompt-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
         .prompt-box {
             background-color: #444;
             color: #fff;
             padding: 10px;
             border-radius: 5px;
             cursor: pointer;
-            width: calc(33.33% - 10px); /* Disposizione in 3 colonne */
+            width: 100%; /* Imposta il prompt a tutta larghezza */
             box-sizing: border-box;
-            position: relative;
-        }
-
-        .prompt-box.open {
-            width: calc(33.33% - 10px); /* Mantiene la larghezza della colonna */
+            margin-bottom: 10px;
         }
 
         .prompt-title {
@@ -130,7 +120,7 @@
         }
 
         .prompt-text {
-            width: 100%; /* Imposta la larghezza del box del testo */
+            width: 100%; /* Imposta il box del testo a tutta larghezza */
             background-color: #333;
             border: 1px solid #555;
             border-radius: 5px;
@@ -285,14 +275,10 @@
             };
 
             // Visualizza i prompt della categoria
-            const promptGrid = document.createElement('div');
-            promptGrid.className = 'prompt-grid';
             category.prompts.forEach((prompt, promptIndex) => {
                 const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
-                promptGrid.appendChild(promptDiv);
+                categoryBox.appendChild(promptDiv);
             });
-
-            categoryBox.appendChild(promptGrid);
 
             const newPromptBtn = document.createElement('button');
             newPromptBtn.className = 'btn btn-new';
