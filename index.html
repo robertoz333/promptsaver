@@ -226,7 +226,7 @@
             promptDiv.className = 'prompt-box';
             promptDiv.innerHTML = `
                 <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly style="font-size: 16px;">
-                <textarea class="prompt-input prompt-text" readonly style="font-size: 14px;">${prompt.text}</textarea>
+                <textarea class="prompt-input prompt-text" readonly style="font-size: 14px; line-height: 1.6;">${prompt.text}</textarea>
                 <div class="prompt-actions">
                     <button class="btn btn-edit">Modifica</button>
                     <button class="btn btn-copy">Copia</button>
@@ -280,14 +280,16 @@
                 }
             };
 
-            // Aumenta la dimensione del font di titolo e testo
+            // Aumenta la dimensione del font e l'interlinea del testo
             promptDiv.querySelector('.btn.btn-font').onclick = (e) => {
                 e.stopPropagation();
                 let currentTitleFontSize = parseInt(window.getComputedStyle(titleInput).fontSize);
                 let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
+                let currentLineHeight = parseFloat(window.getComputedStyle(textArea).lineHeight);
 
                 titleInput.style.fontSize = (currentTitleFontSize + 4) + 'px';  // Aumenta di 4 unità
                 textArea.style.fontSize = (currentTextFontSize + 1) + 'px';  // Aumenta di 1 unità
+                textArea.style.lineHeight = (currentLineHeight + 0.1) + 'em';  // Aumenta l'interlinea di 0.1 em
             };
 
             return promptDiv;
@@ -372,4 +374,3 @@
 </body>
 
 </html>
-
