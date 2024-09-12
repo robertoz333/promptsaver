@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Saver (In-Memory) con Archivio</title>
     <style>
+        /* ... [Il tuo CSS originale rimane invariato] ... */
+
         body {
             font-family: Arial, sans-serif;
             background-color: #000;
@@ -338,12 +340,20 @@
             return promptTitleDiv;
         }
 
+        function autoResizeTextArea(element) {
+            element.style.height = 'auto';
+            element.style.height = element.scrollHeight + 'px';
+        }
+
         function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
             const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
             selectedPromptContainer.innerHTML = ''; // Pulisce il contenitore precedente
 
-            const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
+            const { promptDiv, textArea } = createPromptDiv(prompt, categoryIndex, promptIndex);
             selectedPromptContainer.appendChild(promptDiv);
+
+            // Ora che il promptDiv è nel DOM, possiamo ridimensionare la textarea
+            autoResizeTextArea(textArea);
 
             // Aggiorna il colore di sfondo del titolo del prompt selezionato
             const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.prompt-title-div');
@@ -396,13 +406,6 @@
 
             promptDiv.appendChild(actionsDiv);
 
-            function autoResizeTextArea(element) {
-                element.style.height = 'auto';
-                element.style.height = element.scrollHeight + 'px';
-            }
-
-            autoResizeTextArea(textArea);
-
             editBtn.onclick = (e) => {
                 e.stopPropagation();
                 textArea.readOnly = false;
@@ -446,7 +449,7 @@
                 autoResizeTextArea(textArea);
             };
 
-            return promptDiv;
+            return { promptDiv, textArea };
         }
 
         function toggleCategoryBox(categoryDiv, categoryIndex) {
@@ -506,7 +509,7 @@
                     promptGrid.className = 'prompt-grid';
 
                     category.prompts.forEach((prompt, promptIndex) => {
-                        const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
+                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
                         promptGrid.appendChild(promptDiv);
                     });
 
@@ -515,7 +518,7 @@
                     category.prompts.forEach((prompt, promptIndex) => {
                         if (prompt.title.toLowerCase() === searchQuery) {
                             resultsFound = true;
-                            const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
+                            const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
                             promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
                             promptsDisplayContainer.appendChild(promptDiv);
                         }
