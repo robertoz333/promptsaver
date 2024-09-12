@@ -142,6 +142,10 @@
         .btn-font {
             background-color: #FF9800;
         }
+
+        .btn-sort {
+            background-color: #9C27B0;
+        }
     </style>
 </head>
 
@@ -201,6 +205,14 @@
                 showNewPromptForm(categoryIndex);
             };
             promptsDisplayContainer.appendChild(newPromptBtn);
+
+            const sortPromptBtn = document.createElement('button');
+            sortPromptBtn.className = 'btn btn-sort';
+            sortPromptBtn.textContent = 'Ordina Alfabeticamente';
+            sortPromptBtn.onclick = () => {
+                sortPrompts(categoryIndex);
+            };
+            promptsDisplayContainer.appendChild(sortPromptBtn);
 
             const deleteCategoryBtn = document.createElement('button');
             deleteCategoryBtn.className = 'btn btn-delete';
@@ -293,6 +305,13 @@
             };
 
             return promptDiv;
+        }
+
+        function sortPrompts(categoryIndex) {
+            // Ordina i prompt in ordine alfabetico per titolo
+            categories[categoryIndex].prompts.sort((a, b) => a.title.localeCompare(b.title));
+            saveToLocalStorage();
+            displayPromptsVertically(categories[categoryIndex], categoryIndex);
         }
 
         function togglePrompt(promptDiv) {
