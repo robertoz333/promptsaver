@@ -126,8 +126,8 @@
             padding: 10px;
             resize: none;
             white-space: pre-wrap;
-            overflow: hidden;
-            display: none; /* Nascondi il contenuto del prompt finché non viene aperto */
+            overflow: hidden; /* Nascondere lo scroll */
+            display: none;
         }
 
         .prompt-actions {
@@ -348,8 +348,8 @@
 
             // Funzione per adattare dinamicamente l'altezza del textarea
             function autoResizeTextArea(element) {
-                element.style.height = 'auto';  // Reset altezza
-                element.style.height = element.scrollHeight + 'px';  // Adatta altezza
+                element.style.height = 'auto';  // Resetta altezza
+                element.style.height = element.scrollHeight + 'px';  // Adatta altezza al contenuto
             }
 
             // Mostra o nasconde il prompt
