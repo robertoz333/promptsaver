@@ -138,6 +138,10 @@
         .btn-copy {
             background-color: #FFC107;
         }
+
+        .btn-font {
+            background-color: #FF9800;
+        }
     </style>
 </head>
 
@@ -221,12 +225,13 @@
             const promptDiv = document.createElement('div');
             promptDiv.className = 'prompt-box';
             promptDiv.innerHTML = `
-                <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly>
-                <textarea class="prompt-input prompt-text" readonly>${prompt.text}</textarea>
+                <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly style="font-size: 16px;">
+                <textarea class="prompt-input prompt-text" readonly style="font-size: 14px;">${prompt.text}</textarea>
                 <div class="prompt-actions">
                     <button class="btn btn-edit">Modifica</button>
                     <button class="btn btn-copy">Copia</button>
                     <button class="btn btn-delete">Elimina</button>
+                    <button class="btn btn-font">Aumenta Font</button>
                 </div>
             `;
 
@@ -273,6 +278,16 @@
                     saveToLocalStorage();
                     displayPromptsVertically(categories[categoryIndex], categoryIndex);
                 }
+            };
+
+            // Aumenta la dimensione del font di titolo e testo
+            promptDiv.querySelector('.btn.btn-font').onclick = (e) => {
+                e.stopPropagation();
+                let currentTitleFontSize = parseInt(window.getComputedStyle(titleInput).fontSize);
+                let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
+
+                titleInput.style.fontSize = (currentTitleFontSize + 4) + 'px';  // Aumenta di 4 unità
+                textArea.style.fontSize = (currentTextFontSize + 1) + 'px';  // Aumenta di 1 unità
             };
 
             return promptDiv;
@@ -357,3 +372,4 @@
 </body>
 
 </html>
+
