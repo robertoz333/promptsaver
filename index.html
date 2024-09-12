@@ -90,7 +90,7 @@
             border-radius: 5px;
             margin-top: 10px;
             display: none;
-            width: 100%; /* Uniformare la larghezza per tutte le categorie */
+            width: 100%;
         }
 
         .prompt-grid {
@@ -106,7 +106,7 @@
             padding: 10px;
             border-radius: 5px;
             cursor: pointer;
-            width: 100%; /* Uniformare larghezza dei box */
+            width: 100%;
             box-sizing: border-box;
         }
 
@@ -248,7 +248,6 @@
             categoryInput.type = 'text';
             categoryInput.value = category.name;
             categoryInput.className = 'category-input';
-            categoryInput.readOnly = true;
             categoryBox.appendChild(categoryInput);
 
             const editBtn = document.createElement('button');
@@ -269,6 +268,7 @@
 
             editBtn.onclick = () => {
                 categoryInput.readOnly = false;
+                categoryInput.focus(); // Imposta il focus sul campo
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
             };
@@ -360,6 +360,13 @@
                     textArea.style.display = 'none';
                     actionsDiv.style.display = 'none';
                 }
+            };
+
+            promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
+                e.stopPropagation();
+                textArea.readOnly = false;
+                textArea.focus(); // Apre la textarea per la modifica
+                e.target.style.display = 'none'; // Nasconde il bottone Modifica
             };
 
             promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
