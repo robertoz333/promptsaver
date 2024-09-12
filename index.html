@@ -102,39 +102,37 @@
             width: 100%;
         }
 
-        .prompt-grid {
+        .prompt-titles-container {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
-        .prompt-box {
-            background-color: #444;
+        .prompt-title-div {
+            padding: 5px 10px;
+            background-color: #555;
             color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            width: 200px; /* Imposta la larghezza dei titoli */
-            box-sizing: border-box;
-            transition: width 0.3s ease;
-            flex: 0 0 auto;
-        }
-
-        .prompt-box.open {
-            width: 100%; /* Espande il prompt aperto a tutta larghezza */
-        }
-
-        .prompt-title {
-            font-size: 16px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            background-color: #555; /* Grigio chiaro */
-            color: #fff;
-            border: none;
-            padding: 5px;
             border-radius: 5px;
             cursor: pointer;
+        }
+
+        .prompt-title-div:hover {
+            background-color: #666;
+        }
+
+        .prompt-title-div.active {
+            background-color: #4CAF50;
+        }
+
+        .selected-prompt-container {
+            margin-top: 10px;
+        }
+
+        .prompt-content {
+            background-color: #444;
+            padding: 10px;
+            border-radius: 5px;
         }
 
         .prompt-text {
@@ -147,26 +145,13 @@
             resize: none;
             white-space: pre-wrap;
             overflow: hidden;
-            display: none;
-            margin-top: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
         }
 
         .prompt-actions {
-            display: none;
-            margin-top: 10px;
             text-align: right;
-        }
-
-        .prompt-box.open .prompt-text,
-        .prompt-box.open .prompt-actions {
-            display: block;
-        }
-
-        .prompt-box.open .prompt-title {
-            white-space: normal;
-            overflow: visible;
-            text-overflow: initial;
-            cursor: default;
         }
 
         .btn {
@@ -204,12 +189,8 @@
         }
 
         @media (max-width: 600px) {
-            .prompt-box {
-                width: 100%;
-            }
-
-            .prompt-box.open {
-                width: 100%;
+            .prompt-titles-container {
+                flex-direction: column;
             }
         }
     </style>
@@ -317,17 +298,22 @@
                 deleteCategory(categoryIndex);
             };
 
-            const promptGrid = document.createElement('div');
-            promptGrid.className = 'prompt-grid';
+            // Creazione dei contenitori per i titoli dei prompt e il prompt selezionato
+            const promptTitlesContainer = document.createElement('div');
+            promptTitlesContainer.className = 'prompt-titles-container';
+
+            const selectedPromptContainer = document.createElement('div');
+            selectedPromptContainer.className = 'selected-prompt-container';
 
             category.prompts.sort((a, b) => a.title.localeCompare(b.title));
 
             category.prompts.forEach((prompt, promptIndex) => {
-                const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
-                promptGrid.appendChild(promptDiv);
+                const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, promptIndex);
+                promptTitlesContainer.appendChild(promptTitleDiv);
             });
 
-            categoryBox.appendChild(promptGrid);
+            categoryBox.appendChild(promptTitlesContainer);
+            categoryBox.appendChild(selectedPromptContainer);
 
             const newPromptBtn = document.createElement('button');
             newPromptBtn.className = 'btn btn-new';
@@ -340,37 +326,36 @@
             return categoryBox;
         }
 
-        function toggleCategoryBox(categoryDiv, categoryIndex) {
-            const categoryBoxes = document.querySelectorAll('.category-box');
-            const categoryDivs = document.querySelectorAll('.category');
-            categoryBoxes.forEach((box, idx) => {
-                if (idx === categoryIndex) {
-                    const isVisible = box.style.display === 'block';
-                    box.style.display = isVisible ? 'none' : 'block';
-                    // Cambia il colore di sfondo del pulsante della categoria
-                    if (isVisible) {
-                        categoryDivs[idx].style.backgroundColor = '#222'; // Colore originale
-                    } else {
-                        categoryDivs[idx].style.backgroundColor = '#4CAF50'; // Verde
-                    }
-                } else {
-                    box.style.display = 'none';
-                    categoryDivs[idx].style.backgroundColor = '#222'; // Resetta gli altri
-                }
+        function createPromptTitleDiv(prompt, categoryIndex, promptIndex) {
+            const promptTitleDiv = document.createElement('div');
+            promptTitleDiv.className = 'prompt-title-div';
+            promptTitleDiv.textContent = prompt.title;
+
+            promptTitleDiv.onclick = () => {
+                displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex);
+            };
+
+            return promptTitleDiv;
+        }
+
+        function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
+            const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
+            selectedPromptContainer.innerHTML = ''; // Pulisce il contenitore precedente
+
+            const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
+            selectedPromptContainer.appendChild(promptDiv);
+
+            // Aggiorna il colore di sfondo del titolo del prompt selezionato
+            const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.prompt-title-div');
+            promptTitleDivs.forEach(div => {
+                div.classList.remove('active');
             });
+            promptTitleDiv.classList.add('active');
         }
 
         function createPromptDiv(prompt, categoryIndex, promptIndex) {
             const promptDiv = document.createElement('div');
-            promptDiv.className = 'prompt-box';
-
-            const titleInput = document.createElement('input');
-            titleInput.type = 'text';
-            titleInput.className = 'prompt-title';
-            titleInput.value = prompt.title;
-            titleInput.readOnly = true;
-
-            promptDiv.appendChild(titleInput);
+            promptDiv.className = 'prompt-content';
 
             const textArea = document.createElement('textarea');
             textArea.className = 'prompt-input prompt-text';
@@ -416,49 +401,22 @@
                 element.style.height = element.scrollHeight + 'px';
             }
 
-            titleInput.onclick = (e) => {
-                e.stopPropagation();
-                const isOpen = promptDiv.classList.contains('open');
-
-                const allPrompts = document.querySelectorAll('.prompt-box');
-                allPrompts.forEach(p => {
-                    if (p !== promptDiv) {
-                        p.classList.remove('open');
-                        p.querySelector('.prompt-text').style.display = 'none';
-                        p.querySelector('.prompt-actions').style.display = 'none';
-                    }
-                });
-
-                if (!isOpen) {
-                    promptDiv.classList.add('open');
-                    textArea.style.display = 'block';
-                    actionsDiv.style.display = 'block';
-                    autoResizeTextArea(textArea);
-                    promptDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } else {
-                    promptDiv.classList.remove('open');
-                    textArea.style.display = 'none';
-                    actionsDiv.style.display = 'none';
-                }
-            };
+            autoResizeTextArea(textArea);
 
             editBtn.onclick = (e) => {
                 e.stopPropagation();
-                titleInput.readOnly = false;
                 textArea.readOnly = false;
-                titleInput.focus();
+                textArea.focus();
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
             };
 
             saveBtn.onclick = (e) => {
                 e.stopPropagation();
-                titleInput.readOnly = true;
                 textArea.readOnly = true;
                 editBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
 
-                categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
                 categories[categoryIndex].prompts[promptIndex].text = textArea.value;
                 saveToLocalStorage();
             };
@@ -488,9 +446,27 @@
                 autoResizeTextArea(textArea);
             };
 
-            autoResizeTextArea(textArea);
-
             return promptDiv;
+        }
+
+        function toggleCategoryBox(categoryDiv, categoryIndex) {
+            const categoryBoxes = document.querySelectorAll('.category-box');
+            const categoryDivs = document.querySelectorAll('.category');
+            categoryBoxes.forEach((box, idx) => {
+                if (idx === categoryIndex) {
+                    const isVisible = box.style.display === 'block';
+                    box.style.display = isVisible ? 'none' : 'block';
+                    // Cambia il colore di sfondo del pulsante della categoria
+                    if (isVisible) {
+                        categoryDivs[idx].style.backgroundColor = '#222'; // Colore originale
+                    } else {
+                        categoryDivs[idx].style.backgroundColor = '#4CAF50'; // Verde
+                    }
+                } else {
+                    box.style.display = 'none';
+                    categoryDivs[idx].style.backgroundColor = '#222'; // Resetta gli altri
+                }
+            });
         }
 
         function showNewPromptForm(categoryIndex) {
