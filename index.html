@@ -107,6 +107,7 @@
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
+            align-items: flex-start; /* Aggiunto per allineare gli elementi in alto */
         }
 
         .prompt-box {
@@ -116,12 +117,13 @@
             border-radius: 5px;
             width: 200px; /* Imposta la larghezza dei titoli */
             box-sizing: border-box;
-            transition: width 0.3s ease;
+            transition: all 0.3s ease;
             flex: 0 0 auto;
         }
 
+        /* Rimosso width: 100%; per evitare l'espansione eccessiva */
         .prompt-box.open {
-            width: 100%; /* Espande il prompt aperto a tutta larghezza */
+            /* flex-basis: 100%; */ /* Rimosso per mantenere la larghezza fissa */
         }
 
         .prompt-title {
@@ -205,10 +207,6 @@
 
         @media (max-width: 600px) {
             .prompt-box {
-                width: 100%;
-            }
-
-            .prompt-box.open {
                 width: 100%;
             }
         }
@@ -434,7 +432,7 @@
                     textArea.style.display = 'block';
                     actionsDiv.style.display = 'block';
                     autoResizeTextArea(textArea);
-                    promptDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Rimuovi lo scrollIntoView per evitare spostamenti indesiderati
                 } else {
                     promptDiv.classList.remove('open');
                     textArea.style.display = 'none';
