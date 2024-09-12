@@ -214,6 +214,7 @@
         </div>
 
         <div id="prompts-display-container"></div>
+        <div id="category-boxes-container"></div> <!-- Aggiunto container per le category boxes -->
     </div>
 
     <script>
@@ -233,7 +234,9 @@
 
         function renderCategories() {
             var container = document.getElementById('categories');
+            var categoryBoxesContainer = document.getElementById('category-boxes-container'); // Nuovo container
             container.innerHTML = '';
+            categoryBoxesContainer.innerHTML = '';
 
             categories.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -249,7 +252,7 @@
                 container.appendChild(categoryDiv);
 
                 const categoryBox = createCategoryBox(category, index);
-                container.appendChild(categoryBox);
+                categoryBoxesContainer.appendChild(categoryBox);
             });
         }
 
@@ -321,13 +324,14 @@
         }
 
         function toggleCategoryBox(categoryDiv, categoryIndex) {
-            const categoryBox = categoryDiv.nextElementSibling;
-            const allCategoryBoxes = document.querySelectorAll('.category-box');
-            allCategoryBoxes.forEach(box => {
-                box.style.display = 'none';
+            const categoryBoxes = document.querySelectorAll('.category-box');
+            categoryBoxes.forEach((box, idx) => {
+                if (idx === categoryIndex) {
+                    box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+                } else {
+                    box.style.display = 'none';
+                }
             });
-
-            categoryBox.style.display = (categoryBox.style.display === 'none' || categoryBox.style.display === '') ? 'block' : 'none';
         }
 
         function createPromptDiv(prompt, categoryIndex, promptIndex) {
