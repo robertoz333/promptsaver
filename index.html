@@ -92,20 +92,34 @@
             display: none;
         }
 
+        .prompt-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
         .prompt-box {
             background-color: #444;
             color: #fff;
             padding: 10px;
             border-radius: 5px;
             cursor: pointer;
-            width: 100%; /* Imposta il prompt a tutta larghezza */
+            width: auto;
+            display: inline-block;
+            margin-right: 10px;
             box-sizing: border-box;
-            margin-bottom: 10px;
+        }
+
+        .prompt-box.open {
+            width: 100%; /* Espande il box a tutta larghezza */
+            display: block;
         }
 
         .prompt-title {
             cursor: pointer;
             font-size: 16px;
+            white-space: nowrap;
         }
 
         .prompt-text,
@@ -120,13 +134,14 @@
         }
 
         .prompt-text {
-            width: 100%; /* Imposta il box del testo a tutta larghezza */
+            width: 100%;
             background-color: #333;
             border: 1px solid #555;
             border-radius: 5px;
             color: #fff;
             padding: 10px;
             resize: none;
+            white-space: pre-wrap;
         }
 
         .btn {
@@ -275,10 +290,18 @@
             };
 
             // Visualizza i prompt della categoria
+            const promptGrid = document.createElement('div');
+            promptGrid.className = 'prompt-grid';
+
+            // Ordina i prompt in ordine alfabetico
+            category.prompts.sort((a, b) => a.title.localeCompare(b.title));
+
             category.prompts.forEach((prompt, promptIndex) => {
                 const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
-                categoryBox.appendChild(promptDiv);
+                promptGrid.appendChild(promptDiv);
             });
+
+            categoryBox.appendChild(promptGrid);
 
             const newPromptBtn = document.createElement('button');
             newPromptBtn.className = 'btn btn-new';
