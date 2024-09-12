@@ -112,7 +112,7 @@
         }
 
         .prompt-box.open {
-            width: 100%; /* Espande il box a tutta larghezza */
+            width: 100%;
             display: block;
         }
 
@@ -357,9 +357,14 @@
             promptDiv.onclick = () => {
                 const isOpen = promptDiv.classList.contains('open');
                 
-                // Chiudi tutti i prompt aperti
+                // Chiudi tutti i prompt aperti, tranne quello in modifica
+                if (!promptDiv.querySelector('.btn.btn-edit').disabled) {
+                    return;  // Non chiudere il box se è in modalità di modifica
+                }
+
                 const allPrompts = document.querySelectorAll('.prompt-box');
                 allPrompts.forEach(p => {
+                    if (!p.querySelector('.btn.btn-edit').disabled) return;
                     p.classList.remove('open');
                     p.querySelector('.prompt-text').style.display = 'none';
                     p.querySelector('.prompt-actions').style.display = 'none';
@@ -378,19 +383,19 @@
                 }
             };
 
-            // Eventi per modificare, copiare ed eliminare il prompt
+            // Evento per modificare il prompt
             promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
                 e.stopPropagation();
-                if (titleDiv.contentEditable === 'true') {
-                    titleDiv.contentEditable = 'false';
-                    textArea.readOnly = true;
-                    categories[categoryIndex].prompts[promptIndex] = { title: titleDiv.textContent, text: textArea.value };
-                    saveToLocalStorage();
-                } else {
-                    titleDiv.contentEditable = 'true';
-                    textArea.readOnly = false;
-                }
+                titleDiv.contentEditable = true;
+                textArea.readOnly = false;
+                textArea.style.height = 'auto';  // Aggiorna l'altezza dinamicamente
+                textArea.style.height = textArea.scrollHeight + 'px';
+                actionsDiv.style.display = 'block';
+                e.target.disabled = true;  // Disabilita il bottone per evitare chiusure accidentali
             };
+
+            // Evento per salvare le modifiche
+            promptDiv.querySelector('.btn.btn-edit').disabled = false;
 
             promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
                 e.stopPropagation();
