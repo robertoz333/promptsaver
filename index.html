@@ -102,6 +102,11 @@
             width: 100%;
         }
 
+        /* Aggiunto stile per separare la categoria dai titoli dei prompt */
+        .category-header {
+            margin-bottom: 20px; /* Aggiunge spazio sotto la categoria */
+        }
+
         .prompt-titles-container {
             display: flex;
             flex-wrap: wrap;
@@ -269,26 +274,32 @@
             const categoryBox = document.createElement('div');
             categoryBox.className = 'category-box';
 
+            // Creazione di un contenitore per la categoria e i pulsanti
+            const categoryHeader = document.createElement('div');
+            categoryHeader.className = 'category-header';
+
             const categoryInput = document.createElement('input');
             categoryInput.type = 'text';
             categoryInput.value = category.name;
             categoryInput.className = 'category-input';
-            categoryBox.appendChild(categoryInput);
+            categoryHeader.appendChild(categoryInput);
 
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-edit';
             editBtn.textContent = 'Modifica';
-            categoryBox.appendChild(editBtn);
+            categoryHeader.appendChild(editBtn);
 
             const saveBtn = document.createElement('button');
             saveBtn.className = 'btn btn-save';
             saveBtn.textContent = 'Salva';
-            categoryBox.appendChild(saveBtn);
+            categoryHeader.appendChild(saveBtn);
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-delete';
             deleteBtn.textContent = 'Elimina';
-            categoryBox.appendChild(deleteBtn);
+            categoryHeader.appendChild(deleteBtn);
+
+            categoryBox.appendChild(categoryHeader); // Aggiunge il contenitore al categoryBox
 
             editBtn.onclick = () => {
                 categoryInput.readOnly = false;
