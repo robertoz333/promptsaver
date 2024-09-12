@@ -117,7 +117,19 @@
             text-overflow: ellipsis;
         }
 
-        .prompt-text,
+        .prompt-text {
+            width: 100%;
+            background-color: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: #fff;
+            padding: 10px;
+            resize: none;
+            white-space: pre-wrap;
+            overflow: hidden;
+            display: none; /* Nascondi il contenuto del prompt finché non viene aperto */
+        }
+
         .prompt-actions {
             display: none;
             margin-top: 10px;
@@ -125,7 +137,6 @@
 
         .prompt-box.open {
             width: 100%;
-            display: block;
         }
 
         .prompt-box.open .prompt-text,
@@ -137,18 +148,6 @@
             white-space: normal;
             overflow: visible;
             text-overflow: initial;
-        }
-
-        .prompt-text {
-            width: 100%;
-            background-color: #333;
-            border: 1px solid #555;
-            border-radius: 5px;
-            color: #fff;
-            padding: 10px;
-            resize: none;
-            white-space: pre-wrap;
-            overflow: hidden; /* Impedisce lo scroll e permette l'adattamento dinamico */
         }
 
         .btn {
@@ -170,6 +169,7 @@
 
         .btn-save {
             background-color: #4CAF50;
+            display: none;
         }
 
         .btn-delete {
@@ -184,17 +184,11 @@
             background-color: #FF9800;
         }
 
-        /* Imposta il layout verticale per schermi piccoli */
         @media (max-width: 600px) {
             .prompt-box {
                 width: 100%;
             }
-
-            .prompt-box:not(.open) {
-                flex: 1 1 100%;
-            }
         }
-
     </style>
 </head>
 
@@ -271,7 +265,6 @@
             const saveBtn = document.createElement('button');
             saveBtn.className = 'btn btn-save';
             saveBtn.textContent = 'Salva';
-            saveBtn.style.display = 'none';
             categoryBox.appendChild(saveBtn);
 
             const deleteBtn = document.createElement('button');
@@ -281,7 +274,6 @@
 
             editBtn.onclick = () => {
                 categoryInput.readOnly = false;
-                categoryInput.focus(); // Imposta il focus sul campo
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
             };
@@ -338,8 +330,8 @@
 
             promptDiv.innerHTML = `
                 <input type="text" class="prompt-title" value="${prompt.title}" readonly style="font-size: 16px; width: 100%; margin-bottom: 10px;">
-                <textarea class="prompt-input prompt-text" readonly style="font-size: 14px; line-height: 1.6; display: none; width: 100%;">${prompt.text}</textarea>
-                <div class="prompt-actions" style="display: none;">
+                <textarea class="prompt-input prompt-text" readonly style="font-size: 14px; line-height: 1.6;">${prompt.text}</textarea>
+                <div class="prompt-actions">
                     <button class="btn btn-edit">Modifica</button>
                     <button class="btn btn-save" style="display:none;">Salva</button>
                     <button class="btn btn-copy">Copia</button>
@@ -356,8 +348,8 @@
 
             // Funzione per adattare dinamicamente l'altezza del textarea
             function autoResizeTextArea(element) {
-                element.style.height = 'auto';  // Resetta l'altezza
-                element.style.height = element.scrollHeight + 'px';  // Adatta l'altezza all'effettiva lunghezza del testo
+                element.style.height = 'auto';  // Reset altezza
+                element.style.height = element.scrollHeight + 'px';  // Adatta altezza
             }
 
             // Mostra o nasconde il prompt
