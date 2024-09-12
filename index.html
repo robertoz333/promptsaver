@@ -90,6 +90,7 @@
             border-radius: 5px;
             margin-top: 10px;
             display: none;
+            width: 100%; /* Uniformare la larghezza per tutte le categorie */
         }
 
         .prompt-grid {
@@ -105,21 +106,17 @@
             padding: 10px;
             border-radius: 5px;
             cursor: pointer;
-            width: auto;
-            display: inline-block;
-            margin-right: 10px;
+            width: 100%; /* Uniformare larghezza dei box */
             box-sizing: border-box;
         }
 
         .prompt-box.open {
-            width: 100%;
             display: block;
         }
 
         .prompt-title {
             cursor: pointer;
             font-size: 16px;
-            white-space: nowrap;
         }
 
         .prompt-text,
@@ -177,6 +174,14 @@
             background-color: #FF9800;
         }
 
+        /* Responsività: imposta larghezza al 100% per schermi piccoli */
+        @media (max-width: 600px) {
+            .prompt-box,
+            .category-box {
+                width: 100%;
+            }
+        }
+
     </style>
 </head>
 
@@ -201,7 +206,6 @@
     <script>
         var categories = [];
 
-        // Carica dati da localStorage
         function loadFromLocalStorage() {
             var savedCategories = localStorage.getItem('categories');
             if (savedCategories) {
@@ -210,17 +214,14 @@
             }
         }
 
-        // Salva dati su localStorage
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
         }
 
-        // Rendering delle categorie
         function renderCategories() {
             var container = document.getElementById('categories');
             container.innerHTML = '';
 
-            // Ordina le categorie in ordine alfabetico
             categories.sort((a, b) => a.name.localeCompare(b.name));
 
             categories.forEach((category, index) => {
@@ -228,20 +229,17 @@
                 categoryDiv.className = 'category';
                 categoryDiv.textContent = category.name;
 
-                // Mostra i dettagli della categoria (prompt e tasti azione)
                 categoryDiv.onclick = () => {
                     toggleCategoryBox(categoryDiv, index);
                 };
 
                 container.appendChild(categoryDiv);
 
-                // Crea la sezione della categoria con i dettagli e prompt
                 const categoryBox = createCategoryBox(category, index);
                 container.appendChild(categoryBox);
             });
         }
 
-        // Crea un'area con i dettagli della categoria e prompt
         function createCategoryBox(category, categoryIndex) {
             const categoryBox = document.createElement('div');
             categoryBox.className = 'category-box';
@@ -261,7 +259,7 @@
             const saveBtn = document.createElement('button');
             saveBtn.className = 'btn btn-save';
             saveBtn.textContent = 'Salva';
-            saveBtn.style.display = 'none'; // Inizia nascosto
+            saveBtn.style.display = 'none';
             categoryBox.appendChild(saveBtn);
 
             const deleteBtn = document.createElement('button');
@@ -269,7 +267,6 @@
             deleteBtn.textContent = 'Elimina';
             categoryBox.appendChild(deleteBtn);
 
-            // Eventi per modifica e salvataggio
             editBtn.onclick = () => {
                 categoryInput.readOnly = false;
                 editBtn.style.display = 'none';
@@ -289,11 +286,9 @@
                 deleteCategory(categoryIndex);
             };
 
-            // Visualizza i prompt della categoria
             const promptGrid = document.createElement('div');
             promptGrid.className = 'prompt-grid';
 
-            // Ordina i prompt in ordine alfabetico
             category.prompts.sort((a, b) => a.title.localeCompare(b.title));
 
             category.prompts.forEach((prompt, promptIndex) => {
@@ -314,21 +309,16 @@
             return categoryBox;
         }
 
-        // Toggle della visualizzazione della categoria
         function toggleCategoryBox(categoryDiv, categoryIndex) {
             const categoryBox = categoryDiv.nextElementSibling;
-
-            // Chiudi tutte le altre categorie
             const allCategoryBoxes = document.querySelectorAll('.category-box');
             allCategoryBoxes.forEach(box => {
                 box.style.display = 'none';
             });
 
-            // Mostra/nascondi la categoria cliccata
             categoryBox.style.display = (categoryBox.style.display === 'none' || categoryBox.style.display === '') ? 'block' : 'none';
         }
 
-        // Crea un nuovo prompt
         function createPromptDiv(prompt, categoryIndex, promptIndex) {
             const promptDiv = document.createElement('div');
             promptDiv.className = 'prompt-box';
@@ -348,12 +338,10 @@
             const textArea = promptDiv.querySelector('.prompt-text');
             const actionsDiv = promptDiv.querySelector('.prompt-actions');
 
-            // Evento di apertura/chiusura del prompt
             titleDiv.onclick = (e) => {
                 e.stopPropagation();
                 const isOpen = promptDiv.classList.contains('open');
-                
-                // Chiudi tutti i prompt aperti
+
                 const allPrompts = document.querySelectorAll('.prompt-box');
                 allPrompts.forEach(p => {
                     p.classList.remove('open');
@@ -361,29 +349,17 @@
                     p.querySelector('.prompt-actions').style.display = 'none';
                 });
 
-                // Apri/chiudi il prompt corrente
                 if (!isOpen) {
                     promptDiv.classList.add('open');
                     textArea.style.display = 'block';
                     actionsDiv.style.display = 'block';
-                    textArea.style.height = 'auto'; // Reset altezza
-                    textArea.style.height = textArea.scrollHeight + 'px'; // Adatta l'altezza
+                    textArea.style.height = 'auto';
+                    textArea.style.height = textArea.scrollHeight + 'px';
                 } else {
                     promptDiv.classList.remove('open');
                     textArea.style.display = 'none';
                     actionsDiv.style.display = 'none';
                 }
-            };
-
-            // Evento per modificare il prompt
-            promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
-                e.stopPropagation();
-                titleDiv.contentEditable = true;
-                textArea.readOnly = false;
-                textArea.style.height = 'auto'; // Aggiorna l'altezza dinamicamente
-                textArea.style.height = textArea.scrollHeight + 'px';
-                actionsDiv.style.display = 'block';
-                e.target.disabled = true;  // Disabilita il bottone per evitare chiusure accidentali
             };
 
             promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
@@ -408,14 +384,13 @@
                 e.stopPropagation();
                 let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
                 textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
-                textArea.style.height = 'auto';  // Reimposta l'altezza dinamica
-                textArea.style.height = textArea.scrollHeight + 'px'; // Adatta nuovamente l'altezza
+                textArea.style.height = 'auto';
+                textArea.style.height = textArea.scrollHeight + 'px';
             };
 
             return promptDiv;
         }
 
-        // Mostra il form per aggiungere un nuovo prompt
         function showNewPromptForm(categoryIndex) {
             const title = prompt("Inserisci il titolo del prompt:");
             const text = prompt("Inserisci il testo del prompt:");
@@ -426,7 +401,6 @@
             }
         }
 
-        // Elimina una categoria
         function deleteCategory(categoryIndex) {
             if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
                 categories.splice(categoryIndex, 1);
@@ -435,7 +409,6 @@
             }
         }
 
-        // Ricerca di prompt e categorie
         function searchPrompts() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             const promptsDisplayContainer = document.getElementById('prompts-display-container');
@@ -473,7 +446,7 @@
 
         document.getElementById('searchBtn').onclick = searchPrompts;
 
-        loadFromLocalStorage(); // Carica l'archivio al caricamento della pagina
+        loadFromLocalStorage();
     </script>
 </body>
 
