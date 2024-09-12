@@ -503,6 +503,13 @@
 
         document.getElementById('searchBtn').onclick = searchPrompts;
 
+        // Aggiunto evento per il tasto "Enter" nel campo di ricerca
+        document.getElementById('searchInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                searchPrompts();
+            }
+        });
+
         loadFromLocalStorage();
     </script>
 </body>
