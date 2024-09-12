@@ -327,6 +327,12 @@
             const textArea = promptDiv.querySelector('.prompt-text');
             const actionsDiv = promptDiv.querySelector('.prompt-actions');
 
+            // Funzione per adattare automaticamente l'altezza del textarea
+            function adjustTextAreaHeight(textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+            }
+
             // Evento di apertura/chiusura del prompt
             promptDiv.onclick = () => {
                 const isOpen = promptDiv.classList.contains('open');
@@ -343,6 +349,7 @@
                 if (!isOpen) {
                     promptDiv.classList.add('open');
                     textArea.style.display = 'block';
+                    adjustTextAreaHeight(textArea);  // Adatta l'altezza del textarea
                     actionsDiv.style.display = 'block';
                 } else {
                     promptDiv.classList.remove('open');
@@ -388,6 +395,7 @@
                 e.stopPropagation();
                 let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
                 textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
+                adjustTextAreaHeight(textArea);  // Adatta nuovamente l'altezza dopo aver cambiato il font
             };
 
             return promptDiv;
