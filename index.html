@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 
@@ -106,15 +107,16 @@
             color: #fff;
             padding: 10px;
             border-radius: 5px;
-            width: 200px; /* Larghezza fissa per il layout orizzontale */
+            width: 200px;
             box-sizing: border-box;
+            transition: width 0.3s ease;
         }
 
         .prompt-title {
             font-size: 16px;
-            white-space: nowrap; /* Mantiene il titolo su una riga */
+            white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* Mostra i ... se il titolo è troppo lungo */
+            text-overflow: ellipsis;
         }
 
         .prompt-text,
@@ -123,9 +125,25 @@
             margin-top: 10px;
         }
 
+        .prompt-box.open {
+            width: 100%;
+            display: block;
+        }
+
         .prompt-box.open .prompt-text,
         .prompt-box.open .prompt-actions {
             display: block;
+        }
+
+        .prompt-box.open .prompt-title {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: initial;
+        }
+
+        /* Quando un prompt è aperto, gli altri vanno disposti in verticale */
+        .prompt-box:not(.open) {
+            flex: 1 1 100%;
         }
 
         .prompt-text {
@@ -176,6 +194,10 @@
         @media (max-width: 600px) {
             .prompt-box {
                 width: 100%;
+            }
+
+            .prompt-box:not(.open) {
+                flex: 1 1 100%;
             }
         }
 
