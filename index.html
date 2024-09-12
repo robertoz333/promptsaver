@@ -92,31 +92,40 @@
             display: none;
         }
 
-        .prompt-box {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
+        .prompt-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .prompt-input {
-            width: 100%;
-            background-color: #333;
+        .prompt-box {
+            background-color: #444;
             color: #fff;
-            border: 1px solid #444;
-            border-radius: 5px;
             padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: calc(33.33% - 10px); /* Disposizione in 3 colonne */
+            box-sizing: border-box;
+        }
+
+        .prompt-box.open {
+            width: 100%;
         }
 
         .prompt-title {
             cursor: pointer;
+            font-size: 16px;
         }
 
         .prompt-text,
         .prompt-actions {
             display: none;
             margin-top: 10px;
+        }
+
+        .prompt-box.open .prompt-text,
+        .prompt-box.open .prompt-actions {
+            display: block;
         }
 
         .btn {
@@ -264,11 +273,15 @@
                 deleteCategory(categoryIndex);
             };
 
-            // Aggiungi i prompt alla categoria
+            // Visualizza i prompt della categoria
+            const promptGrid = document.createElement('div');
+            promptGrid.className = 'prompt-grid';
             category.prompts.forEach((prompt, promptIndex) => {
                 const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
-                categoryBox.appendChild(promptDiv);
+                promptGrid.appendChild(promptDiv);
             });
+
+            categoryBox.appendChild(promptGrid);
 
             const newPromptBtn = document.createElement('button');
             newPromptBtn.className = 'btn btn-new';
@@ -300,9 +313,9 @@
             const promptDiv = document.createElement('div');
             promptDiv.className = 'prompt-box';
             promptDiv.innerHTML = `
-                <input class="prompt-input prompt-title" type="text" value="${prompt.title}" readonly style="font-size: 16px;">
-                <textarea class="prompt-input prompt-text" readonly style="font-size: 14px; line-height: 1.6;">${prompt.text}</textarea>
-                <div class="prompt-actions">
+                <div class="prompt-title">${prompt.title}</div>
+                <textarea class="prompt-input prompt-text" readonly style="font-size: 14px; line-height: 1.6; display: none;">${prompt.text}</textarea>
+                <div class="prompt-actions" style="display: none;">
                     <button class="btn btn-edit">Modifica</button>
                     <button class="btn btn-copy">Copia</button>
                     <button class="btn btn-delete">Elimina</button>
@@ -310,21 +323,45 @@
                 </div>
             `;
 
-            const titleInput = promptDiv.querySelector('.prompt-title');
+            const titleDiv = promptDiv.querySelector('.prompt-title');
             const textArea = promptDiv.querySelector('.prompt-text');
+            const actionsDiv = promptDiv.querySelector('.prompt-actions');
 
+            // Evento di apertura/chiusura del prompt
+            promptDiv.onclick = () => {
+                const isOpen = promptDiv.classList.contains('open');
+                
+                // Chiudi tutti i prompt aperti
+                const allPrompts = document.querySelectorAll('.prompt-box');
+                allPrompts.forEach(p => {
+                    p.classList.remove('open');
+                    p.querySelector('.prompt-text').style.display = 'none';
+                    p.querySelector('.prompt-actions').style.display = 'none';
+                });
+
+                // Apri/chiudi il prompt corrente
+                if (!isOpen) {
+                    promptDiv.classList.add('open');
+                    textArea.style.display = 'block';
+                    actionsDiv.style.display = 'block';
+                } else {
+                    promptDiv.classList.remove('open');
+                    textArea.style.display = 'none';
+                    actionsDiv.style.display = 'none';
+                }
+            };
+
+            // Eventi per modificare, copiare ed eliminare il prompt
             promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
                 e.stopPropagation();
-                if (titleInput.readOnly) {
-                    titleInput.readOnly = false;
-                    textArea.readOnly = false;
-                    e.target.textContent = 'Salva Modifiche';
-                } else {
-                    titleInput.readOnly = true;
+                if (titleDiv.contentEditable === 'true') {
+                    titleDiv.contentEditable = 'false';
                     textArea.readOnly = true;
-                    categories[categoryIndex].prompts[promptIndex] = { title: titleInput.value, text: textArea.value };
+                    categories[categoryIndex].prompts[promptIndex] = { title: titleDiv.textContent, text: textArea.value };
                     saveToLocalStorage();
-                    e.target.textContent = 'Modifica';
+                } else {
+                    titleDiv.contentEditable = 'true';
+                    textArea.readOnly = false;
                 }
             };
 
@@ -346,13 +383,10 @@
                 }
             };
 
-            // Aumenta la dimensione del font e l'interlinea del testo
+            // Aumenta la dimensione del font
             promptDiv.querySelector('.btn.btn-font').onclick = (e) => {
                 e.stopPropagation();
-                let currentTitleFontSize = parseInt(window.getComputedStyle(titleInput).fontSize);
                 let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
-
-                titleInput.style.fontSize = (currentTitleFontSize + 4) + 'px';
                 textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
             };
 
