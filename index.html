@@ -67,7 +67,14 @@
             line-height: 1.4;
         }
 
-        /* Modifica: le categorie sono disposte una accanto all'altra con flexbox */
+        /* Disposizione dei prompt sopra il box di testo */
+        #prompts-display-container {
+            display: flex;
+            flex-direction: column-reverse; /* I prompt sono mostrati sopra */
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
         #categories {
             display: flex;
             flex-wrap: wrap;
@@ -81,8 +88,8 @@
             color: #fff;
             border-radius: 5px;
             cursor: pointer;
-            flex: 1 1 auto; /* Le categorie si adattano in modo flessibile */
-            min-width: 100px; /* Larghezza minima delle categorie */
+            flex: 1 1 auto;
+            min-width: 100px;
             text-align: center;
         }
 
