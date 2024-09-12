@@ -81,11 +81,16 @@
             border-radius: 5px;
             display: flex;
             align-items: center;
+            position: relative;
+            cursor: pointer;
         }
 
-        #prompts-display-container {
-            display: block;
-            margin-top: 20px;
+        .category-actions {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         .prompt-box {
@@ -143,6 +148,7 @@
         .btn-font {
             background-color: #FF9800;
         }
+
     </style>
 </head>
 
@@ -182,6 +188,10 @@
         function renderCategories() {
             var container = document.getElementById('categories');
             container.innerHTML = '';
+
+            // Ordina le categorie in ordine alfabetico
+            categories.sort((a, b) => a.name.localeCompare(b.name));
+
             categories.forEach((category, index) => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
@@ -193,19 +203,34 @@
                 categoryInput.readOnly = true;
                 categoryDiv.appendChild(categoryInput);
 
+                const categoryActions = document.createElement('div');
+                categoryActions.className = 'category-actions';
+
                 const editBtn = document.createElement('button');
                 editBtn.className = 'btn btn-edit';
                 editBtn.textContent = 'Modifica';
-                editBtn.onclick = () => toggleEditCategory(categoryInput, editBtn, index);
-                categoryDiv.appendChild(editBtn);
+                editBtn.onclick = (e) => {
+                    e.stopPropagation(); // Evita la chiusura quando si clicca sul bottone
+                    toggleEditCategory(categoryInput, editBtn, index);
+                };
+                categoryActions.appendChild(editBtn);
 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'btn btn-delete';
                 deleteBtn.textContent = 'Elimina';
-                deleteBtn.onclick = () => deleteCategory(index);
-                categoryDiv.appendChild(deleteBtn);
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation(); // Evita la chiusura quando si clicca sul bottone
+                    deleteCategory(index);
+                };
+                categoryActions.appendChild(deleteBtn);
 
-                categoryDiv.onclick = () => displayPromptsVertically(category, index);
+                categoryDiv.appendChild(categoryActions);
+
+                categoryDiv.onclick = () => {
+                    displayPromptsVertically(category, index);
+                    toggleCategoryActions(categoryActions);
+                };
+
                 container.appendChild(categoryDiv);
             });
         }
@@ -221,6 +246,16 @@
                 saveToLocalStorage();
                 renderCategories(); // Re-render to update changes
             }
+        }
+
+        function toggleCategoryActions(actionsDiv) {
+            // Chiudi tutte le azioni attive
+            const allActions = document.querySelectorAll('.category-actions');
+            allActions.forEach(action => {
+                action.style.display = 'none';
+            });
+            // Mostra le azioni per la categoria cliccata
+            actionsDiv.style.display = 'flex';
         }
 
         function deleteCategory(categoryIndex) {
@@ -243,19 +278,6 @@
                 showNewPromptForm(categoryIndex);
             };
             promptsDisplayContainer.appendChild(newPromptBtn);
-
-            const deleteCategoryBtn = document.createElement('button');
-            deleteCategoryBtn.className = 'btn btn-delete';
-            deleteCategoryBtn.textContent = 'Elimina Categoria';
-            deleteCategoryBtn.onclick = () => {
-                if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
-                    categories.splice(categoryIndex, 1);
-                    renderCategories();
-                    saveToLocalStorage();
-                    promptsDisplayContainer.innerHTML = '';
-                }
-            };
-            promptsDisplayContainer.appendChild(deleteCategoryBtn);
 
             category.prompts.forEach((prompt, promptIndex) => {
                 const promptDiv = createPromptDiv(prompt, categoryIndex, promptIndex);
