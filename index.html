@@ -372,6 +372,7 @@
                     textArea.style.display = 'block';
                     actionsDiv.style.display = 'block';
                     autoResizeTextArea(textArea); // Aggiorna l'altezza dinamicamente
+                    promptDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Scorri verso il prompt aperto
                 } else {
                     promptDiv.classList.remove('open');
                     textArea.style.display = 'none';
