@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver (In-Memory) con Ricerca>
+    <title>Prompt Saver (In-Memory) con Ricerca</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -92,7 +92,7 @@
             color: #fff;
             padding: 10px;
             border-radius: 5px;
-            margin-bottom:px;
+            margin-bottom: 10px;
         }
 
         .prompt-input {
@@ -146,7 +146,7 @@
         <h1>Prompt Saver</h1>
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="Cerca prompt o categoria...">
-            <buttonsearchBtn">🔍</button>
+            <button id="searchBtn">🔍</button>
         </div>
         <div class="top-section">
             <div class="new-category-section">
@@ -182,12 +182,12 @@
                 categoryDiv.className = 'category';
                 categoryDiv.textContent = category.name;
                 categoryDiv.onclick = () => displayPromptsVertically(category, index);
-                containerDiv);
+                container.appendChild(categoryDiv);
             });
         }
 
         function displayPromptsVertically(category, categoryIndex) {
-            var promptsDisplayContainer = document-display-container');
+            var promptsDisplayContainer = document.getElementById('prompts-display-container');
             promptsDisplayContainer.innerHTML = `<h2>${category.name}</h2>`;
 
             const newPromptBtn = document.createElement('button');
@@ -217,7 +217,7 @@
             });
         }
 
-        function createPromptDiv categoryIndex, promptIndex) {
+        function createPromptDiv(prompt, categoryIndex, promptIndex) {
             const promptDiv = document.createElement('div');
             promptDiv.className = 'prompt-box';
             promptDiv.innerHTML = `
@@ -227,48 +227,38 @@
                     <button class="btn btn-edit">Modifica</button>
                     <button class="btn btn-copy">Copia</button>
                     <button class="btn btn-delete">Elimina</button>
-                    <button class="btn btn-save" style="display: none;">Salva</button>
                 </div>
             `;
 
             const titleInput = promptDiv.querySelector('.prompt-title');
             const textArea = promptDiv.querySelector('.prompt-text');
             const promptActions = promptDiv.querySelector('.prompt-actions');
-            const editBtn = promptDiv.querySelector('.btn.btn-edit');
-            const saveBtn = promptDiv.querySelector('.btn.btn-save');
 
             titleInput.onclick = (e) => {
                 e.stopPropagation();
                 togglePrompt(promptDiv);
             };
 
-            editBtn.onclick = (e) => {
+            promptDiv.querySelector('.btn.btn-edit').onclick = (e) => {
                 e.stopPropagation();
                 if (titleInput.readOnly) {
                     titleInput.readOnly = false;
                     textArea.readOnly = false;
                     textArea.style.height = 'auto';
                     textArea.style.height = textArea.scrollHeight + 'px';
-                    editBtn.style.display = 'none';
-                    saveBtn.style.display = 'block';
-                }
-            };
-
-            saveBtn.onclick = (e) => {
-                e.stopPropagation();
- (!titleInput.readOnly) {
+                    e.target.textContent = 'Salva Modifiche';
+                } else {
                     titleInput.readOnly = true;
-                    textArea.readOnly;
+                    textArea.readOnly = true;
                     textArea.style.height = textArea.scrollHeight + 'px';
                     categories[categoryIndex].prompts[promptIndex] = { title: titleInput.value, text: textArea.value };
                     saveToLocalStorage();
-                    editBtn.style.displayblock';
-                    saveBtn.style.display = 'none';
+                    e.target.textContent = 'Modifica';
                 }
             };
 
             promptDiv.querySelector('.btn.btn-copy').onclick = (e) => {
-               ();
+                e.stopPropagation();
                 navigator.clipboard.writeText(textArea.value).then(() => {
                     alert("Testo copiato negli appunti!");
                 }).catch(err => {
