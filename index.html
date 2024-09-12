@@ -32,27 +32,13 @@
             border-radius: 5px;
         }
 
-        /* Aggiunto stile per il prompt selezionato */
-        .prompt-content.selected {
-            background-color: #28a745; /* Verde */
-            color: #fff; /* Testo bianco */
-        }
-
         .prompt-title-input,
         .prompt-text {
-            background-color: #fff;
-            color: #000;
+            background-color: #fff; /* Sfondo bianco */
+            color: #000; /* Testo nero */
             border: 1px solid #555;
             border-radius: 5px;
             margin-bottom: 15px;
-        }
-
-        /* Stile per gli input nel prompt selezionato */
-        .prompt-content.selected .prompt-title-input,
-        .prompt-content.selected .prompt-text {
-            background-color: transparent;
-            color: #fff;
-            border-color: #fff;
         }
 
         .prompt-title-input {
@@ -312,9 +298,6 @@
 
             const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
             selectedPromptContainer.appendChild(promptDiv);
-
-            // Aggiunge la classe 'selected' per cambiare il background in verde
-            promptDiv.classList.add('selected');
 
             // Ora che il promptDiv è nel DOM, possiamo ridimensionare la textarea
             autoResizeTextArea(textArea);
