@@ -94,22 +94,11 @@
             background-color: #ff9800;
         }
 
-        .search-container {
-            margin-bottom: 15px;
-        }
-
+        .search-container,
         .filter-container {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        .prompt-grid {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .prompt-grid > div {
-            margin: 10px;
-        }
     </style>
 </head>
 
@@ -119,7 +108,7 @@
 
         <div class="search-container mb-4">
             <div class="input-group">
-                <input type="text" id="searchInput" class="form-control" placeholder="Cerca prompt o categoria...">
+                <input type="text" id="searchInput" class="form-control" placeholder="Cerca prompt per parole chiave, categoria, tag o data...">
                 <div class="input-group-append">
                     <button id="searchBtn" class="btn btn-success">🔍</button>
                 </div>
@@ -139,7 +128,17 @@
             <input type="text" id="tagFilter" class="form-control" placeholder="Inserisci tag...">
         </div>
 
-        <div id="categories" class="mb-3 d-flex flex-wrap"></div>
+        <div class="top-section mb-4">
+            <div class="new-category-section w-100">
+                <div class="input-group">
+                    <input type="text" id="newCategoryInput" class="form-control" placeholder="Nuova categoria">
+                    <div class="input-group-append">
+                        <button id="addCategoryBtn" class="btn btn-success">Aggiungi Categoria</button>
+                    </div>
+                </div>
+                <div id="categories" class="mt-3 d-flex flex-wrap"></div>
+            </div>
+        </div>
 
         <div id="prompts-display-container"></div>
         <div id="category-boxes-container"></div>
@@ -164,14 +163,6 @@
                         <div class="form-group">
                             <label for="promptText">Testo</label>
                             <textarea class="form-control" id="promptText" rows="5" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="promptDate">Data</label>
-                            <input type="date" class="form-control" id="promptDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="promptTags">Tag (separati da virgola)</label>
-                            <input type="text" class="form-control" id="promptTags" required>
                         </div>
                         <button type="submit" class="btn btn-success">Aggiungi</button>
                     </form>
@@ -285,7 +276,6 @@
             const categoryBox = document.createElement('div');
             categoryBox.className = 'category-box';
 
-            // Creazione di un contenitore per la categoria e i pulsanti
             const categoryHeader = document.createElement('div');
             categoryHeader.className = 'category-header d-flex align-items-center';
 
@@ -378,7 +368,7 @@
 
         function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
             const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
-            selectedPromptContainer.innerHTML = ''; // Pulisce il contenitore precedente
+            selectedPromptContainer.innerHTML = ''; 
 
             const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
             selectedPromptContainer.appendChild(promptDiv);
@@ -525,11 +515,45 @@
                 e.preventDefault();
                 const title = $('#promptTitle').val();
                 const text = $('#promptText').val();
-                const date = $('#promptDate').val();
-                const tags = $('#promptTags').val();
                 if (title && text) {
-                    categories[categoryIndex].prompts.push({ title, text, date, tags });
+                    categories[categoryIndex].prompts.push({ title, text });
                     saveToLocalStorage();
                     renderCategories();
                     $('#newPromptModal').modal('hide');
-                    $('#
+                    $('#promptTitle').val('');
+                    $('#promptText').val('');
+                }
+            });
+        }
+
+        function deleteCategory(categoryIndex) {
+            if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
+                categories.splice(categoryIndex, 1);
+                saveToLocalStorage();
+                renderCategories();
+            }
+        }
+
+        document.getElementById('addCategoryBtn').onclick = function () {
+            const categoryName = document.getElementById('newCategoryInput').value;
+            if (categoryName) {
+                categories.push({ name: categoryName, prompts: [] });
+                saveToLocalStorage();
+                renderCategories();
+                document.getElementById('newCategoryInput').value = '';
+            }
+        };
+
+        document.getElementById('searchBtn').onclick = searchPrompts;
+
+        document.getElementById('searchInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                searchPrompts();
+            }
+        });
+
+        loadFromLocalStorage();
+    </script>
+</body>
+
+</html>
