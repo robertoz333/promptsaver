@@ -5,30 +5,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Saver con Bootstrap</title>
-    <!-- CSS di Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Stili personalizzati -->
     <style>
-        .btn-custom {
-            margin-right: 5px;
-            margin-bottom: 5px;
+        body {
+            background-color: #343a40; /* Grigio scuro */
+            color: white; /* Testo bianco per contrasto */
         }
 
-        .active {
-            background-color: #28a745 !important;
-            color: #fff !important;
-        }
-
-        .prompt-content {
+        .category-box {
+            display: none;
             margin-top: 20px;
         }
 
-        .prompt-actions {
-            margin-top: 10px;
+        .prompt-actions .btn-custom {
+            margin-right: 5px;
+            margin-top: 5px;
         }
 
-        .filter-container .form-control {
+        .btn-font {
+            margin-left: auto;
+        }
+
+        .prompt-title-input {
             margin-bottom: 10px;
+        }
+
+        .prompt-text {
+            resize: none;
+        }
+
+        .active {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .filter-container {
+            margin-bottom: 20px;
+        }
+
+        .modal-content {
+            background-color: #495057; /* Colore scuro per il modale */
+        }
+
+        .modal-header, .modal-footer {
+            border-color: #6c757d; /* Colore del bordo del modale */
         }
     </style>
 </head>
@@ -37,7 +57,6 @@
     <div class="container">
         <h1 class="text-center">Prompt Saver</h1>
 
-        <!-- Sezione di ricerca e filtri -->
         <div class="search-container mb-4">
             <div class="input-group">
                 <input type="text" id="searchInput" class="form-control" placeholder="Cerca per parola chiave...">
@@ -50,21 +69,22 @@
         <div class="filter-container mb-4">
             <div class="form-row">
                 <div class="col">
-                    <input type="date" id="filterDate" class="form-control" placeholder="Data">
+                    <select id="categoryFilter" class="form-control">
+                        <option value="">Tutte le categorie</option>
+                    </select>
                 </div>
                 <div class="col">
-                    <input type="text" id="filterCategory" class="form-control" placeholder="Categoria">
+                    <input type="date" id="dateFilter" class="form-control">
                 </div>
                 <div class="col">
-                    <input type="text" id="filterTags" class="form-control" placeholder="Tag (separate con virgola)">
+                    <input type="text" id="tagFilter" class="form-control" placeholder="Tag">
                 </div>
                 <div class="col">
-                    <button id="filterBtn" class="btn btn-primary">Filtra</button>
+                    <button id="filterBtn" class="btn btn-primary btn-block">Filtra</button>
                 </div>
             </div>
         </div>
 
-        <!-- Sezione categorie -->
         <div class="top-section mb-4">
             <div class="new-category-section w-100">
                 <div class="input-group">
@@ -81,7 +101,6 @@
         <div id="category-boxes-container"></div>
     </div>
 
-    <!-- Modale per nuovo prompt -->
     <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content bg-dark text-white">
@@ -102,12 +121,12 @@
                             <textarea class="form-control" id="promptText" rows="5" required></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="promptDate">Data</label>
-                            <input type="date" class="form-control" id="promptDate">
+                            <label for="promptTags">Tag (separati da virgola)</label>
+                            <input type="text" class="form-control" id="promptTags">
                         </div>
                         <div class="form-group">
-                            <label for="promptTags">Tag (separate con virgola)</label>
-                            <input type="text" class="form-control" id="promptTags" placeholder="tag1, tag2, tag3">
+                            <label for="promptDate">Data</label>
+                            <input type="date" class="form-control" id="promptDate">
                         </div>
                         <button type="submit" class="btn btn-success">Aggiungi</button>
                     </form>
@@ -116,13 +135,9 @@
         </div>
     </div>
 
-    <!-- Script di Bootstrap e jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <!-- Se jQuery slim non supporta alcune funzionalità, usa la versione completa -->
-    <!-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Script personalizzato -->
     <script>
         var categories = [];
 
@@ -131,6 +146,7 @@
             if (savedCategories) {
                 categories = JSON.parse(savedCategories);
                 renderCategories();
+                populateCategoryFilter();
             }
         }
 
@@ -160,13 +176,26 @@
                 const categoryBox = createCategoryBox(category, index);
                 categoryBoxesContainer.appendChild(categoryBox);
             });
+
+            populateCategoryFilter();
+        }
+
+        function populateCategoryFilter() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            categoryFilter.innerHTML = '<option value="">Tutte le categorie</option>';
+
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.name;
+                option.textContent = category.name;
+                categoryFilter.appendChild(option);
+            });
         }
 
         function createCategoryBox(category, categoryIndex) {
             const categoryBox = document.createElement('div');
             categoryBox.className = 'category-box';
 
-            // Creazione di un contenitore per la categoria e i pulsanti
             const categoryHeader = document.createElement('div');
             categoryHeader.className = 'category-header d-flex align-items-center';
 
@@ -193,7 +222,7 @@
             deleteBtn.textContent = 'Elimina';
             categoryHeader.appendChild(deleteBtn);
 
-            categoryBox.appendChild(categoryHeader); // Aggiunge il contenitore al categoryBox
+            categoryBox.appendChild(categoryHeader);
 
             editBtn.onclick = () => {
                 categoryInput.readOnly = false;
@@ -214,7 +243,6 @@
                 deleteCategory(categoryIndex);
             };
 
-            // Creazione dei contenitori per i titoli dei prompt e il prompt selezionato
             const promptTitlesContainer = document.createElement('div');
             promptTitlesContainer.className = 'prompt-titles-container d-flex flex-wrap';
 
@@ -261,15 +289,13 @@
 
         function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
             const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
-            selectedPromptContainer.innerHTML = ''; // Pulisce il contenitore precedente
+            selectedPromptContainer.innerHTML = '';
 
             const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
             selectedPromptContainer.appendChild(promptDiv);
 
-            // Ora che il promptDiv è nel DOM, possiamo ridimensionare la textarea
             autoResizeTextArea(textArea);
 
-            // Aggiorna il colore di sfondo del titolo del prompt selezionato
             const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.btn');
             promptTitleDivs.forEach(div => {
                 div.classList.remove('active');
@@ -281,7 +307,6 @@
             const promptDiv = document.createElement('div');
             promptDiv.className = 'prompt-content';
 
-            // Input per il titolo del prompt
             const titleInput = document.createElement('input');
             titleInput.type = 'text';
             titleInput.className = 'prompt-title-input form-control';
@@ -297,26 +322,22 @@
 
             promptDiv.appendChild(textArea);
 
-            // Input per la data
-            const dateInput = document.createElement('input');
-            dateInput.type = 'date';
-            dateInput.className = 'prompt-date-input form-control';
-            dateInput.value = prompt.date || '';
-            dateInput.readOnly = true;
-
-            promptDiv.appendChild(dateInput);
-
-            // Input per i tag
             const tagsInput = document.createElement('input');
             tagsInput.type = 'text';
-            tagsInput.className = 'prompt-tags-input form-control';
-            tagsInput.value = (prompt.tags || []).join(', ');
+            tagsInput.className = 'form-control mt-2';
+            tagsInput.value = prompt.tags ? prompt.tags.join(', ') : '';
             tagsInput.readOnly = true;
-
             promptDiv.appendChild(tagsInput);
 
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            dateInput.className = 'form-control mt-2';
+            dateInput.value = prompt.date || '';
+            dateInput.readOnly = true;
+            promptDiv.appendChild(dateInput);
+
             const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'prompt-actions mt-3';
+            actionsDiv.className = 'prompt-actions mt-3 d-flex';
 
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
@@ -336,7 +357,7 @@
             deleteBtn.textContent = 'Elimina';
 
             const fontBtn = document.createElement('button');
-            fontBtn.className = 'btn btn-secondary btn-font btn-custom';
+            fontBtn.className = 'btn btn-secondary btn-font btn-custom ml-auto';
             fontBtn.textContent = 'Aumenta Font';
 
             actionsDiv.appendChild(editBtn);
@@ -351,8 +372,8 @@
                 e.stopPropagation();
                 titleInput.readOnly = false;
                 textArea.readOnly = false;
-                dateInput.readOnly = false;
                 tagsInput.readOnly = false;
+                dateInput.readOnly = false;
                 titleInput.focus();
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
@@ -362,19 +383,17 @@
                 e.stopPropagation();
                 titleInput.readOnly = true;
                 textArea.readOnly = true;
-                dateInput.readOnly = true;
                 tagsInput.readOnly = true;
+                dateInput.readOnly = true;
                 editBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
 
-                const prompt = categories[categoryIndex].prompts[promptIndex];
-                prompt.title = titleInput.value;
-                prompt.text = textArea.value;
-                prompt.date = dateInput.value;
-                prompt.tags = tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+                categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
+                categories[categoryIndex].prompts[promptIndex].text = textArea.value;
+                categories[categoryIndex].prompts[promptIndex].tags = tagsInput.value.split(',').map(tag => tag.trim());
+                categories[categoryIndex].prompts[promptIndex].date = dateInput.value;
                 saveToLocalStorage();
 
-                // Aggiorna il titolo nel promptTitleDiv
                 const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
                 const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
                 promptTitleDivs[promptIndex].textContent = titleInput.value;
@@ -415,7 +434,6 @@
                 if (idx === categoryIndex) {
                     const isVisible = box.style.display === 'block';
                     box.style.display = isVisible ? 'none' : 'block';
-                    // Cambia il colore di sfondo del pulsante della categoria
                     if (isVisible) {
                         categoryDivs[idx].classList.remove('btn-success');
                         categoryDivs[idx].classList.add('btn-secondary');
@@ -432,24 +450,23 @@
         }
 
         function showNewPromptForm(categoryIndex) {
-            $('#newPromptModal').modal('show'); // Mostra il modale
+            $('#newPromptModal').modal('show');
 
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 const title = $('#promptTitle').val();
                 const text = $('#promptText').val();
+                const tags = $('#promptTags').val().split(',').map(tag => tag.trim());
                 const date = $('#promptDate').val();
-                const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag);
                 if (title && text) {
-                    categories[categoryIndex].prompts.push({ title, text, date, tags });
+                    categories[categoryIndex].prompts.push({ title, text, tags, date });
                     saveToLocalStorage();
                     renderCategories();
-                    $('#newPromptModal').modal('hide'); // Nasconde il modale
-                    // Pulisce i campi del form
+                    $('#newPromptModal').modal('hide');
                     $('#promptTitle').val('');
                     $('#promptText').val('');
-                    $('#promptDate').val('');
                     $('#promptTags').val('');
+                    $('#promptDate').val('');
                 }
             });
         }
@@ -464,45 +481,56 @@
 
         function searchPrompts() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-            const filterDate = document.getElementById('filterDate').value;
-            const filterCategory = document.getElementById('filterCategory').value.toLowerCase().trim();
-            const filterTags = document.getElementById('filterTags').value.toLowerCase().split(',').map(tag => tag.trim()).filter(tag => tag);
-
             const promptsDisplayContainer = document.getElementById('prompts-display-container');
             promptsDisplayContainer.innerHTML = '<h2>Risultati della ricerca</h2>';
 
             let resultsFound = false;
 
-            categories.forEach((category, categoryIndex) => {
-                let categoryMatches = true;
-                if (filterCategory && !category.name.toLowerCase().includes(filterCategory)) {
-                    categoryMatches = false;
-                }
+            categories.forEach((category) => {
+                category.prompts.forEach((prompt) => {
+                    const inTitle = prompt.title.toLowerCase().includes(searchQuery);
+                    const inText = prompt.text.toLowerCase().includes(searchQuery);
+                    const inTags = prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery));
+                    const inCategory = category.name.toLowerCase().includes(searchQuery);
 
-                category.prompts.forEach((prompt, promptIndex) => {
-                    let promptMatches = true;
+                    if (inTitle || inText || inTags || inCategory) {
+                        resultsFound = true;
+                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
+                        promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
+                        promptsDisplayContainer.appendChild(promptDiv);
+                    }
+                });
+            });
 
-                    // Check search query in title, text, tags
-                    const combinedText = [prompt.title, prompt.text, (prompt.tags || []).join(' ')].join(' ').toLowerCase();
-                    if (searchQuery && !combinedText.includes(searchQuery)) {
-                        promptMatches = false;
+            if (!resultsFound) {
+                promptsDisplayContainer.innerHTML += '<p>Nessun risultato trovato.</p>';
+            }
+        }
+
+        function filterPrompts() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const tagFilter = document.getElementById('tagFilter').value.toLowerCase().trim();
+            const promptsDisplayContainer = document.getElementById('prompts-display-container');
+            promptsDisplayContainer.innerHTML = '<h2>Risultati del filtro</h2>';
+
+            let resultsFound = false;
+
+            categories.forEach((category) => {
+                if (categoryFilter && category.name !== categoryFilter) return;
+
+                category.prompts.forEach((prompt) => {
+                    let matches = true;
+
+                    if (dateFilter && prompt.date !== dateFilter) {
+                        matches = false;
                     }
 
-                    // Check date filter
-                    if (filterDate && prompt.date !== filterDate) {
-                        promptMatches = false;
+                    if (tagFilter && !(prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(tagFilter)))) {
+                        matches = false;
                     }
 
-                    // Check tag filters
-                    if (filterTags.length > 0) {
-                        const promptTags = (prompt.tags || []).map(tag => tag.toLowerCase());
-                        const hasAllTags = filterTags.every(tag => promptTags.includes(tag));
-                        if (!hasAllTags) {
-                            promptMatches = false;
-                        }
-                    }
-
-                    if (categoryMatches && promptMatches) {
+                    if (matches) {
                         resultsFound = true;
                         const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
                         promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
@@ -527,7 +555,8 @@
         };
 
         document.getElementById('searchBtn').onclick = searchPrompts;
-        document.getElementById('filterBtn').onclick = searchPrompts;
+
+        document.getElementById('filterBtn').onclick = filterPrompts;
 
         document.getElementById('searchInput').addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
