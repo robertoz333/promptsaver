@@ -19,6 +19,7 @@
             padding: 20px;
             border-radius: 5px;
             margin-top: 20px;
+            display: none; /* Nascondi tutte le categorie per impostazione predefinita */
         }
 
         .prompt-title-div.active {
@@ -268,7 +269,8 @@
 
         function createCategoryBox(category, categoryIndex) {
             const categoryBox = document.createElement('div');
-            categoryBox.className = 'category-box';
+            categoryBox.className = 'category-box'; 
+            categoryBox.style.display = 'none'; // Nascondi tutte le categorie al caricamento
 
             const categoryHeader = document.createElement('div');
             categoryHeader.className = 'category-header d-flex align-items-center';
