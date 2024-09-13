@@ -94,11 +94,16 @@
             background-color: #ff9800;
         }
 
-        .search-container,
-        .filter-container {
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
             margin-bottom: 20px;
         }
 
+        .search-container .form-control {
+            flex: 1;
+        }
     </style>
 </head>
 
@@ -106,26 +111,15 @@
     <div class="container">
         <h1 class="text-center">Prompt Saver</h1>
 
-        <div class="search-container mb-4">
-            <div class="input-group">
-                <input type="text" id="searchInput" class="form-control" placeholder="Cerca prompt per parole chiave, categoria, tag o data...">
-                <div class="input-group-append">
-                    <button id="searchBtn" class="btn btn-success">🔍</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="filter-container mb-4">
-            <label for="categoryFilter">Filtra per categoria:</label>
+        <!-- Barra di ricerca con filtri -->
+        <div class="search-container">
+            <input type="text" id="searchInput" class="form-control" placeholder="Cerca per parole chiave...">
             <select id="categoryFilter" class="form-control">
                 <option value="">Tutte le categorie</option>
             </select>
-
-            <label for="dateFilter" class="mt-3">Filtra per data:</label>
             <input type="date" id="dateFilter" class="form-control">
-
-            <label for="tagFilter" class="mt-3">Filtra per tag:</label>
             <input type="text" id="tagFilter" class="form-control" placeholder="Inserisci tag...">
+            <button id="searchBtn" class="btn btn-success">🔍 Cerca</button>
         </div>
 
         <div class="top-section mb-4">
@@ -368,7 +362,7 @@
 
         function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
             const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
-            selectedPromptContainer.innerHTML = ''; 
+            selectedPromptContainer.innerHTML = '';
 
             const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
             selectedPromptContainer.appendChild(promptDiv);
