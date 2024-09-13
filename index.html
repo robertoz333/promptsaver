@@ -139,6 +139,8 @@
             <input type="text" id="tagFilter" class="form-control" placeholder="Inserisci tag...">
         </div>
 
+        <div id="categories" class="mb-3 d-flex flex-wrap"></div>
+
         <div id="prompts-display-container"></div>
         <div id="category-boxes-container"></div>
     </div>
@@ -274,4 +276,260 @@
                 }
             });
 
-           
+            if (!resultsFound) {
+                promptsDisplayContainer.innerHTML += '<p>Nessun risultato trovato.</p>';
+            }
+        }
+
+        function createCategoryBox(category, categoryIndex) {
+            const categoryBox = document.createElement('div');
+            categoryBox.className = 'category-box';
+
+            // Creazione di un contenitore per la categoria e i pulsanti
+            const categoryHeader = document.createElement('div');
+            categoryHeader.className = 'category-header d-flex align-items-center';
+
+            const categoryInput = document.createElement('input');
+            categoryInput.type = 'text';
+            categoryInput.value = category.name;
+            categoryInput.className = 'form-control mr-2';
+            categoryInput.readOnly = true;
+            categoryHeader.appendChild(categoryInput);
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-info btn-edit btn-custom';
+            editBtn.textContent = 'Modifica';
+            categoryHeader.appendChild(editBtn);
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn btn-success btn-save btn-custom';
+            saveBtn.textContent = 'Salva';
+            categoryHeader.appendChild(saveBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
+            deleteBtn.textContent = 'Elimina';
+            categoryHeader.appendChild(deleteBtn);
+
+            categoryBox.appendChild(categoryHeader);
+
+            editBtn.onclick = () => {
+                categoryInput.readOnly = false;
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline';
+            };
+
+            saveBtn.onclick = () => {
+                categoryInput.readOnly = true;
+                editBtn.style.display = 'inline';
+                saveBtn.style.display = 'none';
+                categories[categoryIndex].name = categoryInput.value;
+                saveToLocalStorage();
+                renderCategories();
+            };
+
+            deleteBtn.onclick = () => {
+                deleteCategory(categoryIndex);
+            };
+
+            const promptTitlesContainer = document.createElement('div');
+            promptTitlesContainer.className = 'prompt-titles-container d-flex flex-wrap';
+
+            const selectedPromptContainer = document.createElement('div');
+            selectedPromptContainer.className = 'selected-prompt-container';
+
+            category.prompts.sort((a, b) => a.title.localeCompare(b.title));
+
+            category.prompts.forEach((prompt, promptIndex) => {
+                const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, promptIndex);
+                promptTitlesContainer.appendChild(promptTitleDiv);
+            });
+
+            categoryBox.appendChild(promptTitlesContainer);
+            categoryBox.appendChild(selectedPromptContainer);
+
+            const newPromptBtn = document.createElement('button');
+            newPromptBtn.className = 'btn btn-success btn-new mt-3';
+            newPromptBtn.textContent = 'Nuovo Prompt';
+            newPromptBtn.onclick = () => {
+                showNewPromptForm(categoryIndex);
+            };
+            categoryBox.appendChild(newPromptBtn);
+
+            return categoryBox;
+        }
+
+        function createPromptTitleDiv(prompt, categoryIndex, promptIndex) {
+            const promptTitleDiv = document.createElement('button');
+            promptTitleDiv.className = 'btn btn-secondary mr-2 mb-2';
+            promptTitleDiv.textContent = prompt.title;
+
+            promptTitleDiv.onclick = () => {
+                displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex);
+            };
+
+            return promptTitleDiv;
+        }
+
+        function autoResizeTextArea(element) {
+            element.style.height = 'auto';
+            element.style.height = element.scrollHeight + 'px';
+        }
+
+        function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
+            const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
+            selectedPromptContainer.innerHTML = ''; // Pulisce il contenitore precedente
+
+            const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
+            selectedPromptContainer.appendChild(promptDiv);
+
+            autoResizeTextArea(textArea);
+
+            const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.btn');
+            promptTitleDivs.forEach(div => {
+                div.classList.remove('active');
+            });
+            promptTitleDiv.classList.add('active');
+        }
+
+        function createPromptDiv(prompt, categoryIndex, promptIndex) {
+            const promptDiv = document.createElement('div');
+            promptDiv.className = 'prompt-content';
+
+            const titleInput = document.createElement('input');
+            titleInput.type = 'text';
+            titleInput.className = 'prompt-title-input form-control';
+            titleInput.value = prompt.title;
+            titleInput.readOnly = true;
+
+            promptDiv.appendChild(titleInput);
+
+            const textArea = document.createElement('textarea');
+            textArea.className = 'prompt-text form-control';
+            textArea.value = prompt.text;
+            textArea.readOnly = true;
+
+            promptDiv.appendChild(textArea);
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'prompt-actions mt-3';
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-info btn-edit btn-custom';
+            editBtn.textContent = 'Modifica';
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn btn-success btn-save btn-custom';
+            saveBtn.textContent = 'Salva';
+            saveBtn.style.display = 'none';
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'btn btn-warning btn-copy btn-custom';
+            copyBtn.textContent = 'Copia';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
+            deleteBtn.textContent = 'Elimina';
+
+            const fontBtn = document.createElement('button');
+            fontBtn.className = 'btn btn-secondary btn-font btn-custom';
+            fontBtn.textContent = 'Aumenta Font';
+
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(saveBtn);
+            actionsDiv.appendChild(copyBtn);
+            actionsDiv.appendChild(deleteBtn);
+            actionsDiv.appendChild(fontBtn);
+
+            promptDiv.appendChild(actionsDiv);
+
+            editBtn.onclick = (e) => {
+                e.stopPropagation();
+                titleInput.readOnly = false;
+                textArea.readOnly = false;
+                titleInput.focus();
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline';
+            };
+
+            saveBtn.onclick = (e) => {
+                e.stopPropagation();
+                titleInput.readOnly = true;
+                textArea.readOnly = true;
+                editBtn.style.display = 'inline';
+                saveBtn.style.display = 'none';
+
+                categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
+                categories[categoryIndex].prompts[promptIndex].text = textArea.value;
+                saveToLocalStorage();
+
+                const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
+                const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
+                promptTitleDivs[promptIndex].textContent = titleInput.value;
+            };
+
+            copyBtn.onclick = (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(textArea.value).then(() => {
+                    alert("Testo copiato negli appunti!");
+                }).catch(err => {
+                    console.error("Errore nella copia del testo: ", err);
+                });
+            };
+
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                    categories[categoryIndex].prompts.splice(promptIndex, 1);
+                    saveToLocalStorage();
+                    renderCategories();
+                }
+            };
+
+            fontBtn.onclick = (e) => {
+                e.stopPropagation();
+                let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
+                textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
+                autoResizeTextArea(textArea);
+            };
+
+            return { promptDiv, textArea, titleInput };
+        }
+
+        function toggleCategoryBox(categoryDiv, categoryIndex) {
+            const categoryBoxes = document.querySelectorAll('.category-box');
+            const categoryDivs = document.querySelectorAll('#categories .btn');
+            categoryBoxes.forEach((box, idx) => {
+                if (idx === categoryIndex) {
+                    const isVisible = box.style.display === 'block';
+                    box.style.display = isVisible ? 'none' : 'block';
+                    if (isVisible) {
+                        categoryDivs[idx].classList.remove('btn-success');
+                        categoryDivs[idx].classList.add('btn-secondary');
+                    } else {
+                        categoryDivs[idx].classList.remove('btn-secondary');
+                        categoryDivs[idx].classList.add('btn-success');
+                    }
+                } else {
+                    box.style.display = 'none';
+                    categoryDivs[idx].classList.remove('btn-success');
+                    categoryDivs[idx].classList.add('btn-secondary');
+                }
+            });
+        }
+
+        function showNewPromptForm(categoryIndex) {
+            $('#newPromptModal').modal('show');
+
+            $('#newPromptForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
+                const title = $('#promptTitle').val();
+                const text = $('#promptText').val();
+                const date = $('#promptDate').val();
+                const tags = $('#promptTags').val();
+                if (title && text) {
+                    categories[categoryIndex].prompts.push({ title, text, date, tags });
+                    saveToLocalStorage();
+                    renderCategories();
+                    $('#newPromptModal').modal('hide');
+                    $('#
