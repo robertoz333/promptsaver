@@ -5,37 +5,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Saver con Bootstrap</title>
+    <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            padding: 20px;
+        }
+
         .category-box {
-            display: none;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 5px;
             margin-top: 20px;
         }
 
-        .prompt-actions .btn-custom {
-            margin-right: 5px;
-            margin-top: 5px;
-        }
-
-        .btn-font {
-            margin-left: auto;
-        }
-
-        .prompt-title-input {
-            margin-bottom: 10px;
-        }
-
-        .prompt-text {
-            resize: none;
-        }
-
-        .active {
-            background-color: #28a745;
+        .prompt-title-div.active {
+            background-color: #28a745; /* Colore "success" di Bootstrap */
             color: #fff;
         }
 
-        .filter-container {
+        .prompt-content {
+            background-color: #444;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .prompt-title-input,
+        .prompt-text {
+            background-color: #fff; /* Sfondo bianco */
+            color: #000; /* Testo nero */
+            border: 1px solid #555;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .prompt-title-input {
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        .prompt-text {
+            padding: 10px;
+            font-size: 16px;
+            resize: none;
+            height: auto;
+        }
+
+        .category-header {
             margin-bottom: 20px;
+        }
+
+        .prompt-titles-container {
+            margin-bottom: 20px;
+        }
+
+        /* Pulsanti personalizzati per mantenere i colori originali */
+        .btn-custom {
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .btn-new {
+            background-color: #28a745;
+        }
+
+        .btn-edit {
+            background-color: #17a2b8;
+        }
+
+        .btn-save {
+            background-color: #28a745;
+            display: none;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+        }
+
+        .btn-copy {
+            background-color: #ffc107;
+        }
+
+        .btn-font {
+            background-color: #ff9800;
         }
     </style>
 </head>
@@ -46,28 +103,9 @@
 
         <div class="search-container mb-4">
             <div class="input-group">
-                <input type="text" id="searchInput" class="form-control" placeholder="Cerca per parola chiave...">
+                <input type="text" id="searchInput" class="form-control" placeholder="Cerca prompt o categoria...">
                 <div class="input-group-append">
                     <button id="searchBtn" class="btn btn-success">🔍</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="filter-container mb-4">
-            <div class="form-row">
-                <div class="col">
-                    <select id="categoryFilter" class="form-control">
-                        <option value="">Tutte le categorie</option>
-                    </select>
-                </div>
-                <div class="col">
-                    <input type="date" id="dateFilter" class="form-control">
-                </div>
-                <div class="col">
-                    <input type="text" id="tagFilter" class="form-control" placeholder="Tag">
-                </div>
-                <div class="col">
-                    <button id="filterBtn" class="btn btn-primary btn-block">Filtra</button>
                 </div>
             </div>
         </div>
@@ -88,40 +126,34 @@
         <div id="category-boxes-container"></div>
     </div>
 
+    <!-- Modale per aggiungere un nuovo prompt -->
     <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="newPromptForm">
-                        <div class="form-group">
-                            <label for="promptTitle">Titolo</label>
-                            <input type="text" class="form-control" id="promptTitle" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="promptText">Testo</label>
-                            <textarea class="form-control" id="promptText" rows="5" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="promptTags">Tag (separati da virgola)</label>
-                            <input type="text" class="form-control" id="promptTags">
-                        </div>
-                        <div class="form-group">
-                            <label for="promptDate">Data</label>
-                            <input type="date" class="form-control" id="promptDate">
-                        </div>
-                        <button type="submit" class="btn btn-success">Aggiungi</button>
-                    </form>
-                </div>
-            </div>
+      <div class="modal-dialog" role="document">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="newPromptForm">
+              <div class="form-group">
+                <label for="promptTitle">Titolo</label>
+                <input type="text" class="form-control" id="promptTitle" required>
+              </div>
+              <div class="form-group">
+                <label for="promptText">Testo</label>
+                <textarea class="form-control" id="promptText" rows="5" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-success">Aggiungi</button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
+    <!-- Include jQuery, Popper.js, and Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -133,7 +165,6 @@
             if (savedCategories) {
                 categories = JSON.parse(savedCategories);
                 renderCategories();
-                populateCategoryFilter();
             }
         }
 
@@ -163,26 +194,13 @@
                 const categoryBox = createCategoryBox(category, index);
                 categoryBoxesContainer.appendChild(categoryBox);
             });
-
-            populateCategoryFilter();
-        }
-
-        function populateCategoryFilter() {
-            const categoryFilter = document.getElementById('categoryFilter');
-            categoryFilter.innerHTML = '<option value="">Tutte le categorie</option>';
-
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.name;
-                option.textContent = category.name;
-                categoryFilter.appendChild(option);
-            });
         }
 
         function createCategoryBox(category, categoryIndex) {
             const categoryBox = document.createElement('div');
             categoryBox.className = 'category-box';
 
+            // Creazione di un contenitore per la categoria e i pulsanti
             const categoryHeader = document.createElement('div');
             categoryHeader.className = 'category-header d-flex align-items-center';
 
@@ -201,7 +219,6 @@
             const saveBtn = document.createElement('button');
             saveBtn.className = 'btn btn-success btn-save btn-custom';
             saveBtn.textContent = 'Salva';
-            saveBtn.style.display = 'none';
             categoryHeader.appendChild(saveBtn);
 
             const deleteBtn = document.createElement('button');
@@ -209,7 +226,7 @@
             deleteBtn.textContent = 'Elimina';
             categoryHeader.appendChild(deleteBtn);
 
-            categoryBox.appendChild(categoryHeader);
+            categoryBox.appendChild(categoryHeader); // Aggiunge il contenitore al categoryBox
 
             editBtn.onclick = () => {
                 categoryInput.readOnly = false;
@@ -230,6 +247,7 @@
                 deleteCategory(categoryIndex);
             };
 
+            // Creazione dei contenitori per i titoli dei prompt e il prompt selezionato
             const promptTitlesContainer = document.createElement('div');
             promptTitlesContainer.className = 'prompt-titles-container d-flex flex-wrap';
 
@@ -276,13 +294,15 @@
 
         function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
             const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
-            selectedPromptContainer.innerHTML = '';
+            selectedPromptContainer.innerHTML = ''; // Pulisce il contenitore precedente
 
             const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
             selectedPromptContainer.appendChild(promptDiv);
 
+            // Ora che il promptDiv è nel DOM, possiamo ridimensionare la textarea
             autoResizeTextArea(textArea);
 
+            // Aggiorna il colore di sfondo del titolo del prompt selezionato
             const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.btn');
             promptTitleDivs.forEach(div => {
                 div.classList.remove('active');
@@ -294,6 +314,7 @@
             const promptDiv = document.createElement('div');
             promptDiv.className = 'prompt-content';
 
+            // Input per il titolo del prompt
             const titleInput = document.createElement('input');
             titleInput.type = 'text';
             titleInput.className = 'prompt-title-input form-control';
@@ -309,22 +330,8 @@
 
             promptDiv.appendChild(textArea);
 
-            const tagsInput = document.createElement('input');
-            tagsInput.type = 'text';
-            tagsInput.className = 'form-control mt-2';
-            tagsInput.value = prompt.tags ? prompt.tags.join(', ') : '';
-            tagsInput.readOnly = true;
-            promptDiv.appendChild(tagsInput);
-
-            const dateInput = document.createElement('input');
-            dateInput.type = 'date';
-            dateInput.className = 'form-control mt-2';
-            dateInput.value = prompt.date || '';
-            dateInput.readOnly = true;
-            promptDiv.appendChild(dateInput);
-
             const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'prompt-actions mt-3 d-flex';
+            actionsDiv.className = 'prompt-actions mt-3';
 
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
@@ -344,7 +351,7 @@
             deleteBtn.textContent = 'Elimina';
 
             const fontBtn = document.createElement('button');
-            fontBtn.className = 'btn btn-secondary btn-font btn-custom ml-auto';
+            fontBtn.className = 'btn btn-secondary btn-font btn-custom';
             fontBtn.textContent = 'Aumenta Font';
 
             actionsDiv.appendChild(editBtn);
@@ -359,8 +366,6 @@
                 e.stopPropagation();
                 titleInput.readOnly = false;
                 textArea.readOnly = false;
-                tagsInput.readOnly = false;
-                dateInput.readOnly = false;
                 titleInput.focus();
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
@@ -370,17 +375,14 @@
                 e.stopPropagation();
                 titleInput.readOnly = true;
                 textArea.readOnly = true;
-                tagsInput.readOnly = true;
-                dateInput.readOnly = true;
                 editBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
 
                 categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
                 categories[categoryIndex].prompts[promptIndex].text = textArea.value;
-                categories[categoryIndex].prompts[promptIndex].tags = tagsInput.value.split(',').map(tag => tag.trim());
-                categories[categoryIndex].prompts[promptIndex].date = dateInput.value;
                 saveToLocalStorage();
 
+                // Aggiorna il titolo nel promptTitleDiv
                 const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
                 const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
                 promptTitleDivs[promptIndex].textContent = titleInput.value;
@@ -421,6 +423,7 @@
                 if (idx === categoryIndex) {
                     const isVisible = box.style.display === 'block';
                     box.style.display = isVisible ? 'none' : 'block';
+                    // Cambia il colore di sfondo del pulsante della categoria
                     if (isVisible) {
                         categoryDivs[idx].classList.remove('btn-success');
                         categoryDivs[idx].classList.add('btn-secondary');
@@ -437,23 +440,20 @@
         }
 
         function showNewPromptForm(categoryIndex) {
-            $('#newPromptModal').modal('show');
+            $('#newPromptModal').modal('show'); // Mostra il modale
 
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 const title = $('#promptTitle').val();
                 const text = $('#promptText').val();
-                const tags = $('#promptTags').val().split(',').map(tag => tag.trim());
-                const date = $('#promptDate').val();
                 if (title && text) {
-                    categories[categoryIndex].prompts.push({ title, text, tags, date });
+                    categories[categoryIndex].prompts.push({ title, text });
                     saveToLocalStorage();
                     renderCategories();
-                    $('#newPromptModal').modal('hide');
+                    $('#newPromptModal').modal('hide'); // Nasconde il modale
+                    // Pulisce i campi del form
                     $('#promptTitle').val('');
                     $('#promptText').val('');
-                    $('#promptTags').val('');
-                    $('#promptDate').val('');
                 }
             });
         }
@@ -473,57 +473,33 @@
 
             let resultsFound = false;
 
-            categories.forEach((category) => {
-                category.prompts.forEach((prompt) => {
-                    const inTitle = prompt.title.toLowerCase().includes(searchQuery);
-                    const inText = prompt.text.toLowerCase().includes(searchQuery);
-                    const inTags = prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery));
-                    const inCategory = category.name.toLowerCase().includes(searchQuery);
+            categories.forEach((category, categoryIndex) => {
+                if (category.name.toLowerCase() === searchQuery) {
+                    resultsFound = true;
 
-                    if (inTitle || inText || inTags || inCategory) {
-                        resultsFound = true;
+                    const categoryHeader = document.createElement('h3');
+                    categoryHeader.textContent = category.name;
+                    promptsDisplayContainer.appendChild(categoryHeader);
+
+                    const promptGrid = document.createElement('div');
+                    promptGrid.className = 'prompt-grid';
+
+                    category.prompts.forEach((prompt, promptIndex) => {
                         const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-                        promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
-                        promptsDisplayContainer.appendChild(promptDiv);
-                    }
-                });
-            });
+                        promptGrid.appendChild(promptDiv);
+                    });
 
-            if (!resultsFound) {
-                promptsDisplayContainer.innerHTML += '<p>Nessun risultato trovato.</p>';
-            }
-        }
-
-        function filterPrompts() {
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            const dateFilter = document.getElementById('dateFilter').value;
-            const tagFilter = document.getElementById('tagFilter').value.toLowerCase().trim();
-            const promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = '<h2>Risultati del filtro</h2>';
-
-            let resultsFound = false;
-
-            categories.forEach((category) => {
-                if (categoryFilter && category.name !== categoryFilter) return;
-
-                category.prompts.forEach((prompt) => {
-                    let matches = true;
-
-                    if (dateFilter && prompt.date !== dateFilter) {
-                        matches = false;
-                    }
-
-                    if (tagFilter && !(prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(tagFilter)))) {
-                        matches = false;
-                    }
-
-                    if (matches) {
-                        resultsFound = true;
-                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-                        promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
-                        promptsDisplayContainer.appendChild(promptDiv);
-                    }
-                });
+                    promptsDisplayContainer.appendChild(promptGrid);
+                } else {
+                    category.prompts.forEach((prompt, promptIndex) => {
+                        if (prompt.title.toLowerCase() === searchQuery) {
+                            resultsFound = true;
+                            const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
+                            promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
+                            promptsDisplayContainer.appendChild(promptDiv);
+                        }
+                    });
+                }
             });
 
             if (!resultsFound) {
@@ -542,8 +518,6 @@
         };
 
         document.getElementById('searchBtn').onclick = searchPrompts;
-
-        document.getElementById('filterBtn').onclick = filterPrompts;
 
         document.getElementById('searchInput').addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
