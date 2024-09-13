@@ -11,23 +11,29 @@
             display: none;
             margin-top: 20px;
         }
+
         .prompt-actions .btn-custom {
             margin-right: 5px;
             margin-top: 5px;
         }
+
         .btn-font {
             margin-left: auto;
         }
+
         .prompt-title-input {
             margin-bottom: 10px;
         }
+
         .prompt-text {
             resize: none;
         }
+
         .active {
             background-color: #28a745;
             color: #fff;
         }
+
         .filter-container {
             margin-bottom: 20px;
         }
@@ -82,7 +88,6 @@
         <div id="category-boxes-container"></div>
     </div>
 
-    <!-- Modale per nuovo prompt -->
     <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content bg-dark text-white">
@@ -117,7 +122,6 @@
         </div>
     </div>
 
-    <!-- Script -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -179,7 +183,6 @@
             const categoryBox = document.createElement('div');
             categoryBox.className = 'category-box';
 
-            // Creazione di un contenitore per la categoria e i pulsanti
             const categoryHeader = document.createElement('div');
             categoryHeader.className = 'category-header d-flex align-items-center';
 
@@ -206,7 +209,7 @@
             deleteBtn.textContent = 'Elimina';
             categoryHeader.appendChild(deleteBtn);
 
-            categoryBox.appendChild(categoryHeader); // Aggiunge il contenitore al categoryBox
+            categoryBox.appendChild(categoryHeader);
 
             editBtn.onclick = () => {
                 categoryInput.readOnly = false;
@@ -227,7 +230,6 @@
                 deleteCategory(categoryIndex);
             };
 
-            // Creazione dei contenitori per i titoli dei prompt e il prompt selezionato
             const promptTitlesContainer = document.createElement('div');
             promptTitlesContainer.className = 'prompt-titles-container d-flex flex-wrap';
 
@@ -274,15 +276,13 @@
 
         function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
             const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
-            selectedPromptContainer.innerHTML = ''; // Pulisce il contenitore precedente
+            selectedPromptContainer.innerHTML = '';
 
             const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
             selectedPromptContainer.appendChild(promptDiv);
 
-            // Ora che il promptDiv è nel DOM, possiamo ridimensionare la textarea
             autoResizeTextArea(textArea);
 
-            // Aggiorna il colore di sfondo del titolo del prompt selezionato
             const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.btn');
             promptTitleDivs.forEach(div => {
                 div.classList.remove('active');
@@ -294,7 +294,6 @@
             const promptDiv = document.createElement('div');
             promptDiv.className = 'prompt-content';
 
-            // Input per il titolo del prompt
             const titleInput = document.createElement('input');
             titleInput.type = 'text';
             titleInput.className = 'prompt-title-input form-control';
@@ -310,7 +309,6 @@
 
             promptDiv.appendChild(textArea);
 
-            // Mostra i tag
             const tagsInput = document.createElement('input');
             tagsInput.type = 'text';
             tagsInput.className = 'form-control mt-2';
@@ -318,7 +316,6 @@
             tagsInput.readOnly = true;
             promptDiv.appendChild(tagsInput);
 
-            // Mostra la data
             const dateInput = document.createElement('input');
             dateInput.type = 'date';
             dateInput.className = 'form-control mt-2';
@@ -384,7 +381,6 @@
                 categories[categoryIndex].prompts[promptIndex].date = dateInput.value;
                 saveToLocalStorage();
 
-                // Aggiorna il titolo nel promptTitleDiv
                 const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
                 const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
                 promptTitleDivs[promptIndex].textContent = titleInput.value;
@@ -425,7 +421,6 @@
                 if (idx === categoryIndex) {
                     const isVisible = box.style.display === 'block';
                     box.style.display = isVisible ? 'none' : 'block';
-                    // Cambia il colore di sfondo del pulsante della categoria
                     if (isVisible) {
                         categoryDivs[idx].classList.remove('btn-success');
                         categoryDivs[idx].classList.add('btn-secondary');
@@ -442,7 +437,7 @@
         }
 
         function showNewPromptForm(categoryIndex) {
-            $('#newPromptModal').modal('show'); // Mostra il modale
+            $('#newPromptModal').modal('show');
 
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
@@ -454,8 +449,7 @@
                     categories[categoryIndex].prompts.push({ title, text, tags, date });
                     saveToLocalStorage();
                     renderCategories();
-                    $('#newPromptModal').modal('hide'); // Nasconde il modale
-                    // Pulisce i campi del form
+                    $('#newPromptModal').modal('hide');
                     $('#promptTitle').val('');
                     $('#promptText').val('');
                     $('#promptTags').val('');
@@ -479,8 +473,8 @@
 
             let resultsFound = false;
 
-            categories.forEach((category, categoryIndex) => {
-                category.prompts.forEach((prompt, promptIndex) => {
+            categories.forEach((category) => {
+                category.prompts.forEach((prompt) => {
                     const inTitle = prompt.title.toLowerCase().includes(searchQuery);
                     const inText = prompt.text.toLowerCase().includes(searchQuery);
                     const inTags = prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery));
@@ -509,10 +503,10 @@
 
             let resultsFound = false;
 
-            categories.forEach((category, categoryIndex) => {
+            categories.forEach((category) => {
                 if (categoryFilter && category.name !== categoryFilter) return;
 
-                category.prompts.forEach((prompt, promptIndex) => {
+                category.prompts.forEach((prompt) => {
                     let matches = true;
 
                     if (dateFilter && prompt.date !== dateFilter) {
