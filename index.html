@@ -492,8 +492,12 @@
             promptDiv.appendChild(buttonsDiv);
 
             copyBtn.onclick = () => {
-                navigator.clipboard.writeText(prompt.text);
-                alert('Prompt copiato negli appunti!');
+                var plainText = htmlToPlainText(prompt.text);
+                navigator.clipboard.writeText(plainText).then(() => {
+                    alert('Prompt copiato negli appunti!');
+                }).catch(err => {
+                    console.error('Errore nella copia del testo: ', err);
+                });
             };
 
             fontBtn.onclick = () => {
@@ -513,6 +517,54 @@
             };
 
             return { promptDiv };
+        }
+
+        function htmlToPlainText(html) {
+            var tempElement = document.createElement('div');
+            tempElement.innerHTML = html;
+
+            // Rimuovi script e stili
+            var scripts = tempElement.getElementsByTagName('script');
+            for (var i = scripts.length - 1; i >= 0; i--) {
+                scripts[i].parentNode.removeChild(scripts[i]);
+            }
+            var styles = tempElement.getElementsByTagName('style');
+            for (var i = styles.length - 1; i >= 0; i--) {
+                styles[i].parentNode.removeChild(styles[i]);
+            }
+
+            // Gestisci <br> come newline
+            tempElement.innerHTML = tempElement.innerHTML.replace(/<br\s*[\/]?>/gi, '\n');
+
+            // Gestisci elenchi ordinati
+            var olElements = tempElement.getElementsByTagName('ol');
+            for (var i = 0; i < olElements.length; i++) {
+                var ol = olElements[i];
+                var items = ol.getElementsByTagName('li');
+                for (var j = 0; j < items.length; j++) {
+                    items[j].innerText = (j + 1) + '. ' + items[j].innerText;
+                }
+                ol.outerHTML = ol.innerHTML;
+            }
+
+            // Gestisci elenchi non ordinati
+            var ulElements = tempElement.getElementsByTagName('ul');
+            for (var i = 0; i < ulElements.length; i++) {
+                var ul = ulElements[i];
+                var items = ul.getElementsByTagName('li');
+                for (var j = 0; j < items.length; j++) {
+                    items[j].innerText = '- ' + items[j].innerText;
+                }
+                ul.outerHTML = ul.innerHTML;
+            }
+
+            // Ottieni il testo
+            var text = tempElement.textContent || tempElement.innerText || '';
+
+            // Rimuovi spazi e newline multipli
+            text = text.replace(/\n\s*\n/g, '\n\n').trim();
+
+            return text;
         }
 
         function displaySelectedPrompt(prompt, categoryIndex, promptIndex, container) {
