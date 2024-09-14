@@ -33,6 +33,7 @@
             background-color: #444;
             padding: 20px;
             border-radius: 5px;
+            margin-top: 20px;
         }
 
         .prompt-title-input,
@@ -128,6 +129,40 @@
         /* Personalizza il selettore del caret (cursore del testo) */
         .ql-editor.ql-blank::before {
             color: #fff;
+        }
+
+        /* Stile per la toolbar di Quill */
+        .ql-toolbar {
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .ql-toolbar .ql-stroke {
+            stroke: #fff;
+        }
+
+        .ql-toolbar .ql-fill {
+            fill: #fff;
+        }
+
+        .ql-toolbar .ql-picker {
+            color: #fff;
+        }
+
+        .ql-toolbar .ql-picker-options {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .ql-toolbar .ql-picker-item {
+            color: #fff;
+        }
+
+        /* Stile per le opzioni del picker */
+        .ql-snow .ql-picker.ql-expanded .ql-picker-options {
+            border: 1px solid #555;
         }
     </style>
 </head>
@@ -451,7 +486,7 @@
             };
 
             editBtn.onclick = () => {
-                displaySelectedPrompt(prompt, categoryIndex, promptIndex);
+                showEditPromptForm(prompt, categoryIndex, promptIndex);
             };
 
             deleteBtn.onclick = () => {
@@ -508,6 +543,28 @@
 
                 if (title && text) {
                     categories[categoryIndex].prompts.push({ title, text, tags });
+                    saveToLocalStorage();
+                    renderCategories();
+                    $('#newPromptModal').modal('hide');
+                }
+            });
+        }
+
+        function showEditPromptForm(prompt, categoryIndex, promptIndex) {
+            $('#newPromptModal').modal('show');
+            $('#newPromptModalLabel').text('Modifica Prompt');
+            $('#promptTitle').val(prompt.title);
+            $('#promptTags').val(prompt.tags ? prompt.tags.join(', ') : '');
+            quill.root.innerHTML = prompt.text;
+
+            $('#newPromptForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
+                const title = $('#promptTitle').val();
+                const text = quill.root.innerHTML;
+                const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+
+                if (title && text) {
+                    categories[categoryIndex].prompts[promptIndex] = { title, text, tags };
                     saveToLocalStorage();
                     renderCategories();
                     $('#newPromptModal').modal('hide');
