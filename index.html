@@ -112,7 +112,7 @@
         /* Editor di Quill */
         #editor-container {
             background-color: #333;
-            color: #fff; /* Testo bianco per visibilità */
+            color: #fff;
             border: 1px solid #555;
             height: 200px;
             border-radius: 5px;
@@ -127,7 +127,7 @@
 
         /* Personalizza il selettore del caret (cursore del testo) */
         .ql-editor.ql-blank::before {
-            color: #fff; /* Placeholder in bianco */
+            color: #fff;
         }
     </style>
 </head>
@@ -164,7 +164,8 @@
     </div>
 
     <!-- Modale per aggiungere/modificare un nuovo prompt -->
-    <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
+    <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header">
@@ -181,7 +182,8 @@
                         </div>
                         <div class="form-group">
                             <label for="promptTags">Tag (separati da virgole)</label>
-                            <input type="text" class="form-control" id="promptTags" placeholder="Inserisci i tag separati da virgole...">
+                            <input type="text" class="form-control" id="promptTags"
+                                placeholder="Inserisci i tag separati da virgole...">
                         </div>
                         <div class="form-group">
                             <label for="promptText">Testo</label>
@@ -196,9 +198,12 @@
 
     <!-- Include jQuery, Popper.js, Bootstrap JS, and Quill -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script
+        src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <script>
         var categories = [];
@@ -300,7 +305,7 @@
 
         function createCategoryBox(category, categoryIndex) {
             const categoryBox = document.createElement('div');
-            categoryBox.className = 'category-box'; 
+            categoryBox.className = 'category-box';
             categoryBox.style.display = 'none';
 
             const categoryHeader = document.createElement('div');
@@ -358,7 +363,7 @@
             category.prompts.sort((a, b) => a.title.localeCompare(b.title));
 
             category.prompts.forEach((prompt, promptIndex) => {
-                const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, promptIndex);
+                const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, promptIndex, selectedPromptContainer);
                 promptTitlesContainer.appendChild(promptTitleDiv);
             });
 
@@ -376,38 +381,94 @@
             return categoryBox;
         }
 
-        function createPromptTitleDiv(prompt, categoryIndex, promptIndex) {
+        function createPromptTitleDiv(prompt, categoryIndex, promptIndex, selectedPromptContainer) {
             const promptTitleDiv = document.createElement('button');
             promptTitleDiv.className = 'btn btn-secondary mr-2 mb-2';
             promptTitleDiv.textContent = prompt.title;
 
             promptTitleDiv.onclick = () => {
-                displaySelectedPrompt(prompt, categoryIndex, promptIndex);
+                displaySelectedPrompt(prompt, categoryIndex, promptIndex, selectedPromptContainer);
             };
 
             return promptTitleDiv;
         }
 
-        function displaySelectedPrompt(prompt, categoryIndex, promptIndex) {
-            $('#newPromptModal').modal('show');
-            $('#newPromptModalLabel').text('Modifica Prompt');
-            $('#promptTitle').val(prompt.title);
-            $('#promptTags').val(prompt.tags ? prompt.tags.join(', ') : '');
-            quill.root.innerHTML = prompt.text;
+        function createPromptDiv(prompt, categoryIndex, promptIndex) {
+            const promptDiv = document.createElement('div');
+            promptDiv.className = 'prompt-content';
 
-            $('#newPromptForm').off('submit').on('submit', function (e) {
-                e.preventDefault();
-                const title = $('#promptTitle').val();
-                const text = quill.root.innerHTML;
-                const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+            const title = document.createElement('h4');
+            title.textContent = prompt.title;
+            promptDiv.appendChild(title);
 
-                if (title && text) {
-                    categories[categoryIndex].prompts[promptIndex] = { title, text, tags };
+            const tagsDiv = document.createElement('div');
+            if (prompt.tags) {
+                prompt.tags.forEach(tag => {
+                    const tagSpan = document.createElement('span');
+                    tagSpan.className = 'tag-badge';
+                    tagSpan.textContent = tag;
+                    tagsDiv.appendChild(tagSpan);
+                });
+            }
+            promptDiv.appendChild(tagsDiv);
+
+            const content = document.createElement('div');
+            content.innerHTML = prompt.text;
+            promptDiv.appendChild(content);
+
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'mt-2';
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'btn btn-warning btn-copy btn-custom';
+            copyBtn.textContent = 'Copia';
+            buttonsDiv.appendChild(copyBtn);
+
+            const fontBtn = document.createElement('button');
+            fontBtn.className = 'btn btn-orange btn-font btn-custom';
+            fontBtn.textContent = 'Aumenta Font';
+            buttonsDiv.appendChild(fontBtn);
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-info btn-edit btn-custom';
+            editBtn.textContent = 'Modifica';
+            buttonsDiv.appendChild(editBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
+            deleteBtn.textContent = 'Elimina';
+            buttonsDiv.appendChild(deleteBtn);
+
+            promptDiv.appendChild(buttonsDiv);
+
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(prompt.text);
+                alert('Prompt copiato negli appunti!');
+            };
+
+            fontBtn.onclick = () => {
+                content.style.fontSize = 'larger';
+            };
+
+            editBtn.onclick = () => {
+                displaySelectedPrompt(prompt, categoryIndex, promptIndex);
+            };
+
+            deleteBtn.onclick = () => {
+                if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                    categories[categoryIndex].prompts.splice(promptIndex, 1);
                     saveToLocalStorage();
                     renderCategories();
-                    $('#newPromptModal').modal('hide');
                 }
-            });
+            };
+
+            return { promptDiv };
+        }
+
+        function displaySelectedPrompt(prompt, categoryIndex, promptIndex, container) {
+            container.innerHTML = '';
+            const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
+            container.appendChild(promptDiv);
         }
 
         function toggleCategoryBox(categoryDiv, categoryIndex) {
@@ -437,7 +498,7 @@
             $('#newPromptModalLabel').text('Nuovo Prompt');
             $('#promptTitle').val('');
             $('#promptTags').val('');
-            quill.root.innerHTML = ''; // Resettare l'editor
+            quill.root.innerHTML = '';
 
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
@@ -490,6 +551,7 @@
                     ['bold', 'italic', 'underline'],
                     ['link', 'blockquote', 'code-block'],
                     [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['clean']
                 ]
             }
         });
