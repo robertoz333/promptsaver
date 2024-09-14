@@ -64,6 +64,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin-right: 5px;
+            margin-top: 10px;
         }
 
         .btn-new {
@@ -158,11 +159,6 @@
 
         .ql-toolbar .ql-picker-item {
             color: #fff;
-        }
-
-        /* Stile per le opzioni del picker */
-        .ql-snow .ql-picker.ql-expanded .ql-picker-options {
-            border: 1px solid #555;
         }
     </style>
 </head>
@@ -452,27 +448,28 @@
             promptDiv.appendChild(content);
 
             const buttonsDiv = document.createElement('div');
-            buttonsDiv.className = 'mt-2';
+            buttonsDiv.className = 'mt-3';
+
+            // Ordine dei bottoni: Modifica, Copia, Elimina, Aumenta il font
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-info btn-edit btn-custom';
+            editBtn.textContent = 'Modifica';
+            buttonsDiv.appendChild(editBtn);
 
             const copyBtn = document.createElement('button');
             copyBtn.className = 'btn btn-warning btn-copy btn-custom';
             copyBtn.textContent = 'Copia';
             buttonsDiv.appendChild(copyBtn);
 
-            const fontBtn = document.createElement('button');
-            fontBtn.className = 'btn btn-orange btn-font btn-custom';
-            fontBtn.textContent = 'Aumenta Font';
-            buttonsDiv.appendChild(fontBtn);
-
-            const editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.textContent = 'Modifica';
-            buttonsDiv.appendChild(editBtn);
-
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
             deleteBtn.textContent = 'Elimina';
             buttonsDiv.appendChild(deleteBtn);
+
+            const fontBtn = document.createElement('button');
+            fontBtn.className = 'btn btn-orange btn-font btn-custom';
+            fontBtn.textContent = 'Aumenta Font';
+            buttonsDiv.appendChild(fontBtn);
 
             promptDiv.appendChild(buttonsDiv);
 
@@ -545,7 +542,7 @@
                     categories[categoryIndex].prompts.push({ title, text, tags });
                     saveToLocalStorage();
                     renderCategories();
-                    $('#newPromptModal').modal('hide');
+                    // Lascia aperta la modale per vedere le modifiche
                 }
             });
         }
@@ -567,7 +564,7 @@
                     categories[categoryIndex].prompts[promptIndex] = { title, text, tags };
                     saveToLocalStorage();
                     renderCategories();
-                    $('#newPromptModal').modal('hide');
+                    // Lascia aperta la modale per vedere le modifiche
                 }
             });
         }
