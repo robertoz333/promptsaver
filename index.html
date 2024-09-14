@@ -152,7 +152,7 @@
         <div id="category-boxes-container"></div>
     </div>
 
-    <!-- Modale per aggiungere un nuovo prompt -->
+    <!-- Modale per aggiungere/modificare un nuovo prompt -->
     <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content bg-dark text-white">
@@ -371,141 +371,32 @@
             promptTitleDiv.textContent = prompt.title;
 
             promptTitleDiv.onclick = () => {
-                displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex);
+                displaySelectedPrompt(prompt, categoryIndex, promptIndex);
             };
 
             return promptTitleDiv;
         }
 
-        function autoResizeTextArea(element) {
-            element.style.height = 'auto';
-            element.style.height = element.scrollHeight + 'px';
-        }
+        function displaySelectedPrompt(prompt, categoryIndex, promptIndex) {
+            $('#newPromptModal').modal('show');
+            $('#newPromptModalLabel').text('Modifica Prompt');
+            $('#promptTitle').val(prompt.title);
+            $('#promptTags').val(prompt.tags ? prompt.tags.join(', ') : '');
+            quill.root.innerHTML = prompt.text;
 
-        function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
-            const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
-            selectedPromptContainer.innerHTML = '';
+            $('#newPromptForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
+                const title = $('#promptTitle').val();
+                const text = quill.root.innerHTML;
+                const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
-            const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
-            selectedPromptContainer.appendChild(promptDiv);
-
-            autoResizeTextArea(textArea);
-
-            const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.btn');
-            promptTitleDivs.forEach(div => {
-                div.classList.remove('active');
-            });
-            promptTitleDiv.classList.add('active');
-        }
-
-        function createPromptDiv(prompt, categoryIndex, promptIndex) {
-            const promptDiv = document.createElement('div');
-            promptDiv.className = 'prompt-content';
-
-            const titleInput = document.createElement('input');
-            titleInput.type = 'text';
-            titleInput.className = 'prompt-title-input form-control';
-            titleInput.value = prompt.title;
-            titleInput.readOnly = true;
-
-            promptDiv.appendChild(titleInput);
-
-            // Visualizzazione dei tag
-            if (prompt.tags && prompt.tags.length > 0) {
-                const tagsDiv = document.createElement('div');
-                tagsDiv.className = 'prompt-tags';
-                prompt.tags.forEach(tag => {
-                    const tagBadge = document.createElement('span');
-                    tagBadge.className = 'tag-badge';
-                    tagBadge.textContent = tag;
-                    tagsDiv.appendChild(tagBadge);
-                });
-                promptDiv.appendChild(tagsDiv);
-            }
-
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'prompt-actions mt-3';
-
-            const editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.textContent = 'Modifica';
-
-            const saveBtn = document.createElement('button');
-            saveBtn.className = 'btn btn-success btn-save btn-custom';
-            saveBtn.textContent = 'Salva';
-            saveBtn.style.display = 'none';
-
-            const copyBtn = document.createElement('button');
-            copyBtn.className = 'btn btn-warning btn-copy btn-custom';
-            copyBtn.textContent = 'Copia';
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
-            deleteBtn.textContent = 'Elimina';
-
-            const fontBtn = document.createElement('button');
-            fontBtn.className = 'btn btn-secondary btn-font btn-custom';
-            fontBtn.textContent = 'Aumenta Font';
-
-            actionsDiv.appendChild(editBtn);
-            actionsDiv.appendChild(saveBtn);
-            actionsDiv.appendChild(copyBtn);
-            actionsDiv.appendChild(deleteBtn);
-            actionsDiv.appendChild(fontBtn);
-
-            promptDiv.appendChild(actionsDiv);
-
-            editBtn.onclick = (e) => {
-                e.stopPropagation();
-                titleInput.readOnly = false;
-                textArea.readOnly = false;
-                titleInput.focus();
-                editBtn.style.display = 'none';
-                saveBtn.style.display = 'inline';
-            };
-
-            saveBtn.onclick = (e) => {
-                e.stopPropagation();
-                titleInput.readOnly = true;
-                textArea.readOnly = true;
-                editBtn.style.display = 'inline';
-                saveBtn.style.display = 'none';
-
-                categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
-                categories[categoryIndex].prompts[promptIndex].text = textArea.value;
-                saveToLocalStorage();
-
-                const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
-                const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
-                promptTitleDivs[promptIndex].textContent = titleInput.value;
-            };
-
-            copyBtn.onclick = (e) => {
-                e.stopPropagation();
-                navigator.clipboard.writeText(textArea.value).then(() => {
-                    alert("Testo copiato negli appunti!");
-                }).catch(err => {
-                    console.error("Errore nella copia del testo: ", err);
-                });
-            };
-
-            deleteBtn.onclick = (e) => {
-                e.stopPropagation();
-                if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
-                    categories[categoryIndex].prompts.splice(promptIndex, 1);
+                if (title && text) {
+                    categories[categoryIndex].prompts[promptIndex] = { title, text, tags };
                     saveToLocalStorage();
                     renderCategories();
+                    $('#newPromptModal').modal('hide');
                 }
-            };
-
-            fontBtn.onclick = (e) => {
-                e.stopPropagation();
-                let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
-                textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
-                autoResizeTextArea(textArea);
-            };
-
-            return { promptDiv, textArea, titleInput };
+            });
         }
 
         function toggleCategoryBox(categoryDiv, categoryIndex) {
@@ -532,11 +423,15 @@
 
         function showNewPromptForm(categoryIndex) {
             $('#newPromptModal').modal('show');
+            $('#newPromptModalLabel').text('Nuovo Prompt');
+            $('#promptTitle').val('');
+            $('#promptTags').val('');
+            quill.root.innerHTML = ''; // Resettare l'editor
 
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 const title = $('#promptTitle').val();
-                const text = quill.root.innerHTML; // Ottenere contenuto da Quill
+                const text = quill.root.innerHTML;
                 const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
                 if (title && text) {
@@ -544,9 +439,6 @@
                     saveToLocalStorage();
                     renderCategories();
                     $('#newPromptModal').modal('hide');
-                    $('#promptTitle').val('');
-                    quill.root.innerHTML = ''; // Resettare l'editor
-                    $('#promptTags').val(''); 
                 }
             });
         }
