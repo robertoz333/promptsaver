@@ -239,6 +239,8 @@
     <script>
         var categories = [];
         var quill;
+        var activeCategoryIndex = null;
+        var activePromptIndex = null;
 
         function loadFromLocalStorage() {
             var savedCategories = localStorage.getItem('categories');
@@ -263,7 +265,14 @@
 
             categories.forEach((category, index) => {
                 const categoryDiv = document.createElement('button');
-                categoryDiv.className = 'btn btn-secondary mr-2 mb-2';
+                categoryDiv.className = 'btn mr-2 mb-2';
+
+                if (index === activeCategoryIndex) {
+                    categoryDiv.classList.add('btn-success');
+                } else {
+                    categoryDiv.classList.add('btn-secondary');
+                }
+
                 categoryDiv.textContent = category.name;
 
                 categoryDiv.onclick = () => {
@@ -275,6 +284,10 @@
                 const categoryBox = createCategoryBox(category, index);
                 categoryBoxesContainer.appendChild(categoryBox);
             });
+
+            // Reset degli indici attivi dopo il rendering
+            activeCategoryIndex = null;
+            activePromptIndex = null;
         }
 
         function populateCategoryFilter() {
@@ -337,7 +350,7 @@
         function createCategoryBox(category, categoryIndex) {
             const categoryBox = document.createElement('div');
             categoryBox.className = 'category-box';
-            categoryBox.style.display = 'none';
+            categoryBox.style.display = (categoryIndex === activeCategoryIndex) ? 'block' : 'none';
 
             const categoryHeader = document.createElement('div');
             categoryHeader.className = 'category-header d-flex align-items-center';
@@ -396,6 +409,11 @@
             category.prompts.forEach((prompt, promptIndex) => {
                 const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, promptIndex, selectedPromptContainer);
                 promptTitlesContainer.appendChild(promptTitleDiv);
+
+                // Se è il prompt attivo, visualizzalo aperto
+                if (categoryIndex === activeCategoryIndex && promptIndex === activePromptIndex) {
+                    displaySelectedPrompt(prompt, categoryIndex, promptIndex, selectedPromptContainer);
+                }
             });
 
             categoryBox.appendChild(promptTitlesContainer);
@@ -542,7 +560,7 @@
                     categories[categoryIndex].prompts.push({ title, text, tags });
                     saveToLocalStorage();
                     renderCategories();
-                    // Lascia aperta la modale per vedere le modifiche
+                    // Mantiene aperta la modale per ulteriori aggiunte
                 }
             });
         }
@@ -563,8 +581,11 @@
                 if (title && text) {
                     categories[categoryIndex].prompts[promptIndex] = { title, text, tags };
                     saveToLocalStorage();
+                    // Imposta gli indici attivi per visualizzare il prompt modificato
+                    activeCategoryIndex = categoryIndex;
+                    activePromptIndex = promptIndex;
+                    $('#newPromptModal').modal('hide');
                     renderCategories();
-                    // Lascia aperta la modale per vedere le modifiche
                 }
             });
         }
