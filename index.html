@@ -111,12 +111,23 @@
 
         /* Editor di Quill */
         #editor-container {
-            background-color: #fff;
-            color: #000;
+            background-color: #333;
+            color: #fff; /* Testo bianco per visibilità */
             border: 1px solid #555;
             height: 200px;
             border-radius: 5px;
             margin-bottom: 15px;
+        }
+
+        /* Imposta il colore del testo dell'editor in bianco */
+        .ql-editor {
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* Personalizza il selettore del caret (cursore del testo) */
+        .ql-editor.ql-blank::before {
+            color: #fff; /* Placeholder in bianco */
         }
     </style>
 </head>
