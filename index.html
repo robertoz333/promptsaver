@@ -127,6 +127,11 @@
             color: #fff;
         }
 
+        /* Riduci l'interlinea tra i paragrafi */
+        .ql-editor p {
+            margin: 0;
+        }
+
         /* Personalizza il selettore del caret (cursore del testo) */
         .ql-editor.ql-blank::before {
             color: #fff;
@@ -285,9 +290,9 @@
                 categoryBoxesContainer.appendChild(categoryBox);
             });
 
-            // Reset degli indici attivi dopo il rendering
-            activeCategoryIndex = null;
-            activePromptIndex = null;
+            // Non resettare gli indici attivi dopo il rendering
+            // activeCategoryIndex = null;
+            // activePromptIndex = null;
         }
 
         function populateCategoryFilter() {
@@ -436,6 +441,8 @@
             promptTitleDiv.textContent = prompt.title;
 
             promptTitleDiv.onclick = () => {
+                activeCategoryIndex = categoryIndex;
+                activePromptIndex = promptIndex;
                 displaySelectedPrompt(prompt, categoryIndex, promptIndex, selectedPromptContainer);
             };
 
@@ -562,7 +569,7 @@
             var text = tempElement.textContent || tempElement.innerText || '';
 
             // Rimuovi spazi e newline multipli
-            text = text.replace(/\n\s*\n/g, '\n\n').trim();
+            text = text.replace(/\n\s*\n/g, '\n').trim();
 
             return text;
         }
@@ -598,9 +605,11 @@
         function showNewPromptForm(categoryIndex) {
             $('#newPromptModal').modal('show');
             $('#newPromptModalLabel').text('Nuovo Prompt');
-            $('#promptTitle').val('');
-            $('#promptTags').val('');
-            quill.root.innerHTML = '';
+
+            // Non pulire i campi per mantenere il titolo e il testo dopo l'aggiunta
+            // $('#promptTitle').val('');
+            // $('#promptTags').val('');
+            // quill.root.innerHTML = '';
 
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
@@ -611,8 +620,13 @@
                 if (title && text) {
                     categories[categoryIndex].prompts.push({ title, text, tags });
                     saveToLocalStorage();
+
+                    // Imposta gli indici attivi per visualizzare il nuovo prompt
+                    activeCategoryIndex = categoryIndex;
+                    activePromptIndex = categories[categoryIndex].prompts.length - 1;
+
                     renderCategories();
-                    // Mantiene aperta la modale per ulteriori aggiunte
+                    // Mantiene aperta la modale e non pulisce i campi per vedere titolo e testo
                 }
             });
         }
@@ -633,6 +647,7 @@
                 if (title && text) {
                     categories[categoryIndex].prompts[promptIndex] = { title, text, tags };
                     saveToLocalStorage();
+
                     // Imposta gli indici attivi per visualizzare il prompt modificato
                     activeCategoryIndex = categoryIndex;
                     activePromptIndex = promptIndex;
