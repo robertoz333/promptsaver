@@ -92,6 +92,10 @@
             background-color: #ff9800;
         }
 
+        .btn-share {
+            background-color: #007bff;
+        }
+
         .search-container {
             display: flex;
             gap: 10px;
@@ -289,10 +293,6 @@
                 const categoryBox = createCategoryBox(category, index);
                 categoryBoxesContainer.appendChild(categoryBox);
             });
-
-            // Non resettare gli indici attivi dopo il rendering
-            // activeCategoryIndex = null;
-            // activePromptIndex = null;
         }
 
         function populateCategoryFilter() {
@@ -475,7 +475,7 @@
             const buttonsDiv = document.createElement('div');
             buttonsDiv.className = 'mt-3';
 
-            // Ordine dei bottoni: Modifica, Copia, Elimina, Aumenta il font
+            // Ordine dei bottoni: Modifica, Copia, Elimina, Aumenta il font, Condividi
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
             editBtn.textContent = 'Modifica';
@@ -495,6 +495,11 @@
             fontBtn.className = 'btn btn-orange btn-font btn-custom';
             fontBtn.textContent = 'Aumenta Font';
             buttonsDiv.appendChild(fontBtn);
+
+            const shareBtn = document.createElement('button');
+            shareBtn.className = 'btn btn-share btn-custom';
+            shareBtn.textContent = 'Condividi';
+            buttonsDiv.appendChild(shareBtn);
 
             promptDiv.appendChild(buttonsDiv);
 
@@ -521,6 +526,10 @@
                     saveToLocalStorage();
                     renderCategories();
                 }
+            };
+
+            shareBtn.onclick = () => {
+                sharePrompt(prompt);
             };
 
             return { promptDiv };
@@ -662,6 +671,29 @@
                 categories.splice(categoryIndex, 1);
                 saveToLocalStorage();
                 renderCategories();
+            }
+        }
+
+        function sharePrompt(prompt) {
+            var plainText = htmlToPlainText(prompt.text);
+            var shareData = {
+                title: prompt.title,
+                text: plainText,
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData).then(() => {
+                    console.log('Prompt condiviso con successo!');
+                }).catch(err => {
+                    console.error('Errore nella condivisione del prompt: ', err);
+                });
+            } else {
+                // Se l'API Web Share non è supportata, copia il testo negli appunti
+                navigator.clipboard.writeText(plainText).then(() => {
+                    alert('Prompt copiato negli appunti! Puoi incollarlo per condividerlo.');
+                }).catch(err => {
+                    console.error('Errore nella copia del testo: ', err);
+                });
             }
         }
 
