@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -166,6 +168,13 @@
         .ql-toolbar .ql-picker-item {
             color: #fff;
         }
+
+        .backup-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
     </style>
 </head>
 
@@ -182,6 +191,13 @@
             <input type="date" id="dateFilter" class="form-control">
             <input type="text" id="tagFilter" class="form-control" placeholder="Inserisci tag...">
             <button id="searchBtn" class="btn btn-success">🔍 Cerca</button>
+        </div>
+
+        <!-- Bottoni di backup e ripristino -->
+        <div class="backup-buttons">
+            <button id="restoreBackupBtn" class="btn btn-warning">Ripristina Backup</button>
+            <button id="exportDataBtn" class="btn btn-info">Esporta Dati</button>
+            <button id="importDataBtn" class="btn btn-secondary">Importa Dati</button>
         </div>
 
         <div class="top-section mb-4">
@@ -259,6 +275,10 @@
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
+        }
+
+        function backupData() {
+            localStorage.setItem('categories_backup', JSON.stringify(categories));
         }
 
         function renderCategories() {
@@ -519,6 +539,7 @@
 
             deleteBtn.onclick = () => {
                 if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                    backupData();
                     categories[categoryIndex].prompts.splice(promptIndex, 1);
                     saveToLocalStorage();
                     renderCategories();
@@ -665,6 +686,7 @@
 
         function deleteCategory(categoryIndex) {
             if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
+                backupData();
                 categories.splice(categoryIndex, 1);
                 saveToLocalStorage();
                 renderCategories();
@@ -711,6 +733,63 @@
                 searchPrompts();
             }
         });
+
+        document.getElementById('restoreBackupBtn').onclick = function () {
+            if (confirm('Sei sicuro di voler ripristinare il backup? Tutte le modifiche recenti andranno perse.')) {
+                var backup = localStorage.getItem('categories_backup');
+                if (backup) {
+                    categories = JSON.parse(backup);
+                    saveToLocalStorage();
+                    renderCategories();
+                    alert('Backup ripristinato con successo.');
+                } else {
+                    alert('Nessun backup disponibile.');
+                }
+            }
+        };
+
+        document.getElementById('exportDataBtn').onclick = function () {
+            var dataStr = JSON.stringify(categories);
+            var dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+            var exportFileDefaultName = 'prompts_backup_' + new Date().toISOString().slice(0,19) + '.json';
+
+            var linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        };
+
+        document.getElementById('importDataBtn').onclick = function () {
+            var fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+
+            fileInput.onchange = function (event) {
+                var file = event.target.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        try {
+                            var importedData = JSON.parse(e.target.result);
+                            if (Array.isArray(importedData)) {
+                                categories = importedData;
+                                saveToLocalStorage();
+                                renderCategories();
+                                alert('Dati importati con successo.');
+                            } else {
+                                alert('Formato del file non valido.');
+                            }
+                        } catch (err) {
+                            alert('Errore nell\'importazione dei dati: ' + err);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+
+            fileInput.click();
+        };
 
         // Inizializza Quill
         quill = new Quill('#editor-container', {
