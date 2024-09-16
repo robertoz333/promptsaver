@@ -216,6 +216,7 @@
             </div>
             <div class="favorites-section w-100 mt-3">
                 <button id="showFavoritesBtn" class="btn btn-warning">Mostra Preferiti</button>
+                <button id="hideFavoritesBtn" class="btn btn-danger" style="display: none;">Chiudi Preferiti</button>
             </div>
         </div>
 
@@ -732,6 +733,8 @@
         function showFavoritePrompts() {
             const promptsDisplayContainer = document.getElementById('prompts-display-container');
             promptsDisplayContainer.innerHTML = '<h2>Prompts Preferiti</h2>';
+            document.getElementById('hideFavoritesBtn').style.display = 'inline-block';
+            document.getElementById('showFavoritesBtn').style.display = 'none';
             let resultsFound = false;
 
             categories.forEach((category, categoryIndex) => {
@@ -758,6 +761,13 @@
             if (!resultsFound) {
                 promptsDisplayContainer.innerHTML += '<p>Nessun prompt preferito trovato.</p>';
             }
+        }
+
+        function hideFavoritePrompts() {
+            const promptsDisplayContainer = document.getElementById('prompts-display-container');
+            promptsDisplayContainer.innerHTML = '';
+            document.getElementById('hideFavoritesBtn').style.display = 'none';
+            document.getElementById('showFavoritesBtn').style.display = 'inline-block';
         }
 
         document.getElementById('addCategoryBtn').onclick = function () {
@@ -836,6 +846,7 @@
         };
 
         document.getElementById('showFavoritesBtn').onclick = showFavoritePrompts;
+        document.getElementById('hideFavoritesBtn').onclick = hideFavoritePrompts;
 
         // Inizializza Quill
         quill = new Quill('#editor-container', {
