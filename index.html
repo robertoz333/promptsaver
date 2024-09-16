@@ -615,16 +615,17 @@
             $('#newPromptModal').modal('show');
             $('#newPromptModalLabel').text('Nuovo Prompt');
 
-            // Non pulire i campi per mantenere il titolo e il testo dopo l'aggiunta
-            // $('#promptTitle').val('');
-            // $('#promptTags').val('');
-            // quill.root.innerHTML = '';
+            // Memorizza categoryIndex nel modale
+            $('#newPromptModal').data('categoryIndex', categoryIndex);
 
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 const title = $('#promptTitle').val();
                 const text = quill.root.innerHTML;
                 const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+
+                // Recupera categoryIndex dal modale
+                var categoryIndex = $('#newPromptModal').data('categoryIndex');
 
                 if (title && text) {
                     categories[categoryIndex].prompts.push({ title, text, tags });
@@ -647,11 +648,19 @@
             $('#promptTags').val(prompt.tags ? prompt.tags.join(', ') : '');
             quill.root.innerHTML = prompt.text;
 
+            // Memorizza categoryIndex e promptIndex nel modale
+            $('#newPromptModal').data('categoryIndex', categoryIndex);
+            $('#newPromptModal').data('promptIndex', promptIndex);
+
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 const title = $('#promptTitle').val();
                 const text = quill.root.innerHTML;
                 const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+
+                // Recupera gli indici dal modale
+                var categoryIndex = $('#newPromptModal').data('categoryIndex');
+                var promptIndex = $('#newPromptModal').data('promptIndex');
 
                 if (title && text) {
                     categories[categoryIndex].prompts[promptIndex] = { title, text, tags };
