@@ -578,6 +578,9 @@
                     categories[categoryIndex].prompts.splice(promptIndex, 1);
                     saveToLocalStorage();
                     renderCategories();
+                    if (document.getElementById('prompts-display-container').innerHTML.includes('Prompts Preferiti')) {
+                        showFavoritePrompts();
+                    }
                 }
             };
 
@@ -590,6 +593,9 @@
                 saveToLocalStorage();
                 favoriteBtn.textContent = prompt.favorite ? '★ Preferito' : '☆ Preferito';
                 renderCategories();
+                if (document.getElementById('prompts-display-container').innerHTML.includes('Prompts Preferiti')) {
+                    showFavoritePrompts();
+                }
             };
 
             return { promptDiv };
@@ -763,7 +769,13 @@
             let resultsFound = false;
 
             categories.forEach((category, categoryIndex) => {
-                const favoritePrompts = category.prompts.filter(prompt => prompt.favorite);
+                const favoritePrompts = category.prompts.reduce((accumulator, prompt, index) => {
+                    if (prompt.favorite) {
+                        accumulator.push({ prompt, index });
+                    }
+                    return accumulator;
+                }, []);
+
                 if (favoritePrompts.length > 0) {
                     resultsFound = true;
 
@@ -774,8 +786,8 @@
                     const promptGrid = document.createElement('div');
                     promptGrid.className = 'prompt-grid';
 
-                    favoritePrompts.forEach((prompt, promptIndex) => {
-                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
+                    favoritePrompts.forEach(({ prompt, index }) => {
+                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, index);
                         promptGrid.appendChild(promptDiv);
                     });
 
