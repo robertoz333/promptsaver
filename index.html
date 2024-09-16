@@ -99,6 +99,10 @@
             background-color: #ff69b4;
         }
 
+        .btn-remove-favorite {
+            background-color: #6c757d;
+        }
+
         .search-container {
             display: flex;
             gap: 10px;
@@ -500,7 +504,7 @@
             const buttonsDiv = document.createElement('div');
             buttonsDiv.className = 'mt-3';
 
-            // Ordine dei bottoni: Modifica, Copia, Elimina, Aumenta il font, Condividi, Preferito
+            // Ordine dei bottoni: Modifica, Copia, Elimina, Aumenta il font, Condividi, Preferito/Elimina dai Preferiti
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
             editBtn.textContent = 'Modifica';
@@ -526,10 +530,28 @@
             shareBtn.textContent = 'Condividi';
             buttonsDiv.appendChild(shareBtn);
 
+            // Bottone per aggiungere/rimuovere dai preferiti
             const favoriteBtn = document.createElement('button');
             favoriteBtn.className = 'btn btn-favorite btn-custom';
             favoriteBtn.textContent = prompt.favorite ? '★ Preferito' : '☆ Preferito';
             buttonsDiv.appendChild(favoriteBtn);
+
+            // Se il prompt è nei preferiti, aggiungi il bottone "Elimina dai Preferiti"
+            if (prompt.favorite) {
+                const removeFavoriteBtn = document.createElement('button');
+                removeFavoriteBtn.className = 'btn btn-remove-favorite btn-custom';
+                removeFavoriteBtn.textContent = 'Elimina dai Preferiti';
+                buttonsDiv.appendChild(removeFavoriteBtn);
+
+                removeFavoriteBtn.onclick = () => {
+                    prompt.favorite = false;
+                    saveToLocalStorage();
+                    renderCategories();
+                    if (document.getElementById('prompts-display-container').innerHTML.includes('Prompts Preferiti')) {
+                        showFavoritePrompts();
+                    }
+                };
+            }
 
             promptDiv.appendChild(buttonsDiv);
 
@@ -567,6 +589,7 @@
                 prompt.favorite = !prompt.favorite;
                 saveToLocalStorage();
                 favoriteBtn.textContent = prompt.favorite ? '★ Preferito' : '☆ Preferito';
+                renderCategories();
             };
 
             return { promptDiv };
@@ -667,7 +690,9 @@
                     activePromptIndex = categories[categoryIndex].prompts.length - 1;
 
                     renderCategories();
-                    // Mantiene aperta la modale e non pulisce i campi per vedere titolo e testo
+                    $('#newPromptModal').modal('hide');
+                    $('#newPromptForm')[0].reset();
+                    quill.setText('');
                 }
             });
         }
