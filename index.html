@@ -204,8 +204,8 @@
         <div class="language-selector mb-3">
             <label for="languageSelect" data-i18n="select_language">Seleziona Lingua:</label>
             <select id="languageSelect" class="form-control" style="width: auto; display: inline-block;">
-                <option value="it">Italiano</option>
-                <option value="en">English</option>
+                <option value="it" data-i18n="italian">Italiano</option>
+                <option value="en" data-i18n="english">English</option>
                 <!-- Aggiungi altre lingue qui -->
             </select>
         </div>
@@ -301,6 +301,8 @@
                 'title': 'Prompt Saver con Bootstrap',
                 'prompt_saver': 'Prompt Saver',
                 'select_language': 'Seleziona Lingua:',
+                'italian': 'Italiano',
+                'english': 'Inglese',
                 'search_placeholder': 'Cerca per parole chiave...',
                 'all_categories': 'Tutte le categorie',
                 'enter_tags': 'Inserisci tag...',
@@ -348,6 +350,8 @@
                 'title': 'Prompt Saver with Bootstrap',
                 'prompt_saver': 'Prompt Saver',
                 'select_language': 'Select Language:',
+                'italian': 'Italian',
+                'english': 'English',
                 'search_placeholder': 'Search by keywords...',
                 'all_categories': 'All Categories',
                 'enter_tags': 'Enter tags...',
@@ -365,7 +369,7 @@
                 'tags_placeholder': 'Enter tags separated by commas...',
                 'text_label': 'Text',
                 'add_button': 'Add',
-                'modify_button': 'Modify',
+                'modify_button': 'Edit',
                 'save_button': 'Save',
                 'delete_button': 'Delete',
                 'copy_button': 'Copy',
@@ -1023,6 +1027,9 @@
             translateUI();
             renderCategories();
             populateCategoryFilter();
+
+            // Aggiorna il placeholder dell'editor Quill
+            quill.root.dataset.placeholder = translations[currentLanguage]['text_label'];
         };
 
         // Inizializza Quill
@@ -1040,9 +1047,13 @@
             }
         });
 
+        // Imposta la lingua corrente in base al selettore di lingua
+        currentLanguage = document.getElementById('languageSelect').value;
+
         // Inizializzazione
         translateUI();
         loadFromLocalStorage();
+        populateCategoryFilter();
 
     </script>
 </body>
