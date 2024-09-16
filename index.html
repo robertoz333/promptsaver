@@ -95,6 +95,10 @@
             background-color: #007bff;
         }
 
+        .btn-favorite {
+            background-color: #ff69b4;
+        }
+
         .search-container {
             display: flex;
             gap: 10px;
@@ -209,6 +213,9 @@
                     </div>
                 </div>
                 <div id="categories" class="mt-3 d-flex flex-wrap"></div>
+            </div>
+            <div class="favorites-section w-100 mt-3">
+                <button id="showFavoritesBtn" class="btn btn-warning">Mostra Preferiti</button>
             </div>
         </div>
 
@@ -492,7 +499,7 @@
             const buttonsDiv = document.createElement('div');
             buttonsDiv.className = 'mt-3';
 
-            // Ordine dei bottoni: Modifica, Copia, Elimina, Aumenta il font, Condividi
+            // Ordine dei bottoni: Modifica, Copia, Elimina, Aumenta il font, Condividi, Preferito
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
             editBtn.textContent = 'Modifica';
@@ -517,6 +524,11 @@
             shareBtn.className = 'btn btn-share btn-custom';
             shareBtn.textContent = 'Condividi';
             buttonsDiv.appendChild(shareBtn);
+
+            const favoriteBtn = document.createElement('button');
+            favoriteBtn.className = 'btn btn-favorite btn-custom';
+            favoriteBtn.textContent = prompt.favorite ? '★ Preferito' : '☆ Preferito';
+            buttonsDiv.appendChild(favoriteBtn);
 
             promptDiv.appendChild(buttonsDiv);
 
@@ -548,6 +560,12 @@
 
             shareBtn.onclick = () => {
                 sharePrompt(prompt);
+            };
+
+            favoriteBtn.onclick = () => {
+                prompt.favorite = !prompt.favorite;
+                saveToLocalStorage();
+                favoriteBtn.textContent = prompt.favorite ? '★ Preferito' : '☆ Preferito';
             };
 
             return { promptDiv };
@@ -633,11 +651,6 @@
             $('#newPromptModal').modal('show');
             $('#newPromptModalLabel').text('Nuovo Prompt');
 
-            // Non pulire i campi per mantenere il titolo e il testo dopo l'aggiunta
-            // $('#promptTitle').val('');
-            // $('#promptTags').val('');
-            // quill.root.innerHTML = '';
-
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 const title = $('#promptTitle').val();
@@ -645,7 +658,7 @@
                 const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
                 if (title && text) {
-                    categories[categoryIndex].prompts.push({ title, text, tags });
+                    categories[categoryIndex].prompts.push({ title, text, tags, favorite: false });
                     saveToLocalStorage();
 
                     // Imposta gli indici attivi per visualizzare il nuovo prompt
@@ -672,7 +685,7 @@
                 const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
                 if (title && text) {
-                    categories[categoryIndex].prompts[promptIndex] = { title, text, tags };
+                    categories[categoryIndex].prompts[promptIndex] = { ...prompt, title, text, tags };
                     saveToLocalStorage();
 
                     // Imposta gli indici attivi per visualizzare il prompt modificato
@@ -713,6 +726,37 @@
                 }).catch(err => {
                     console.error('Errore nella copia del testo: ', err);
                 });
+            }
+        }
+
+        function showFavoritePrompts() {
+            const promptsDisplayContainer = document.getElementById('prompts-display-container');
+            promptsDisplayContainer.innerHTML = '<h2>Prompts Preferiti</h2>';
+            let resultsFound = false;
+
+            categories.forEach((category, categoryIndex) => {
+                const favoritePrompts = category.prompts.filter(prompt => prompt.favorite);
+                if (favoritePrompts.length > 0) {
+                    resultsFound = true;
+
+                    const categoryHeader = document.createElement('h3');
+                    categoryHeader.textContent = category.name;
+                    promptsDisplayContainer.appendChild(categoryHeader);
+
+                    const promptGrid = document.createElement('div');
+                    promptGrid.className = 'prompt-grid';
+
+                    favoritePrompts.forEach((prompt, promptIndex) => {
+                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
+                        promptGrid.appendChild(promptDiv);
+                    });
+
+                    promptsDisplayContainer.appendChild(promptGrid);
+                }
+            });
+
+            if (!resultsFound) {
+                promptsDisplayContainer.innerHTML += '<p>Nessun prompt preferito trovato.</p>';
             }
         }
 
@@ -790,6 +834,8 @@
 
             fileInput.click();
         };
+
+        document.getElementById('showFavoritesBtn').onclick = showFavoritePrompts;
 
         // Inizializza Quill
         quill = new Quill('#editor-container', {
