@@ -256,6 +256,18 @@
             margin-left: 5px;
         }
 
+        /* Classe personalizzata per i pulsanti delle categorie */
+        .category-btn {
+            display: flex;
+            align-items: center;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 
@@ -537,18 +549,12 @@
 
             categories.forEach((category, index) => {
                 const categoryDiv = document.createElement('button');
-                categoryDiv.className = 'btn mr-2 mb-2';
+                categoryDiv.className = 'category-btn';
 
                 // Calcola il colore del testo in base al colore di sfondo
                 const textColor = getContrastYIQ(category.color);
                 categoryDiv.style.backgroundColor = category.color;
                 categoryDiv.style.color = textColor;
-
-                if (index === activeCategoryIndex) {
-                    categoryDiv.classList.add('btn-success');
-                } else {
-                    categoryDiv.classList.add('btn-secondary');
-                }
 
                 // Aggiungi indicatore di colore
                 const colorIndicator = document.createElement('span');
@@ -966,22 +972,19 @@
 
         function toggleCategoryBox(categoryDiv, categoryIndex) {
             const categoryBoxes = document.querySelectorAll('.category-box');
-            const categoryDivs = document.querySelectorAll('#categories .btn');
+            const categoryDivs = document.querySelectorAll('#categories .category-btn');
             categoryBoxes.forEach((box, idx) => {
                 if (idx === categoryIndex) {
                     const isVisible = box.style.display === 'block';
                     box.style.display = isVisible ? 'none' : 'block';
                     if (isVisible) {
-                        categoryDivs[idx].classList.remove('btn-success');
-                        categoryDivs[idx].classList.add('btn-secondary');
+                        categoryDiv.style.border = 'none';
                     } else {
-                        categoryDivs[idx].classList.remove('btn-secondary');
-                        categoryDivs[idx].classList.add('btn-success');
+                        categoryDiv.style.border = '2px solid #28a745';
                     }
                 } else {
                     box.style.display = 'none';
-                    categoryDivs[idx].classList.remove('btn-success');
-                    categoryDivs[idx].classList.add('btn-secondary');
+                    categoryDivs[idx].style.border = 'none';
                 }
             });
         }
