@@ -304,7 +304,7 @@
             <div class="new-category-section w-100">
                 <div class="input-group">
                     <input type="text" id="newCategoryInput" class="form-control" data-i18n-placeholder="new_category">
-                    <input type="color" id="newCategoryColor" class="form-control" style="max-width: 50px; padding: 0;">
+                    <input type="color" id="newCategoryColor" class="form-control" style="max-width: 50px; padding: 0;" value="#6c757d">
                     <div class="input-group-append">
                         <button id="addCategoryBtn" class="btn btn-success" data-i18n="add_category">Aggiungi Categoria</button>
                     </div>
@@ -507,7 +507,7 @@
                 categories = JSON.parse(savedCategories);
                 // Imposta i valori di default per copyCount e editCount se non esistono
                 categories.forEach(category => {
-                    if (!category.color) category.color = '#007bff'; // Colore di default
+                    if (!category.color) category.color = '#6c757d'; // Colore di default grigio
                     category.prompts.forEach(prompt => {
                         if (prompt.copyCount === undefined) prompt.copyCount = 0;
                         if (prompt.editCount === undefined) prompt.editCount = 0;
@@ -660,7 +660,7 @@
 
             const colorInput = document.createElement('input');
             colorInput.type = 'color';
-            colorInput.value = category.color || '#007bff';
+            colorInput.value = category.color || '#6c757d';
             colorInput.disabled = true;
             colorInput.className = 'form-control';
             colorInput.style.maxWidth = '50px';
@@ -1128,13 +1128,13 @@
 
         document.getElementById('addCategoryBtn').onclick = function () {
             const categoryName = document.getElementById('newCategoryInput').value;
-            const categoryColor = document.getElementById('newCategoryColor').value || '#007bff';
+            const categoryColor = document.getElementById('newCategoryColor').value || '#6c757d';
             if (categoryName) {
                 categories.push({ name: categoryName, prompts: [], color: categoryColor });
                 saveToLocalStorage();
                 renderCategories();
                 document.getElementById('newCategoryInput').value = '';
-                document.getElementById('newCategoryColor').value = '#007bff';
+                document.getElementById('newCategoryColor').value = '#6c757d';
             }
         };
 
@@ -1153,7 +1153,7 @@
                     categories = JSON.parse(backup);
                     // Imposta i valori di default per copyCount e editCount se non esistono
                     categories.forEach(category => {
-                        if (!category.color) category.color = '#007bff'; // Colore di default
+                        if (!category.color) category.color = '#6c757d'; // Colore di default grigio
                         category.prompts.forEach(prompt => {
                             if (prompt.copyCount === undefined) prompt.copyCount = 0;
                             if (prompt.editCount === undefined) prompt.editCount = 0;
@@ -1196,7 +1196,7 @@
                                 categories = importedData;
                                 // Imposta i valori di default per copyCount e editCount se non esistono
                                 categories.forEach(category => {
-                                    if (!category.color) category.color = '#007bff'; // Colore di default
+                                    if (!category.color) category.color = '#6c757d'; // Colore di default grigio
                                     category.prompts.forEach(prompt => {
                                         if (prompt.copyCount === undefined) prompt.copyCount = 0;
                                         if (prompt.editCount === undefined) prompt.editCount = 0;
