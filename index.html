@@ -137,6 +137,11 @@
             background-color: #6c757d;
         }
 
+        .btn-feedback {
+            background-color: #ff5722;
+            color: #fff;
+        }
+
         .search-container {
             display: flex;
             gap: 10px;
@@ -310,22 +315,26 @@
             <button id="restoreBackupBtn" class="btn btn-warning" data-i18n="restore_backup">Ripristina Backup</button>
             <button id="exportDataBtn" class="btn btn-info" data-i18n="export_data">Esporta Dati</button>
             <button id="importDataBtn" class="btn btn-secondary" data-i18n="import_data">Importa Dati</button>
+            <button id="feedbackBtn" class="btn btn-feedback" data-i18n="feedback_button">Feedback</button>
         </div>
 
         <div class="top-section mb-4">
             <div class="new-category-section w-100">
                 <div class="input-group">
                     <input type="text" id="newCategoryInput" class="form-control" data-i18n-placeholder="new_category">
-                    <input type="color" id="newCategoryColor" class="form-control" style="max-width: 50px; padding: 0;" value="#6c757d">
+                    <input type="color" id="newCategoryColor" class="form-control" style="max-width: 50px; padding: 0;"
+                        value="#6c757d">
                     <div class="input-group-append">
-                        <button id="addCategoryBtn" class="btn btn-success" data-i18n="add_category">Aggiungi Categoria</button>
+                        <button id="addCategoryBtn" class="btn btn-success" data-i18n="add_category">Aggiungi
+                            Categoria</button>
                     </div>
                 </div>
                 <div id="categories" class="mt-3 d-flex flex-wrap"></div>
             </div>
             <div class="favorites-section w-100 mt-3">
                 <button id="showFavoritesBtn" class="btn btn-warning" data-i18n="show_favorites">Mostra Preferiti</button>
-                <button id="hideFavoritesBtn" class="btn btn-danger" style="display: none;" data-i18n="hide_favorites">Chiudi Preferiti</button>
+                <button id="hideFavoritesBtn" class="btn btn-danger" style="display: none;"
+                    data-i18n="hide_favorites">Chiudi Preferiti</button>
             </div>
         </div>
 
@@ -352,13 +361,38 @@
                         </div>
                         <div class="form-group">
                             <label for="promptTags" data-i18n="tags_label">Tag (separati da virgole)</label>
-                            <input type="text" class="form-control" id="promptTags" data-i18n-placeholder="tags_placeholder">
+                            <input type="text" class="form-control" id="promptTags"
+                                data-i18n-placeholder="tags_placeholder">
                         </div>
                         <div class="form-group">
                             <label for="promptText" data-i18n="text_label">Testo</label>
                             <div id="editor-container"></div>
                         </div>
                         <button type="submit" class="btn btn-success" data-i18n="add_button">Aggiungi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale per il feedback -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackModalLabel" data-i18n="feedback_title">Feedback</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="feedbackForm">
+                        <div class="form-group">
+                            <label for="feedbackText" data-i18n="feedback_label">Il tuo feedback:</label>
+                            <textarea class="form-control" id="feedbackText" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success" data-i18n="send_feedback_button">Invia Feedback</button>
                     </form>
                 </div>
             </div>
@@ -378,6 +412,7 @@
 
     <script>
         var categories = [];
+        var feedbacks = [];
         var quill;
         var activeCategoryIndex = null;
         var activePromptIndex = null;
@@ -439,6 +474,11 @@
                 'copy_count_label': 'Copiato: ',
                 'edit_count_label': 'Modificato: ',
                 'modify_color': 'Modifica colore:',
+                'feedback_button': 'Feedback',
+                'feedback_title': 'Feedback',
+                'feedback_label': 'Il tuo feedback:',
+                'send_feedback_button': 'Invia Feedback',
+                'feedback_thanks': 'Grazie per il tuo feedback!',
             },
             'en': {
                 'title': 'Prompt Saver with Bootstrap',
@@ -494,6 +534,11 @@
                 'copy_count_label': 'Copied: ',
                 'edit_count_label': 'Edited: ',
                 'modify_color': 'Modify Color:',
+                'feedback_button': 'Feedback',
+                'feedback_title': 'Feedback',
+                'feedback_label': 'Your feedback:',
+                'send_feedback_button': 'Send Feedback',
+                'feedback_thanks': 'Thank you for your feedback!',
             },
             // Aggiungi altre lingue qui
         };
@@ -529,10 +574,16 @@
                 renderCategories();
                 populateCategoryFilter();
             }
+
+            var savedFeedbacks = localStorage.getItem('feedbacks');
+            if (savedFeedbacks) {
+                feedbacks = JSON.parse(savedFeedbacks);
+            }
         }
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
+            localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
         }
 
         function backupData() {
@@ -546,7 +597,6 @@
             categoryBoxesContainer.innerHTML = '';
 
             // Non ordiniamo le categorie per nome per mantenere l'ordine personalizzato
-            // categories.sort((a, b) => a.name.localeCompare(b.name));
 
             categories.forEach((category, index) => {
                 const categoryDiv = document.createElement('button');
@@ -1281,6 +1331,27 @@
             var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
             return (yiq >= 128) ? '#000' : '#fff';
         }
+
+        // Gestione del feedback
+        document.getElementById('feedbackBtn').onclick = function () {
+            $('#feedbackModal').modal('show');
+            $('#feedbackModalLabel').text(translations[currentLanguage]['feedback_title']);
+        };
+
+        $('#feedbackForm').on('submit', function (e) {
+            e.preventDefault();
+            const feedbackText = $('#feedbackText').val().trim();
+            if (feedbackText) {
+                feedbacks.push({
+                    text: feedbackText,
+                    date: new Date().toISOString()
+                });
+                saveToLocalStorage();
+                $('#feedbackModal').modal('hide');
+                $('#feedbackForm')[0].reset();
+                alert(translations[currentLanguage]['feedback_thanks']);
+            }
+        });
 
         // Inizializza Quill
         quill = new Quill('#editor-container', {
