@@ -241,6 +241,21 @@
             vertical-align: middle;
         }
 
+        /* Stili per l'input color */
+        input[type="color"].form-control {
+            padding: 0;
+            height: auto;
+        }
+
+        /* Allinea gli elementi nella categoria */
+        .category-header .form-control {
+            max-width: 200px;
+        }
+
+        .category-header .btn-custom {
+            margin-left: 5px;
+        }
+
     </style>
 </head>
 
@@ -524,9 +539,10 @@
                 const categoryDiv = document.createElement('button');
                 categoryDiv.className = 'btn mr-2 mb-2';
 
-                // Applica il colore personalizzato
+                // Calcola il colore del testo in base al colore di sfondo
+                const textColor = getContrastYIQ(category.color);
                 categoryDiv.style.backgroundColor = category.color;
-                categoryDiv.style.color = '#fff';
+                categoryDiv.style.color = textColor;
 
                 if (index === activeCategoryIndex) {
                     categoryDiv.classList.add('btn-success');
@@ -639,13 +655,16 @@
 
             const colorLabel = document.createElement('label');
             colorLabel.textContent = translations[currentLanguage]['choose_color'];
-            colorLabel.className = 'mr-2';
+            colorLabel.className = 'mr-2 ml-2';
             categoryHeader.appendChild(colorLabel);
 
             const colorInput = document.createElement('input');
             colorInput.type = 'color';
             colorInput.value = category.color || '#007bff';
             colorInput.disabled = true;
+            colorInput.className = 'form-control';
+            colorInput.style.maxWidth = '50px';
+            colorInput.style.padding = '0';
             categoryHeader.appendChild(colorInput);
 
             const editBtn = document.createElement('button');
@@ -1245,6 +1264,16 @@
             qlToolbar.querySelectorAll('.ql-fill').forEach(icon => {
                 icon.style.fill = getComputedStyle(document.documentElement).getPropertyValue('--ql-toolbar-icon-color').trim();
             });
+        }
+
+        // Funzione per determinare il colore del testo in base al colore di sfondo
+        function getContrastYIQ(hexcolor) {
+            hexcolor = hexcolor.replace("#", "");
+            var r = parseInt(hexcolor.substr(0, 2), 16);
+            var g = parseInt(hexcolor.substr(2, 2), 16);
+            var b = parseInt(hexcolor.substr(4, 2), 16);
+            var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return (yiq >= 128) ? '#000' : '#fff';
         }
 
         // Inizializza Quill
