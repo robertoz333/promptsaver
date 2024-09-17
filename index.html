@@ -551,15 +551,16 @@
                 const categoryDiv = document.createElement('button');
                 categoryDiv.className = 'category-btn';
 
-                // Calcola il colore del testo in base al colore di sfondo
-                const textColor = getContrastYIQ(category.color);
-                categoryDiv.style.backgroundColor = category.color;
+                // Assicuriamoci che category.color abbia un valore di default
+                const categoryColor = category.color || '#6c757d'; // Default grigio
+                const textColor = getContrastYIQ(categoryColor);
+                categoryDiv.style.backgroundColor = categoryColor;
                 categoryDiv.style.color = textColor;
 
                 // Aggiungi indicatore di colore
                 const colorIndicator = document.createElement('span');
                 colorIndicator.className = 'color-indicator';
-                colorIndicator.style.backgroundColor = category.color;
+                colorIndicator.style.backgroundColor = categoryColor;
                 categoryDiv.appendChild(colorIndicator);
 
                 const categoryNameSpan = document.createElement('span');
@@ -1271,6 +1272,7 @@
 
         // Funzione per determinare il colore del testo in base al colore di sfondo
         function getContrastYIQ(hexcolor) {
+            hexcolor = hexcolor || '#6c757d'; // Colore di default grigio
             hexcolor = hexcolor.replace("#", "");
             var r = parseInt(hexcolor.substr(0, 2), 16);
             var g = parseInt(hexcolor.substr(2, 2), 16);
