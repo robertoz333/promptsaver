@@ -517,7 +517,7 @@
             var savedCategories = localStorage.getItem('categories');
             if (savedCategories) {
                 categories = JSON.parse(savedCategories);
-                // Imposta i valori di default per copyCount e editCount se non esistono
+                // Imposta i valori di default per copyCount, editCount e color se non esistono
                 categories.forEach(category => {
                     if (!category.color) category.color = '#6c757d'; // Colore di default grigio
                     category.prompts.forEach(prompt => {
@@ -525,6 +525,7 @@
                         if (prompt.editCount === undefined) prompt.editCount = 0;
                     });
                 });
+                saveToLocalStorage(); // Salva le categorie aggiornate con i colori di default
                 renderCategories();
                 populateCategoryFilter();
             }
@@ -1155,7 +1156,7 @@
                 var backup = localStorage.getItem('categories_backup');
                 if (backup) {
                     categories = JSON.parse(backup);
-                    // Imposta i valori di default per copyCount e editCount se non esistono
+                    // Imposta i valori di default per copyCount, editCount e color se non esistono
                     categories.forEach(category => {
                         if (!category.color) category.color = '#6c757d'; // Colore di default grigio
                         category.prompts.forEach(prompt => {
@@ -1198,7 +1199,7 @@
                             var importedData = JSON.parse(e.target.result);
                             if (Array.isArray(importedData)) {
                                 categories = importedData;
-                                // Imposta i valori di default per copyCount e editCount se non esistono
+                                // Imposta i valori di default per copyCount, editCount e color se non esistono
                                 categories.forEach(category => {
                                     if (!category.color) category.color = '#6c757d'; // Colore di default grigio
                                     category.prompts.forEach(prompt => {
