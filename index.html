@@ -9,14 +9,45 @@
     <!-- Include Quill CSS -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
+        :root {
+            --background-color: #000;
+            --text-color: #fff;
+            --category-box-background-color: #333;
+            --prompt-content-background-color: #444;
+            --prompt-title-input-background-color: #fff;
+            --prompt-title-input-text-color: #000;
+            --ql-editor-background-color: #333;
+            --ql-editor-text-color: #fff;
+            --ql-toolbar-background-color: #444;
+            --ql-toolbar-icon-color: #fff;
+            --tag-badge-background-color: #ffc107;
+            --tag-badge-text-color: #000;
+        }
+
+        /* Tema chiaro */
+        .light-theme {
+            --background-color: #fff;
+            --text-color: #000;
+            --category-box-background-color: #f8f9fa;
+            --prompt-content-background-color: #e9ecef;
+            --prompt-title-input-background-color: #fff;
+            --prompt-title-input-text-color: #000;
+            --ql-editor-background-color: #fff;
+            --ql-editor-text-color: #000;
+            --ql-toolbar-background-color: #e9ecef;
+            --ql-toolbar-icon-color: #000;
+            --tag-badge-background-color: #ffc107;
+            --tag-badge-text-color: #000;
+        }
+
         body {
-            background-color: #000;
-            color: #fff;
+            background-color: var(--background-color);
+            color: var(--text-color);
             padding: 20px;
         }
 
         .category-box {
-            background-color: #333;
+            background-color: var(--category-box-background-color);
             padding: 20px;
             border-radius: 5px;
             margin-top: 20px;
@@ -29,18 +60,17 @@
         }
 
         .prompt-content {
-            background-color: #444;
+            background-color: var(--prompt-content-background-color);
+            color: var(--text-color);
             padding: 20px;
             border-radius: 5px;
             margin-top: 20px;
-            /* Aggiunto per impostare il testo in bianco */
-            color: #fff;
         }
 
         .prompt-title-input,
         .prompt-tags-input {
-            background-color: #fff;
-            color: #000;
+            background-color: var(--prompt-title-input-background-color);
+            color: var(--prompt-title-input-text-color);
             border: 1px solid #555;
             border-radius: 5px;
             margin-bottom: 15px;
@@ -87,6 +117,7 @@
 
         .btn-copy {
             background-color: #ffc107;
+            color: #000;
         }
 
         .btn-font {
@@ -119,8 +150,8 @@
         }
 
         .tag-badge {
-            background-color: #ffc107;
-            color: #000;
+            background-color: var(--tag-badge-background-color);
+            color: var(--tag-badge-text-color);
             border-radius: 3px;
             margin-right: 5px;
             padding: 5px;
@@ -128,57 +159,53 @@
 
         /* Editor di Quill */
         #editor-container {
-            background-color: #333;
-            color: #fff;
+            background-color: var(--ql-editor-background-color);
+            color: var(--ql-editor-text-color);
             border: 1px solid #555;
             height: 200px;
             border-radius: 5px;
             margin-bottom: 15px;
         }
 
-        /* Imposta il colore del testo dell'editor in bianco */
         .ql-editor {
-            background-color: #333;
-            color: #fff;
+            background-color: var(--ql-editor-background-color);
+            color: var(--ql-editor-text-color);
         }
 
-        /* Riduci l'interlinea tra i paragrafi */
         .ql-editor p {
             margin: 0;
         }
 
-        /* Personalizza il selettore del caret (cursore del testo) */
         .ql-editor.ql-blank::before {
-            color: #fff;
+            color: var(--ql-editor-text-color);
         }
 
-        /* Stile per la toolbar di Quill */
         .ql-toolbar {
-            background-color: #444;
-            color: #fff;
+            background-color: var(--ql-toolbar-background-color);
+            color: var(--ql-toolbar-icon-color);
             border: 1px solid #555;
             border-radius: 5px 5px 0 0;
         }
 
         .ql-toolbar .ql-stroke {
-            stroke: #fff;
+            stroke: var(--ql-toolbar-icon-color);
         }
 
         .ql-toolbar .ql-fill {
-            fill: #fff;
+            fill: var(--ql-toolbar-icon-color);
         }
 
         .ql-toolbar .ql-picker {
-            color: #fff;
+            color: var(--ql-toolbar-icon-color);
         }
 
         .ql-toolbar .ql-picker-options {
-            background-color: #444;
-            color: #fff;
+            background-color: var(--ql-toolbar-background-color);
+            color: var(--ql-toolbar-icon-color);
         }
 
         .ql-toolbar .ql-picker-item {
-            color: #fff;
+            color: var(--ql-toolbar-icon-color);
         }
 
         .backup-buttons {
@@ -202,14 +229,23 @@
     <div class="container">
         <h1 class="text-center" data-i18n="prompt_saver">Prompt Saver</h1>
 
-        <!-- Selettore di lingua -->
-        <div class="language-selector mb-3">
-            <label for="languageSelect" data-i18n="select_language">Seleziona Lingua:</label>
-            <select id="languageSelect" class="form-control" style="width: auto; display: inline-block;">
-                <option value="it" data-i18n="italian">Italiano</option>
-                <option value="en" data-i18n="english">English</option>
-                <!-- Aggiungi altre lingue qui -->
-            </select>
+        <!-- Selettore di lingua e tema -->
+        <div class="d-flex justify-content-between mb-3">
+            <div class="language-selector">
+                <label for="languageSelect" data-i18n="select_language">Seleziona Lingua:</label>
+                <select id="languageSelect" class="form-control" style="width: auto; display: inline-block;">
+                    <option value="it" data-i18n="italian">Italiano</option>
+                    <option value="en" data-i18n="english">English</option>
+                    <!-- Aggiungi altre lingue qui -->
+                </select>
+            </div>
+            <div class="theme-selector">
+                <label for="themeSelect" data-i18n="select_theme">Seleziona Tema:</label>
+                <select id="themeSelect" class="form-control" style="width: auto; display: inline-block;">
+                    <option value="dark" data-i18n="dark_theme">Scuro</option>
+                    <option value="light" data-i18n="light_theme">Chiaro</option>
+                </select>
+            </div>
         </div>
 
         <!-- Barra di ricerca con filtri -->
@@ -297,12 +333,16 @@
         var activeCategoryIndex = null;
         var activePromptIndex = null;
         var currentLanguage = 'it';
+        var currentTheme = 'dark';
 
         var translations = {
             'it': {
                 'title': 'Prompt Saver con Bootstrap',
                 'prompt_saver': 'Prompt Saver',
                 'select_language': 'Seleziona Lingua:',
+                'select_theme': 'Seleziona Tema:',
+                'dark_theme': 'Scuro',
+                'light_theme': 'Chiaro',
                 'italian': 'Italiano',
                 'english': 'Inglese',
                 'search_placeholder': 'Cerca per parole chiave...',
@@ -352,6 +392,9 @@
                 'title': 'Prompt Saver with Bootstrap',
                 'prompt_saver': 'Prompt Saver',
                 'select_language': 'Select Language:',
+                'select_theme': 'Select Theme:',
+                'dark_theme': 'Dark',
+                'light_theme': 'Light',
                 'italian': 'Italian',
                 'english': 'English',
                 'search_placeholder': 'Search by keywords...',
@@ -651,7 +694,7 @@
             buttonsDiv.appendChild(editBtn);
 
             const copyBtn = document.createElement('button');
-            copyBtn.className = 'btn btn-warning btn-copy btn-custom';
+            copyBtn.className = 'btn btn-copy btn-custom';
             copyBtn.textContent = translations[currentLanguage]['copy_button'];
             buttonsDiv.appendChild(copyBtn);
 
@@ -661,7 +704,7 @@
             buttonsDiv.appendChild(deleteBtn);
 
             const fontBtn = document.createElement('button');
-            fontBtn.className = 'btn btn-orange btn-font btn-custom';
+            fontBtn.className = 'btn btn-font btn-custom';
             fontBtn.textContent = translations[currentLanguage]['increase_font_button'];
             buttonsDiv.appendChild(fontBtn);
 
@@ -1048,6 +1091,40 @@
             quill.root.dataset.placeholder = translations[currentLanguage]['text_label'];
         };
 
+        // Gestione del tema
+        document.getElementById('themeSelect').onchange = function () {
+            currentTheme = this.value;
+            applyTheme(currentTheme);
+            localStorage.setItem('theme', currentTheme);
+        };
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-theme');
+            } else {
+                document.body.classList.remove('light-theme');
+            }
+
+            // Aggiorna i colori dell'editor Quill
+            updateQuillTheme();
+        }
+
+        function updateQuillTheme() {
+            var qlEditor = document.querySelector('.ql-editor');
+            var qlToolbar = document.querySelector('.ql-toolbar');
+
+            qlEditor.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--ql-editor-background-color').trim();
+            qlEditor.style.color = getComputedStyle(document.documentElement).getPropertyValue('--ql-editor-text-color').trim();
+
+            qlToolbar.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--ql-toolbar-background-color').trim();
+            qlToolbar.querySelectorAll('.ql-stroke').forEach(icon => {
+                icon.style.stroke = getComputedStyle(document.documentElement).getPropertyValue('--ql-toolbar-icon-color').trim();
+            });
+            qlToolbar.querySelectorAll('.ql-fill').forEach(icon => {
+                icon.style.fill = getComputedStyle(document.documentElement).getPropertyValue('--ql-toolbar-icon-color').trim();
+            });
+        }
+
         // Inizializza Quill
         quill = new Quill('#editor-container', {
             theme: 'snow',
@@ -1065,6 +1142,11 @@
 
         // Imposta la lingua corrente in base al selettore di lingua
         currentLanguage = document.getElementById('languageSelect').value;
+
+        // Imposta il tema corrente in base al selettore di tema
+        currentTheme = localStorage.getItem('theme') || 'dark';
+        document.getElementById('themeSelect').value = currentTheme;
+        applyTheme(currentTheme);
 
         // Inizializzazione
         translateUI();
