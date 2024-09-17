@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Include Quill CSS -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- Include SortableJS CSS (opzionale, per alcuni stili) -->
     <style>
         :root {
             --background-color: #000;
@@ -222,6 +223,24 @@
             }
         }
 
+        /* Stili per il drag-and-drop */
+        .sortable-ghost {
+            opacity: 0.5;
+        }
+
+        .sortable-chosen {
+            background-color: #6c757d !important;
+        }
+
+        .color-indicator {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
     </style>
 </head>
 
@@ -270,6 +289,7 @@
             <div class="new-category-section w-100">
                 <div class="input-group">
                     <input type="text" id="newCategoryInput" class="form-control" data-i18n-placeholder="new_category">
+                    <input type="color" id="newCategoryColor" class="form-control" style="max-width: 50px; padding: 0;">
                     <div class="input-group-append">
                         <button id="addCategoryBtn" class="btn btn-success" data-i18n="add_category">Aggiungi Categoria</button>
                     </div>
@@ -318,7 +338,7 @@
         </div>
     </div>
 
-    <!-- Include jQuery, Popper.js, Bootstrap JS, and Quill -->
+    <!-- Include jQuery, Popper.js, Bootstrap JS, Quill, and SortableJS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script
         src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
@@ -326,6 +346,8 @@
         src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script
         src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <!-- Include SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 
     <script>
         var categories = [];
@@ -389,6 +411,7 @@
                 'copy_error': 'Errore nella copia del testo: ',
                 'copy_count_label': 'Copiato: ',
                 'edit_count_label': 'Modificato: ',
+                'choose_color': 'Scegli Colore:',
             },
             'en': {
                 'title': 'Prompt Saver with Bootstrap',
@@ -443,6 +466,7 @@
                 'copy_error': 'Error copying the text: ',
                 'copy_count_label': 'Copied: ',
                 'edit_count_label': 'Edited: ',
+                'choose_color': 'Choose Color:',
             },
             // Aggiungi altre lingue qui
         };
@@ -468,6 +492,7 @@
                 categories = JSON.parse(savedCategories);
                 // Imposta i valori di default per copyCount e editCount se non esistono
                 categories.forEach(category => {
+                    if (!category.color) category.color = '#007bff'; // Colore di default
                     category.prompts.forEach(prompt => {
                         if (prompt.copyCount === undefined) prompt.copyCount = 0;
                         if (prompt.editCount === undefined) prompt.editCount = 0;
@@ -492,11 +517,16 @@
             container.innerHTML = '';
             categoryBoxesContainer.innerHTML = '';
 
-            categories.sort((a, b) => a.name.localeCompare(b.name));
+            // Non ordiniamo le categorie per nome per mantenere l'ordine personalizzato
+            // categories.sort((a, b) => a.name.localeCompare(b.name));
 
             categories.forEach((category, index) => {
                 const categoryDiv = document.createElement('button');
                 categoryDiv.className = 'btn mr-2 mb-2';
+
+                // Applica il colore personalizzato
+                categoryDiv.style.backgroundColor = category.color;
+                categoryDiv.style.color = '#fff';
 
                 if (index === activeCategoryIndex) {
                     categoryDiv.classList.add('btn-success');
@@ -504,7 +534,15 @@
                     categoryDiv.classList.add('btn-secondary');
                 }
 
-                categoryDiv.textContent = category.name;
+                // Aggiungi indicatore di colore
+                const colorIndicator = document.createElement('span');
+                colorIndicator.className = 'color-indicator';
+                colorIndicator.style.backgroundColor = category.color;
+                categoryDiv.appendChild(colorIndicator);
+
+                const categoryNameSpan = document.createElement('span');
+                categoryNameSpan.textContent = category.name;
+                categoryDiv.appendChild(categoryNameSpan);
 
                 categoryDiv.onclick = () => {
                     toggleCategoryBox(categoryDiv, index);
@@ -514,6 +552,16 @@
 
                 const categoryBox = createCategoryBox(category, index);
                 categoryBoxesContainer.appendChild(categoryBox);
+            });
+
+            // Inizializza SortableJS per il drag-and-drop delle categorie
+            Sortable.create(container, {
+                animation: 150,
+                onEnd: function (evt) {
+                    const movedCategory = categories.splice(evt.oldIndex, 1)[0];
+                    categories.splice(evt.newIndex, 0, movedCategory);
+                    saveToLocalStorage();
+                }
             });
         }
 
@@ -589,6 +637,17 @@
             categoryInput.readOnly = true;
             categoryHeader.appendChild(categoryInput);
 
+            const colorLabel = document.createElement('label');
+            colorLabel.textContent = translations[currentLanguage]['choose_color'];
+            colorLabel.className = 'mr-2';
+            categoryHeader.appendChild(colorLabel);
+
+            const colorInput = document.createElement('input');
+            colorInput.type = 'color';
+            colorInput.value = category.color || '#007bff';
+            colorInput.disabled = true;
+            categoryHeader.appendChild(colorInput);
+
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
             editBtn.textContent = translations[currentLanguage]['modify_button'];
@@ -608,15 +667,18 @@
 
             editBtn.onclick = () => {
                 categoryInput.readOnly = false;
+                colorInput.disabled = false;
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
             };
 
             saveBtn.onclick = () => {
                 categoryInput.readOnly = true;
+                colorInput.disabled = true;
                 editBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
                 categories[categoryIndex].name = categoryInput.value;
+                categories[categoryIndex].color = colorInput.value;
                 saveToLocalStorage();
                 renderCategories();
             };
@@ -1047,11 +1109,13 @@
 
         document.getElementById('addCategoryBtn').onclick = function () {
             const categoryName = document.getElementById('newCategoryInput').value;
+            const categoryColor = document.getElementById('newCategoryColor').value || '#007bff';
             if (categoryName) {
-                categories.push({ name: categoryName, prompts: [] });
+                categories.push({ name: categoryName, prompts: [], color: categoryColor });
                 saveToLocalStorage();
                 renderCategories();
                 document.getElementById('newCategoryInput').value = '';
+                document.getElementById('newCategoryColor').value = '#007bff';
             }
         };
 
@@ -1070,6 +1134,7 @@
                     categories = JSON.parse(backup);
                     // Imposta i valori di default per copyCount e editCount se non esistono
                     categories.forEach(category => {
+                        if (!category.color) category.color = '#007bff'; // Colore di default
                         category.prompts.forEach(prompt => {
                             if (prompt.copyCount === undefined) prompt.copyCount = 0;
                             if (prompt.editCount === undefined) prompt.editCount = 0;
@@ -1112,6 +1177,7 @@
                                 categories = importedData;
                                 // Imposta i valori di default per copyCount e editCount se non esistono
                                 categories.forEach(category => {
+                                    if (!category.color) category.color = '#007bff'; // Colore di default
                                     category.prompts.forEach(prompt => {
                                         if (prompt.copyCount === undefined) prompt.copyCount = 0;
                                         if (prompt.editCount === undefined) prompt.editCount = 0;
