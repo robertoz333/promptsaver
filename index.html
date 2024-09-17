@@ -387,6 +387,8 @@
                 'prompt_shared': 'Prompt condiviso con successo!',
                 'share_error': 'Errore nella condivisione del prompt: ',
                 'copy_error': 'Errore nella copia del testo: ',
+                'copy_count_label': 'Copiato: ',
+                'edit_count_label': 'Modificato: ',
             },
             'en': {
                 'title': 'Prompt Saver with Bootstrap',
@@ -439,6 +441,8 @@
                 'prompt_shared': 'Prompt shared successfully!',
                 'share_error': 'Error sharing the prompt: ',
                 'copy_error': 'Error copying the text: ',
+                'copy_count_label': 'Copied: ',
+                'edit_count_label': 'Edited: ',
             },
             // Aggiungi altre lingue qui
         };
@@ -462,6 +466,13 @@
             var savedCategories = localStorage.getItem('categories');
             if (savedCategories) {
                 categories = JSON.parse(savedCategories);
+                // Imposta i valori di default per copyCount e editCount se non esistono
+                categories.forEach(category => {
+                    category.prompts.forEach(prompt => {
+                        if (prompt.copyCount === undefined) prompt.copyCount = 0;
+                        if (prompt.editCount === undefined) prompt.editCount = 0;
+                    });
+                });
                 renderCategories();
                 populateCategoryFilter();
             }
@@ -684,6 +695,24 @@
             content.innerHTML = removeColorStylesFromHTML(prompt.text);
             promptDiv.appendChild(content);
 
+            // Sezione per le statistiche
+            const statsDiv = document.createElement('div');
+            statsDiv.className = 'prompt-stats mt-2';
+
+            const copyCountSpan = document.createElement('span');
+            copyCountSpan.textContent = `${translations[currentLanguage]['copy_count_label']}${prompt.copyCount || 0}`;
+            statsDiv.appendChild(copyCountSpan);
+
+            const separator = document.createElement('span');
+            separator.textContent = ' | ';
+            statsDiv.appendChild(separator);
+
+            const editCountSpan = document.createElement('span');
+            editCountSpan.textContent = `${translations[currentLanguage]['edit_count_label']}${prompt.editCount || 0}`;
+            statsDiv.appendChild(editCountSpan);
+
+            promptDiv.appendChild(statsDiv);
+
             const buttonsDiv = document.createElement('div');
             buttonsDiv.className = 'mt-3';
 
@@ -741,6 +770,9 @@
             copyBtn.onclick = () => {
                 var plainText = htmlToPlainText(prompt.text);
                 navigator.clipboard.writeText(plainText).then(() => {
+                    prompt.copyCount = (prompt.copyCount || 0) + 1;
+                    saveToLocalStorage();
+                    copyCountSpan.textContent = `${translations[currentLanguage]['copy_count_label']}${prompt.copyCount}`;
                     alert(translations[currentLanguage]['prompt_copied']);
                 }).catch(err => {
                     console.error(translations[currentLanguage]['copy_error'], err);
@@ -884,7 +916,14 @@
                 const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
                 if (title && text) {
-                    categories[categoryIndex].prompts.push({ title, text, tags, favorite: false });
+                    categories[categoryIndex].prompts.push({
+                        title,
+                        text,
+                        tags,
+                        favorite: false,
+                        copyCount: 0,
+                        editCount: 0
+                    });
                     saveToLocalStorage();
 
                     // Imposta gli indici attivi per visualizzare il nuovo prompt
@@ -913,7 +952,10 @@
                 const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
                 if (title && text) {
-                    categories[categoryIndex].prompts[promptIndex] = { ...prompt, title, text, tags };
+                    prompt.title = title;
+                    prompt.text = text;
+                    prompt.tags = tags;
+                    prompt.editCount = (prompt.editCount || 0) + 1;
                     saveToLocalStorage();
 
                     // Imposta gli indici attivi per visualizzare il prompt modificato
@@ -1026,6 +1068,13 @@
                 var backup = localStorage.getItem('categories_backup');
                 if (backup) {
                     categories = JSON.parse(backup);
+                    // Imposta i valori di default per copyCount e editCount se non esistono
+                    categories.forEach(category => {
+                        category.prompts.forEach(prompt => {
+                            if (prompt.copyCount === undefined) prompt.copyCount = 0;
+                            if (prompt.editCount === undefined) prompt.editCount = 0;
+                        });
+                    });
                     saveToLocalStorage();
                     renderCategories();
                     alert(translations[currentLanguage]['backup_restored']);
@@ -1061,6 +1110,13 @@
                             var importedData = JSON.parse(e.target.result);
                             if (Array.isArray(importedData)) {
                                 categories = importedData;
+                                // Imposta i valori di default per copyCount e editCount se non esistono
+                                categories.forEach(category => {
+                                    category.prompts.forEach(prompt => {
+                                        if (prompt.copyCount === undefined) prompt.copyCount = 0;
+                                        if (prompt.editCount === undefined) prompt.editCount = 0;
+                                    });
+                                });
                                 saveToLocalStorage();
                                 renderCategories();
                                 alert(translations[currentLanguage]['data_imported']);
