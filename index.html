@@ -369,7 +369,7 @@
 
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+           editBtn.innerHTML = '<i class="fas fa-edit"></i>';
             editBtn.title = 'Modifica';
 
             const saveBtn = document.createElement('button');
@@ -445,7 +445,19 @@
                 if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
                     categories[categoryIndex].prompts.splice(promptIndex, 1);
                     saveToLocalStorage();
-                    renderCategories();
+                    
+                    // Aggiorna solo la categoria corrente invece di renderizzare tutte le categorie
+                    const categoryBox = document.querySelectorAll('.category-box')[categoryIndex];
+                    const promptTitlesContainer = categoryBox.querySelector('.prompt-titles-container');
+                    const selectedPromptContainer = categoryBox.querySelector('.selected-prompt-container');
+                    
+                    promptTitlesContainer.innerHTML = '';
+                    selectedPromptContainer.innerHTML = '';
+                    
+                    categories[categoryIndex].prompts.forEach((prompt, idx) => {
+                        const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, idx);
+                        promptTitlesContainer.appendChild(promptTitleDiv);
+                    });
                 }
             };
 
