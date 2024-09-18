@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver con Bootstrap</title>
+    <title>Prompt Saver con Bootstrap e Icone</title>
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include Font Awesome CSS per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
     <style>
         body {
             background-color: #000;
@@ -67,14 +69,40 @@
             border-radius: 5px;
             cursor: pointer;
             margin-right: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .btn-new { background-color: #28a745; }
-        .btn-edit { background-color: #17a2b8; }
-        .btn-save { background-color: #28a745; display: none; }
-        .btn-delete { background-color: #dc3545; }
-        .btn-copy { background-color: #ffc107; }
-        .btn-font { background-color: #ff9800; }
+        .btn-custom i {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .btn-new {
+            background-color: #28a745;
+        }
+
+        .btn-edit {
+            background-color: #17a2b8;
+        }
+
+        .btn-save {
+            background-color: #28a745;
+            display: none;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+        }
+
+        .btn-copy {
+            background-color: #ffc107;
+        }
+
+        .btn-font {
+            background-color: #ff9800;
+        }
     </style>
 </head>
 
@@ -86,7 +114,7 @@
             <div class="input-group">
                 <input type="text" id="searchInput" class="form-control" placeholder="Cerca prompt o categoria...">
                 <div class="input-group-append">
-                    <button id="searchBtn" class="btn btn-success">🔍</button>
+                    <button id="searchBtn" class="btn btn-success"><i class="fas fa-search"></i></button>
                 </div>
             </div>
         </div>
@@ -96,7 +124,7 @@
                 <div class="input-group">
                     <input type="text" id="newCategoryInput" class="form-control" placeholder="Nuova categoria">
                     <div class="input-group-append">
-                        <button id="addCategoryBtn" class="btn btn-success">Aggiungi Categoria</button>
+                        <button id="addCategoryBtn" class="btn btn-success"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
                 <div id="categories" class="mt-3 d-flex flex-wrap"></div>
@@ -127,7 +155,7 @@
                             <label for="promptText">Testo</label>
                             <textarea class="form-control" id="promptText" rows="5" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-success">Aggiungi</button>
+                        <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Aggiungi</button>
                     </form>
                 </div>
             </div>
@@ -238,17 +266,20 @@
 
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.textContent = 'Modifica';
+            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+            editBtn.title = 'Modifica';
             categoryHeader.appendChild(editBtn);
 
             const saveBtn = document.createElement('button');
             saveBtn.className = 'btn btn-success btn-save btn-custom';
-            saveBtn.textContent = 'Salva';
+            saveBtn.innerHTML = '<i class="fas fa-save"></i>';
+            saveBtn.title = 'Salva';
             categoryHeader.appendChild(saveBtn);
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
-            deleteBtn.textContent = 'Elimina';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.title = 'Elimina';
             categoryHeader.appendChild(deleteBtn);
 
             categoryBox.appendChild(categoryHeader);
@@ -290,7 +321,8 @@
 
             const newPromptBtn = document.createElement('button');
             newPromptBtn.className = 'btn btn-success btn-new mt-3';
-            newPromptBtn.textContent = 'Nuovo Prompt';
+            newPromptBtn.innerHTML = '<i class="fas fa-plus"></i>';
+            newPromptBtn.title = 'Nuovo Prompt';
             newPromptBtn.onclick = () => {
                 showNewPromptForm(categoryIndex);
             };
@@ -356,24 +388,29 @@
 
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.textContent = 'Modifica';
+            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+            editBtn.title = 'Modifica';
 
             const saveBtn = document.createElement('button');
             saveBtn.className = 'btn btn-success btn-save btn-custom';
-            saveBtn.textContent = 'Salva';
+            saveBtn.innerHTML = '<i class="fas fa-save"></i>';
             saveBtn.style.display = 'none';
+            saveBtn.title = 'Salva';
 
             const copyBtn = document.createElement('button');
             copyBtn.className = 'btn btn-warning btn-copy btn-custom';
-            copyBtn.textContent = 'Copia';
+            copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+            copyBtn.title = 'Copia';
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
-            deleteBtn.textContent = 'Elimina';
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.title = 'Elimina';
 
             const fontBtn = document.createElement('button');
             fontBtn.className = 'btn btn-secondary btn-font btn-custom';
-            fontBtn.textContent = 'Aumenta Font';
+            fontBtn.innerHTML = '<i class="fas fa-text-height"></i>';
+            fontBtn.title = 'Aumenta Font';
 
             actionsDiv.appendChild(editBtn);
             actionsDiv.appendChild(saveBtn);
