@@ -81,30 +81,12 @@
             font-size: 16px;
         }
 
-        .btn-new {
-            background-color: #28a745;
-        }
-
-        .btn-edit {
-            background-color: #17a2b8;
-        }
-
-        .btn-save {
-            background-color: #28a745;
-            display: none;
-        }
-
-        .btn-delete {
-            background-color: #dc3545;
-        }
-
-        .btn-copy {
-            background-color: #ffc107;
-        }
-
-        .btn-font {
-            background-color: #ff9800;
-        }
+        .btn-new { background-color: #28a745; }
+        .btn-edit { background-color: #17a2b8; }
+        .btn-save { background-color: #28a745; display: none; }
+        .btn-delete { background-color: #dc3545; }
+        .btn-copy { background-color: #ffc107; }
+        .btn-font { background-color: #ff9800; }
     </style>
 </head>
 
@@ -166,13 +148,11 @@
 
     <!-- Include jQuery, Popper.js e Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <!-- Aggiungi gli script Popper.js e Bootstrap JS se necessario -->
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         var categories = [];
 
-        // Funzione per rimuovere i tag HTML da una stringa
         function sanitizeText(text) {
             var tempDiv = document.createElement('div');
             tempDiv.innerHTML = text;
@@ -183,8 +163,6 @@
             var savedCategories = localStorage.getItem('categories');
             if (savedCategories) {
                 categories = JSON.parse(savedCategories);
-
-                // Sanitizza i testi dei prompt eliminando la formattazione HTML
                 categories.forEach(category => {
                     category.name = sanitizeText(category.name);
                     category.prompts.forEach(prompt => {
@@ -192,9 +170,7 @@
                         prompt.text = sanitizeText(prompt.text);
                     });
                 });
-
-                saveToLocalStorage(); // Salva i dati sanitizzati
-
+                saveToLocalStorage();
                 renderArchivedCategories();
             }
         }
@@ -223,7 +199,7 @@
                 container.appendChild(categoryDiv);
 
                 const categoryBox = createCategoryBox(category, index);
-                categoryBox.style.display = 'none'; // Nascondi tutte le categorie all'inizio
+                categoryBox.style.display = 'none';
                 categoryBoxesContainer.appendChild(categoryBox);
             });
         }
@@ -378,9 +354,7 @@
 
             promptDiv.appendChild(titleInput);
 
-            // Processa il testo del prompt per inserire un a capo dopo ogni punto
             let displayText = prompt.text.replace(/\.(?!\.)\s*/g, '.\n');
-            // Rimuove eventuali linee vuote multiple
             displayText = displayText.replace(/\n+/g, '\n');
 
             const textArea = document.createElement('textarea');
@@ -434,7 +408,6 @@
                 titleInput.focus();
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
-                // Ripristina il testo originale nel caso l'utente voglia modificare senza interruzioni di riga
                 textArea.value = prompt.text;
             };
 
@@ -453,7 +426,6 @@
                 const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
                 promptTitleDivs[promptIndex].textContent = titleInput.value;
 
-                // Aggiorna il testo visualizzato con le interruzioni di riga
                 let updatedDisplayText = textArea.value.replace(/\.(?!\.)\s*/g, '.\n');
                 updatedDisplayText = updatedDisplayText.replace(/\n+/g, '\n');
                 textArea.value = updatedDisplayText;
@@ -494,7 +466,6 @@
                 if (idx === categoryIndex) {
                     const isVisible = box.style.display === 'block';
                     box.style.display = isVisible ? 'none' : 'block';
-                    // Cambia il colore di sfondo del pulsante della categoria
                     if (isVisible) {
                         categoryDivs[idx].classList.remove('btn-success');
                         categoryDivs[idx].classList.add('btn-secondary');
@@ -511,21 +482,39 @@
         }
 
         function showNewPromptForm(categoryIndex) {
-            $('#newPromptModal').modal('show'); // Mostra il modale
+            $('#newPromptModal').modal('show');
 
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 const title = $('#promptTitle').val();
                 const text = $('#promptText').val();
                 if (title && text) {
-                    categories[categoryIndex].prompts.push({
+                    const newPrompt = {
                         title: sanitizeText(title),
                         text: sanitizeText(text)
-                    });
+                    };
+                    categories[categoryIndex].prompts.push(newPrompt);
                     saveToLocalStorage();
-                    renderCategories();
-                    $('#newPromptModal').modal('hide'); // Nasconde il modale
-                    // Pulisce i campi del form
+                    
+                    const categoryBox = document.querySelectorAll('.category-box')[categoryIndex];
+                    const promptTitlesContainer = categoryBox.querySelector('.prompt-titles-container');
+                    const selectedPromptContainer = categoryBox.querySelector('.selected-prompt-container');
+                    
+                    promptTitlesContainer.innerHTML = '';
+                    selectedPromptContainer.innerHTML = '';
+                    
+                    const newPromptTitleDiv = createPromptTitleDiv(newPrompt, categoryIndex, categories[categoryIndex].prompts.length - 1);
+                    promptTitlesContainer.appendChild(newPromptTitleDiv);
+                    
+                    const { promptDiv } = createPromptDiv(newPrompt, categoryIndex, categories[categoryIndex].prompts.length - 1);
+                    selectedPromptContainer.appendChild(promptDiv);
+                    
+                    categoryBox.style.display = 'block';
+                    const categoryDivs = document.querySelectorAll('#categories .btn');
+                    categoryDivs[categoryIndex].classList.remove('btn-secondary');
+                    categoryDivs[categoryIndex].classList.add('btn-success');
+
+                    $('#newPromptModal').modal('hide');
                     $('#promptTitle').val('');
                     $('#promptText').val('');
                 }
@@ -551,10 +540,8 @@
             let resultsFound = false;
 
             categories.forEach((category, categoryIndex) => {
-                if (category.name.toLowerCase() === searchQuery) {
+                if (category.name.toLowerCase().includes(searchQuery)) {
                     resultsFound = true;
-
-                    // Apri solo la categoria corrispondente
                     promptsDisplayContainer.innerHTML = '';
                     toggleCategoryBox(null, categoryIndex);
                     const categoryDivs = document.querySelectorAll('#categories .btn');
@@ -569,12 +556,10 @@
                     });
                 } else {
                     category.prompts.forEach((prompt, promptIndex) => {
-                        if (prompt.title.toLowerCase() === searchQuery || prompt.text.toLowerCase() === searchQuery) {
+                        if (prompt.title.toLowerCase().includes(searchQuery) || prompt.text.toLowerCase().includes(searchQuery)) {
                             resultsFound = true;
-
-                            // Apri solo il prompt corrispondente
                             promptsDisplayContainer.innerHTML = '';
-                            renderCategories(); // Assicuriamoci che tutte le categorie siano chiuse
+                            renderCategories();
                             toggleCategoryBox(null, categoryIndex);
 
                             const selectedCategoryBox = document.querySelectorAll('.category-box')[categoryIndex];
@@ -582,7 +567,6 @@
 
                             displaySelectedPrompt(promptTitleDivs[promptIndex], prompt, categoryIndex, promptIndex);
 
-                            // Evidenzia il prompt trovato
                             promptTitleDivs.forEach(div => div.classList.remove('active'));
                             promptTitleDivs[promptIndex].classList.add('active');
 
