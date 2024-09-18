@@ -69,12 +69,30 @@
             margin-right: 5px;
         }
 
-        .btn-new { background-color: #28a745; }
-        .btn-edit { background-color: #17a2b8; }
-        .btn-save { background-color: #28a745; display: none; }
-        .btn-delete { background-color: #dc3545; }
-        .btn-copy { background-color: #ffc107; }
-        .btn-font { background-color: #ff9800; }
+        .btn-new {
+            background-color: #28a745;
+        }
+
+        .btn-edit {
+            background-color: #17a2b8;
+        }
+
+        .btn-save {
+            background-color: #28a745;
+            display: none;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+        }
+
+        .btn-copy {
+            background-color: #ffc107;
+        }
+
+        .btn-font {
+            background-color: #ff9800;
+        }
     </style>
 </head>
 
@@ -109,32 +127,32 @@
 
     <!-- Modale per aggiungere un nuovo prompt -->
     <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content bg-dark text-white">
-          <div class="modal-header">
-            <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
-            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form id="newPromptForm">
-              <div class="form-group">
-                <label for="promptTitle">Titolo</label>
-                <input type="text" class="form-control" id="promptTitle" required>
-              </div>
-              <div class="form-group">
-                <label for="promptText">Testo</label>
-                <textarea class="form-control" id="promptText" rows="5" required></textarea>
-              </div>
-              <button type="submit" class="btn btn-success">Aggiungi</button>
-            </form>
-          </div>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="newPromptForm">
+                        <div class="form-group">
+                            <label for="promptTitle">Titolo</label>
+                            <input type="text" class="form-control" id="promptTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptText">Testo</label>
+                            <textarea class="form-control" id="promptText" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Aggiungi</button>
+                    </form>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
-    <!-- Include jQuery, Popper.js, and Bootstrap JS -->
+    <!-- Include jQuery, Popper.js e Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -398,13 +416,13 @@
             };
 
             deleteBtn.onclick = (e) => {
-    e.stopPropagation();
-    if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
-        categories[categoryIndex].prompts.splice(promptIndex, 1);
-        saveToLocalStorage();
-        renderCategories();
-    }
-};
+                e.stopPropagation();
+                if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
+                    categories[categoryIndex].prompts.splice(promptIndex, 1);
+                    saveToLocalStorage();
+                    renderCategories();
+                }
+            };
 
             fontBtn.onclick = (e) => {
                 e.stopPropagation();
@@ -469,7 +487,10 @@
         function searchPrompts() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
             const promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = '<h2>Risultati della ricerca</h2>';
+            promptsDisplayContainer.innerHTML = '';
+            const searchResultsHeading = document.createElement('h2');
+            searchResultsHeading.textContent = 'Risultati della ricerca';
+            promptsDisplayContainer.appendChild(searchResultsHeading);
 
             let resultsFound = false;
 
@@ -495,7 +516,9 @@
                         if (prompt.title.toLowerCase().includes(searchQuery) || prompt.text.toLowerCase().includes(searchQuery)) {
                             resultsFound = true;
                             const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-                            promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
+                            const categoryHeader = document.createElement('h3');
+                            categoryHeader.textContent = category.name;
+                            promptDiv.insertBefore(categoryHeader, promptDiv.firstChild);
                             promptsDisplayContainer.appendChild(promptDiv);
                         }
                     });
@@ -503,7 +526,9 @@
             });
 
             if (!resultsFound) {
-                promptsDisplayContainer.innerHTML += '<p>Nessun risultato trovato.</p>';
+                const noResultsMessage = document.createElement('p');
+                noResultsMessage.textContent = 'Nessun risultato trovato.';
+                promptsDisplayContainer.appendChild(noResultsMessage);
             }
         }
 
