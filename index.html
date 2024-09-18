@@ -53,6 +53,7 @@
             font-size: 16px;
             resize: none;
             height: auto;
+            line-height: 1.5;
         }
 
         .category-header {
@@ -377,9 +378,14 @@
 
             promptDiv.appendChild(titleInput);
 
+            // Processa il testo del prompt per inserire un a capo dopo ogni punto
+            let displayText = prompt.text.replace(/\.(?!\.)\s*/g, '.\n');
+            // Rimuove eventuali linee vuote multiple
+            displayText = displayText.replace(/\n+/g, '\n');
+
             const textArea = document.createElement('textarea');
             textArea.className = 'prompt-text form-control';
-            textArea.value = prompt.text;
+            textArea.value = displayText;
             textArea.readOnly = true;
 
             promptDiv.appendChild(textArea);
@@ -428,6 +434,8 @@
                 titleInput.focus();
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
+                // Ripristina il testo originale nel caso l'utente voglia modificare senza interruzioni di riga
+                textArea.value = prompt.text;
             };
 
             saveBtn.onclick = (e) => {
@@ -444,11 +452,16 @@
                 const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
                 const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
                 promptTitleDivs[promptIndex].textContent = titleInput.value;
+
+                // Aggiorna il testo visualizzato con le interruzioni di riga
+                let updatedDisplayText = textArea.value.replace(/\.(?!\.)\s*/g, '.\n');
+                updatedDisplayText = updatedDisplayText.replace(/\n+/g, '\n');
+                textArea.value = updatedDisplayText;
             };
 
             copyBtn.onclick = (e) => {
                 e.stopPropagation();
-                navigator.clipboard.writeText(textArea.value).then(() => {
+                navigator.clipboard.writeText(textArea.value.replace(/\n/g, ' ')).then(() => {
                     alert("Testo copiato negli appunti!");
                 }).catch(err => {
                     console.error("Errore nella copia del testo: ", err);
