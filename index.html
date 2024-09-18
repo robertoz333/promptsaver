@@ -1,334 +1,49 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="title">Prompt Saver con Bootstrap</title>
-    <!-- Include Bootstrap CSS -->
+    <title>Prompt Saver con Bootstrap</title>
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Include Quill CSS -->
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <!-- Include SortableJS CSS (opzionale, per alcuni stili) -->
+    <!-- Stili personalizzati -->
     <style>
-        :root {
-            --background-color: #000;
-            --text-color: #fff;
-            --category-box-background-color: #333;
-            --prompt-content-background-color: #444;
-            --prompt-title-input-background-color: #fff;
-            --prompt-title-input-text-color: #000;
-            --ql-editor-background-color: #333;
-            --ql-editor-text-color: #fff;
-            --ql-toolbar-background-color: #444;
-            --ql-toolbar-icon-color: #fff;
-            --tag-badge-background-color: #ffc107;
-            --tag-badge-text-color: #000;
+        /* Stili per gli input e textarea nel modale */
+        #newPromptModal .form-control {
+            background-color: #343a40; /* Colore di sfondo scuro per gli input */
+            color: white; /* Colore del testo bianco */
+            border: 1px solid #ced4da;
         }
 
-        /* Tema chiaro */
-        .light-theme {
-            --background-color: #fff;
-            --text-color: #000;
-            --category-box-background-color: #f8f9fa;
-            --prompt-content-background-color: #e9ecef;
-            --prompt-title-input-background-color: #fff;
-            --prompt-title-input-text-color: #000;
-            --ql-editor-background-color: #fff;
-            --ql-editor-text-color: #000;
-            --ql-toolbar-background-color: #e9ecef;
-            --ql-toolbar-icon-color: #000;
-            --tag-badge-background-color: #ffc107;
-            --tag-badge-text-color: #000;
+        #newPromptModal .form-control::placeholder {
+            color: #ced4da; /* Colore del placeholder */
         }
-
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            padding: 20px;
-        }
-
-        .category-box {
-            background-color: var(--category-box-background-color);
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .prompt-title-div.active {
-            background-color: #28a745;
-            color: #fff;
-        }
-
-        .prompt-content {
-            background-color: var(--prompt-content-background-color);
-            color: var(--text-color);
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-
-        .prompt-title-input,
-        .prompt-tags-input {
-            background-color: var(--prompt-title-input-background-color);
-            color: var(--prompt-title-input-text-color);
-            border: 1px solid #555;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .prompt-title-input {
-            padding: 10px;
-            font-size: 18px;
-        }
-
-        .category-header {
-            margin-bottom: 20px;
-        }
-
-        .prompt-titles-container {
-            margin-bottom: 20px;
-        }
-
-        .btn-custom {
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 5px;
-            margin-top: 10px;
-        }
-
-        .btn-new {
-            background-color: #28a745;
-        }
-
-        .btn-edit {
-            background-color: #17a2b8;
-        }
-
-        .btn-save {
-            background-color: #28a745;
-            display: none;
-        }
-
-        .btn-delete {
-            background-color: #dc3545;
-        }
-
-        .btn-copy {
-            background-color: #ffc107;
-            color: #000;
-        }
-
-        .btn-font {
-            background-color: #ff9800;
-        }
-
-        .btn-share {
-            background-color: #007bff;
-        }
-
-        .btn-favorite {
-            background-color: #ff69b4;
-        }
-
-        .btn-remove-favorite {
-            background-color: #6c757d;
-        }
-
-        .search-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .search-container .form-control {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .tag-badge {
-            background-color: var(--tag-badge-background-color);
-            color: var(--tag-badge-text-color);
-            border-radius: 3px;
-            margin-right: 5px;
-            padding: 5px;
-        }
-
-        /* Editor di Quill */
-        #editor-container {
-            background-color: var(--ql-editor-background-color);
-            color: var(--ql-editor-text-color);
-            border: 1px solid #555;
-            height: 200px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .ql-editor {
-            background-color: var(--ql-editor-background-color);
-            color: var(--ql-editor-text-color);
-        }
-
-        .ql-editor p {
-            margin: 0;
-        }
-
-        .ql-editor.ql-blank::before {
-            color: var(--ql-editor-text-color);
-        }
-
-        .ql-toolbar {
-            background-color: var(--ql-toolbar-background-color);
-            color: var(--ql-toolbar-icon-color);
-            border: 1px solid #555;
-            border-radius: 5px 5px 0 0;
-        }
-
-        .ql-toolbar .ql-stroke {
-            stroke: var(--ql-toolbar-icon-color);
-        }
-
-        .ql-toolbar .ql-fill {
-            fill: var(--ql-toolbar-icon-color);
-        }
-
-        .ql-toolbar .ql-picker {
-            color: var(--ql-toolbar-icon-color);
-        }
-
-        .ql-toolbar .ql-picker-options {
-            background-color: var(--ql-toolbar-background-color);
-            color: var(--ql-toolbar-icon-color);
-        }
-
-        .ql-toolbar .ql-picker-item {
-            color: var(--ql-toolbar-icon-color);
-        }
-
-        .backup-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        @media (max-width: 768px) {
-            .btn-custom {
-                margin-right: 0;
-                width: 100%;
-            }
-        }
-
-        /* Stili per il drag-and-drop */
-        .sortable-ghost {
-            opacity: 0.5;
-        }
-
-        .sortable-chosen {
-            background-color: #6c757d !important;
-        }
-
-        .color-indicator {
-            width: 20px;
-            height: 20px;
-            display: inline-block;
-            border-radius: 50%;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
-
-        /* Stili per l'input color */
-        input[type="color"].form-control {
-            padding: 0;
-            height: auto;
-        }
-
-        /* Allinea gli elementi nella categoria */
-        .category-header .form-control {
-            max-width: 200px;
-        }
-
-        .category-header .btn-custom {
-            margin-left: 5px;
-        }
-
-        /* Classe personalizzata per i pulsanti delle categorie */
-        .category-btn {
-            display: flex;
-            align-items: center;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            border: none;
-            border-radius: 5px;
-            padding: 10px;
-            cursor: pointer;
-        }
-
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1 class="text-center" data-i18n="prompt_saver">Prompt Saver</h1>
+        <h1 class="text-center">Prompt Saver</h1>
 
-        <!-- Selettore di lingua e tema -->
-        <div class="d-flex justify-content-between mb-3">
-            <div class="language-selector">
-                <label for="languageSelect" data-i18n="select_language">Seleziona Lingua:</label>
-                <select id="languageSelect" class="form-control" style="width: auto; display: inline-block;">
-                    <option value="it" data-i18n="italian">Italiano</option>
-                    <option value="en" data-i18n="english">English</option>
-                    <!-- Aggiungi altre lingue qui -->
-                </select>
+        <div class="search-container mb-4">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Cerca prompt o categoria...">
+                <div class="input-group-append">
+                    <button id="searchBtn" class="btn btn-success">🔍</button>
+                </div>
             </div>
-            <div class="theme-selector">
-                <label for="themeSelect" data-i18n="select_theme">Seleziona Tema:</label>
-                <select id="themeSelect" class="form-control" style="width: auto; display: inline-block;">
-                    <option value="dark" data-i18n="dark_theme">Scuro</option>
-                    <option value="light" data-i18n="light_theme">Chiaro</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Barra di ricerca con filtri -->
-        <div class="search-container">
-            <input type="text" id="searchInput" class="form-control" data-i18n-placeholder="search_placeholder">
-            <select id="categoryFilter" class="form-control">
-                <option value="" data-i18n="all_categories">Tutte le categorie</option>
-            </select>
-            <input type="date" id="dateFilter" class="form-control">
-            <input type="text" id="tagFilter" class="form-control" data-i18n-placeholder="enter_tags">
-            <button id="searchBtn" class="btn btn-success" data-i18n="search_button">🔍 Cerca</button>
-        </div>
-
-        <!-- Bottoni di backup e ripristino -->
-        <div class="backup-buttons">
-            <button id="restoreBackupBtn" class="btn btn-warning" data-i18n="restore_backup">Ripristina Backup</button>
-            <button id="exportDataBtn" class="btn btn-info" data-i18n="export_data">Esporta Dati</button>
-            <button id="importDataBtn" class="btn btn-secondary" data-i18n="import_data">Importa Dati</button>
         </div>
 
         <div class="top-section mb-4">
             <div class="new-category-section w-100">
                 <div class="input-group">
-                    <input type="text" id="newCategoryInput" class="form-control" data-i18n-placeholder="new_category">
-                    <input type="color" id="newCategoryColor" class="form-control" style="max-width: 50px; padding: 0;"
-                        value="#606060">
+                    <input type="text" id="newCategoryInput" class="form-control" placeholder="Nuova categoria">
                     <div class="input-group-append">
-                        <button id="addCategoryBtn" class="btn btn-success" data-i18n="add_category">Aggiungi
-                            Categoria</button>
+                        <button id="addCategoryBtn" class="btn btn-success">Aggiungi Categoria</button>
                     </div>
                 </div>
                 <div id="categories" class="mt-3 d-flex flex-wrap"></div>
-            </div>
-            <div class="favorites-section w-100 mt-3">
-                <button id="showFavoritesBtn" class="btn btn-warning" data-i18n="show_favorites">Mostra Preferiti</button>
-                <button id="hideFavoritesBtn" class="btn btn-danger" style="display: none;"
-                    data-i18n="hide_favorites">Chiudi Preferiti</button>
             </div>
         </div>
 
@@ -336,13 +51,12 @@
         <div id="category-boxes-container"></div>
     </div>
 
-    <!-- Modale per aggiungere/modificare un nuovo prompt -->
-    <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel"
-        aria-hidden="true">
+    <!-- Modale per aggiungere un nuovo prompt -->
+    <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="newPromptModalLabel" data-i18n="new_prompt">Nuovo Prompt</h5>
+                    <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
                     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -350,197 +64,38 @@
                 <div class="modal-body">
                     <form id="newPromptForm">
                         <div class="form-group">
-                            <label for="promptTitle" data-i18n="title_label">Titolo</label>
-                            <input type="text" class="form-control" id="promptTitle" required>
+                            <label for="promptTitle">Titolo</label>
+                            <input type="text" class="form-control" id="promptTitle" placeholder="Inserisci il titolo" required>
                         </div>
                         <div class="form-group">
-                            <label for="promptTags" data-i18n="tags_label">Tag (separati da virgole)</label>
-                            <input type="text" class="form-control" id="promptTags"
-                                data-i18n-placeholder="tags_placeholder">
+                            <label for="promptText">Testo</label>
+                            <textarea class="form-control" id="promptText" rows="5" placeholder="Inserisci il testo" required></textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="promptText" data-i18n="text_label">Testo</label>
-                            <div id="editor-container"></div>
-                        </div>
-                        <button type="submit" class="btn btn-success" data-i18n="add_button">Aggiungi</button>
+                        <button type="submit" class="btn btn-success">Aggiungi</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Include jQuery, Popper.js, Bootstrap JS, Quill, and SortableJS -->
+    <!-- Bootstrap JS e dipendenze -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script
-        src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script
-        src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <!-- Include SortableJS -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Script personalizzato -->
     <script>
         var categories = [];
-        var quill;
-        var activeCategoryIndex = null;
-        var activePromptIndex = null;
-        var currentLanguage = 'it';
-        var currentTheme = 'dark';
-
-        var translations = {
-            'it': {
-                'title': 'Prompt Saver con Bootstrap',
-                'prompt_saver': 'Prompt Saver',
-                'select_language': 'Seleziona Lingua:',
-                'select_theme': 'Seleziona Tema:',
-                'dark_theme': 'Scuro',
-                'light_theme': 'Chiaro',
-                'italian': 'Italiano',
-                'english': 'Inglese',
-                'search_placeholder': 'Cerca per parole chiave...',
-                'all_categories': 'Tutte le categorie',
-                'enter_tags': 'Inserisci tag...',
-                'search_button': '🔍 Cerca',
-                'restore_backup': 'Ripristina Backup',
-                'export_data': 'Esporta Dati',
-                'import_data': 'Importa Dati',
-                'new_category': 'Nuova categoria',
-                'add_category': 'Aggiungi Categoria',
-                'show_favorites': 'Mostra Preferiti',
-                'hide_favorites': 'Chiudi Preferiti',
-                'new_prompt': 'Nuovo Prompt',
-                'title_label': 'Titolo',
-                'tags_label': 'Tag (separati da virgole)',
-                'tags_placeholder': 'Inserisci i tag separati da virgole...',
-                'text_label': 'Testo',
-                'add_button': 'Aggiungi',
-                'modify_button': 'Modifica',
-                'save_button': 'Salva',
-                'delete_button': 'Elimina',
-                'copy_button': 'Copia',
-                'increase_font_button': 'Aumenta Font',
-                'share_button': 'Condividi',
-                'favorite_button': '★ Preferito',
-                'not_favorite_button': '☆ Preferito',
-                'remove_favorite_button': 'Elimina dai Preferiti',
-                'search_results': 'Risultati della ricerca',
-                'no_results_found': 'Nessun risultato trovato.',
-                'favorites_title': 'Prompts Preferiti',
-                'no_favorites_found': 'Nessun prompt preferito trovato.',
-                'confirm_delete_prompt': 'Sei sicuro di voler eliminare questo prompt?',
-                'confirm_delete_category': 'Sei sicuro di voler eliminare questa categoria?',
-                'confirm_restore_backup': 'Sei sicuro di voler ripristinare il backup? Tutte le modifiche recenti andranno perse.',
-                'backup_restored': 'Backup ripristinato con successo.',
-                'no_backup_available': 'Nessun backup disponibile.',
-                'data_imported': 'Dati importati con successo.',
-                'invalid_file_format': 'Formato del file non valido.',
-                'import_error': 'Errore nell\'importazione dei dati: ',
-                'prompt_copied': 'Prompt copiato negli appunti!',
-                'prompt_shared': 'Prompt condiviso con successo!',
-                'share_error': 'Errore nella condivisione del prompt: ',
-                'copy_error': 'Errore nella copia del testo: ',
-                'copy_count_label': 'Copiato: ',
-                'edit_count_label': 'Modificato: ',
-                'modify_color': 'Modifica colore:',
-            },
-            'en': {
-                'title': 'Prompt Saver with Bootstrap',
-                'prompt_saver': 'Prompt Saver',
-                'select_language': 'Select Language:',
-                'select_theme': 'Select Theme:',
-                'dark_theme': 'Dark',
-                'light_theme': 'Light',
-                'italian': 'Italian',
-                'english': 'English',
-                'search_placeholder': 'Search by keywords...',
-                'all_categories': 'All Categories',
-                'enter_tags': 'Enter tags...',
-                'search_button': '🔍 Search',
-                'restore_backup': 'Restore Backup',
-                'export_data': 'Export Data',
-                'import_data': 'Import Data',
-                'new_category': 'New category',
-                'add_category': 'Add Category',
-                'show_favorites': 'Show Favorites',
-                'hide_favorites': 'Hide Favorites',
-                'new_prompt': 'New Prompt',
-                'title_label': 'Title',
-                'tags_label': 'Tags (comma-separated)',
-                'tags_placeholder': 'Enter tags separated by commas...',
-                'text_label': 'Text',
-                'add_button': 'Add',
-                'modify_button': 'Edit',
-                'save_button': 'Save',
-                'delete_button': 'Delete',
-                'copy_button': 'Copy',
-                'increase_font_button': 'Increase Font',
-                'share_button': 'Share',
-                'favorite_button': '★ Favorite',
-                'not_favorite_button': '☆ Favorite',
-                'remove_favorite_button': 'Remove from Favorites',
-                'search_results': 'Search Results',
-                'no_results_found': 'No results found.',
-                'favorites_title': 'Favorite Prompts',
-                'no_favorites_found': 'No favorite prompts found.',
-                'confirm_delete_prompt': 'Are you sure you want to delete this prompt?',
-                'confirm_delete_category': 'Are you sure you want to delete this category?',
-                'confirm_restore_backup': 'Are you sure you want to restore the backup? All recent changes will be lost.',
-                'backup_restored': 'Backup restored successfully.',
-                'no_backup_available': 'No backup available.',
-                'data_imported': 'Data imported successfully.',
-                'invalid_file_format': 'Invalid file format.',
-                'import_error': 'Error importing data: ',
-                'prompt_copied': 'Prompt copied to clipboard!',
-                'prompt_shared': 'Prompt shared successfully!',
-                'share_error': 'Error sharing the prompt: ',
-                'copy_error': 'Error copying the text: ',
-                'copy_count_label': 'Copied: ',
-                'edit_count_label': 'Edited: ',
-                'modify_color': 'Modify Color:',
-            },
-            // Aggiungi altre lingue qui
-        };
-
-        function translateUI() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                el.textContent = translations[currentLanguage][key] || key;
-            });
-
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                el.placeholder = translations[currentLanguage][key] || key;
-            });
-
-            // Aggiorna il titolo della pagina
-            document.title = translations[currentLanguage]['title'];
-        }
 
         function loadFromLocalStorage() {
             var savedCategories = localStorage.getItem('categories');
             if (savedCategories) {
                 categories = JSON.parse(savedCategories);
-                // Imposta i valori di default per copyCount, editCount e color se non esistono
-                categories.forEach(category => {
-                    if (!category.color) category.color = '#606060'; // Colore di default grigio #606060
-                    category.prompts.forEach(prompt => {
-                        if (prompt.copyCount === undefined) prompt.copyCount = 0;
-                        if (prompt.editCount === undefined) prompt.editCount = 0;
-                    });
-                });
-                saveToLocalStorage(); // Salva le categorie aggiornate con i colori di default
                 renderCategories();
-                populateCategoryFilter();
             }
         }
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
-        }
-
-        function backupData() {
-            localStorage.setItem('categories_backup', JSON.stringify(categories));
         }
 
         function renderCategories() {
@@ -549,27 +104,12 @@
             container.innerHTML = '';
             categoryBoxesContainer.innerHTML = '';
 
-            // Non ordiniamo le categorie per nome per mantenere l'ordine personalizzato
+            categories.sort((a, b) => a.name.localeCompare(b.name));
 
             categories.forEach((category, index) => {
                 const categoryDiv = document.createElement('button');
-                categoryDiv.className = 'category-btn';
-
-                // Assicuriamoci che category.color abbia un valore di default
-                const categoryColor = category.color || '#606060'; // Default grigio #606060
-                const textColor = getContrastYIQ(categoryColor);
-                categoryDiv.style.backgroundColor = categoryColor;
-                categoryDiv.style.color = textColor;
-
-                // Aggiungi indicatore di colore
-                const colorIndicator = document.createElement('span');
-                colorIndicator.className = 'color-indicator';
-                colorIndicator.style.backgroundColor = categoryColor;
-                categoryDiv.appendChild(colorIndicator);
-
-                const categoryNameSpan = document.createElement('span');
-                categoryNameSpan.textContent = category.name;
-                categoryDiv.appendChild(categoryNameSpan);
+                categoryDiv.className = 'btn btn-secondary mr-2 mb-2';
+                categoryDiv.textContent = category.name;
 
                 categoryDiv.onclick = () => {
                     toggleCategoryBox(categoryDiv, index);
@@ -580,80 +120,13 @@
                 const categoryBox = createCategoryBox(category, index);
                 categoryBoxesContainer.appendChild(categoryBox);
             });
-
-            // Inizializza SortableJS per il drag-and-drop delle categorie
-            Sortable.create(container, {
-                animation: 150,
-                onEnd: function (evt) {
-                    const movedCategory = categories.splice(evt.oldIndex, 1)[0];
-                    categories.splice(evt.newIndex, 0, movedCategory);
-                    saveToLocalStorage();
-                }
-            });
-        }
-
-        function populateCategoryFilter() {
-            const categoryFilter = document.getElementById('categoryFilter');
-            categoryFilter.innerHTML = `<option value="">${translations[currentLanguage]['all_categories']}</option>`;
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.name;
-                option.textContent = category.name;
-                categoryFilter.appendChild(option);
-            });
-        }
-
-        function searchPrompts() {
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-            const selectedCategory = document.getElementById('categoryFilter').value;
-            const selectedDate = document.getElementById('dateFilter').value;
-            const selectedTag = document.getElementById('tagFilter').value.toLowerCase().trim();
-
-            const promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = `<h2>${translations[currentLanguage]['search_results']}</h2>`;
-
-            let resultsFound = false;
-
-            categories.forEach((category, categoryIndex) => {
-                if (selectedCategory && category.name !== selectedCategory) return;
-
-                const filteredPrompts = category.prompts.filter(prompt => {
-                    const matchTitleOrText = prompt.title.toLowerCase().includes(searchQuery) || prompt.text.toLowerCase().includes(searchQuery);
-                    const matchDate = !selectedDate || prompt.date === selectedDate;
-                    const matchTag = !selectedTag || (prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(selectedTag)));
-
-                    return matchTitleOrText && matchDate && matchTag;
-                });
-
-                if (filteredPrompts.length > 0) {
-                    resultsFound = true;
-
-                    const categoryHeader = document.createElement('h3');
-                    categoryHeader.textContent = category.name;
-                    promptsDisplayContainer.appendChild(categoryHeader);
-
-                    const promptGrid = document.createElement('div');
-                    promptGrid.className = 'prompt-grid';
-
-                    filteredPrompts.forEach((prompt, promptIndex) => {
-                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-                        promptGrid.appendChild(promptDiv);
-                    });
-
-                    promptsDisplayContainer.appendChild(promptGrid);
-                }
-            });
-
-            if (!resultsFound) {
-                promptsDisplayContainer.innerHTML += `<p>${translations[currentLanguage]['no_results_found']}</p>`;
-            }
         }
 
         function createCategoryBox(category, categoryIndex) {
             const categoryBox = document.createElement('div');
             categoryBox.className = 'category-box';
-            categoryBox.style.display = (categoryIndex === activeCategoryIndex) ? 'block' : 'none';
 
+            // Creazione di un contenitore per la categoria e i pulsanti
             const categoryHeader = document.createElement('div');
             categoryHeader.className = 'category-header d-flex align-items-center';
 
@@ -664,51 +137,34 @@
             categoryInput.readOnly = true;
             categoryHeader.appendChild(categoryInput);
 
-            const colorLabel = document.createElement('label');
-            colorLabel.textContent = translations[currentLanguage]['modify_color'];
-            colorLabel.className = 'mr-2 ml-2';
-            categoryHeader.appendChild(colorLabel);
-
-            const colorInput = document.createElement('input');
-            colorInput.type = 'color';
-            colorInput.value = category.color || '#606060'; // Default grigio #606060
-            colorInput.disabled = true;
-            colorInput.className = 'form-control';
-            colorInput.style.maxWidth = '50px';
-            colorInput.style.padding = '0';
-            categoryHeader.appendChild(colorInput);
-
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.textContent = translations[currentLanguage]['modify_button'];
+            editBtn.textContent = 'Modifica';
             categoryHeader.appendChild(editBtn);
 
             const saveBtn = document.createElement('button');
             saveBtn.className = 'btn btn-success btn-save btn-custom';
-            saveBtn.textContent = translations[currentLanguage]['save_button'];
+            saveBtn.textContent = 'Salva';
             categoryHeader.appendChild(saveBtn);
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
-            deleteBtn.textContent = translations[currentLanguage]['delete_button'];
+            deleteBtn.textContent = 'Elimina';
             categoryHeader.appendChild(deleteBtn);
 
-            categoryBox.appendChild(categoryHeader);
+            categoryBox.appendChild(categoryHeader); // Aggiunge il contenitore al categoryBox
 
             editBtn.onclick = () => {
                 categoryInput.readOnly = false;
-                colorInput.disabled = false;
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
             };
 
             saveBtn.onclick = () => {
                 categoryInput.readOnly = true;
-                colorInput.disabled = true;
                 editBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
                 categories[categoryIndex].name = categoryInput.value;
-                categories[categoryIndex].color = colorInput.value;
                 saveToLocalStorage();
                 renderCategories();
             };
@@ -717,6 +173,7 @@
                 deleteCategory(categoryIndex);
             };
 
+            // Creazione dei contenitori per i titoli dei prompt e il prompt selezionato
             const promptTitlesContainer = document.createElement('div');
             promptTitlesContainer.className = 'prompt-titles-container d-flex flex-wrap';
 
@@ -726,13 +183,8 @@
             category.prompts.sort((a, b) => a.title.localeCompare(b.title));
 
             category.prompts.forEach((prompt, promptIndex) => {
-                const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, promptIndex, selectedPromptContainer);
+                const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, promptIndex);
                 promptTitlesContainer.appendChild(promptTitleDiv);
-
-                // Se è il prompt attivo, visualizzalo aperto
-                if (categoryIndex === activeCategoryIndex && promptIndex === activePromptIndex) {
-                    displaySelectedPrompt(prompt, categoryIndex, promptIndex, selectedPromptContainer);
-                }
             });
 
             categoryBox.appendChild(promptTitlesContainer);
@@ -740,7 +192,7 @@
 
             const newPromptBtn = document.createElement('button');
             newPromptBtn.className = 'btn btn-success btn-new mt-3';
-            newPromptBtn.textContent = translations[currentLanguage]['new_prompt'];
+            newPromptBtn.textContent = 'Nuovo Prompt';
             newPromptBtn.onclick = () => {
                 showNewPromptForm(categoryIndex);
             };
@@ -749,361 +201,206 @@
             return categoryBox;
         }
 
-        function createPromptTitleDiv(prompt, categoryIndex, promptIndex, selectedPromptContainer) {
+        function createPromptTitleDiv(prompt, categoryIndex, promptIndex) {
             const promptTitleDiv = document.createElement('button');
             promptTitleDiv.className = 'btn btn-secondary mr-2 mb-2';
             promptTitleDiv.textContent = prompt.title;
 
             promptTitleDiv.onclick = () => {
-                activeCategoryIndex = categoryIndex;
-                activePromptIndex = promptIndex;
-                displaySelectedPrompt(prompt, categoryIndex, promptIndex, selectedPromptContainer);
+                displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex);
             };
 
             return promptTitleDiv;
+        }
+
+        function autoResizeTextArea(element) {
+            element.style.height = 'auto';
+            element.style.height = element.scrollHeight + 'px';
+        }
+
+        function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
+            const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
+            selectedPromptContainer.innerHTML = ''; // Pulisce il contenitore precedente
+
+            const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
+            selectedPromptContainer.appendChild(promptDiv);
+
+            // Ora che il promptDiv è nel DOM, possiamo ridimensionare la textarea
+            autoResizeTextArea(textArea);
+
+            // Aggiorna il colore di sfondo del titolo del prompt selezionato
+            const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.btn');
+            promptTitleDivs.forEach(div => {
+                div.classList.remove('active');
+            });
+            promptTitleDiv.classList.add('active');
         }
 
         function createPromptDiv(prompt, categoryIndex, promptIndex) {
             const promptDiv = document.createElement('div');
             promptDiv.className = 'prompt-content';
 
-            const title = document.createElement('h4');
-            title.textContent = prompt.title;
-            promptDiv.appendChild(title);
+            // Input per il titolo del prompt
+            const titleInput = document.createElement('input');
+            titleInput.type = 'text';
+            titleInput.className = 'prompt-title-input form-control';
+            titleInput.value = prompt.title;
+            titleInput.readOnly = true;
 
-            const tagsDiv = document.createElement('div');
-            if (prompt.tags) {
-                prompt.tags.forEach(tag => {
-                    const tagSpan = document.createElement('span');
-                    tagSpan.className = 'tag-badge';
-                    tagSpan.textContent = tag;
-                    tagsDiv.appendChild(tagSpan);
-                });
-            }
-            promptDiv.appendChild(tagsDiv);
+            promptDiv.appendChild(titleInput);
 
-            const content = document.createElement('div');
-            // Rimuove gli stili di colore dal testo
-            content.innerHTML = removeColorStylesFromHTML(prompt.text);
-            promptDiv.appendChild(content);
+            const textArea = document.createElement('textarea');
+            textArea.className = 'prompt-text form-control';
+            textArea.value = prompt.text;
+            textArea.readOnly = true;
 
-            // Sezione per le statistiche
-            const statsDiv = document.createElement('div');
-            statsDiv.className = 'prompt-stats mt-2';
+            promptDiv.appendChild(textArea);
 
-            const copyCountSpan = document.createElement('span');
-            copyCountSpan.textContent = `${translations[currentLanguage]['copy_count_label']}${prompt.copyCount || 0}`;
-            statsDiv.appendChild(copyCountSpan);
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'prompt-actions mt-3';
 
-            const separator = document.createElement('span');
-            separator.textContent = ' | ';
-            statsDiv.appendChild(separator);
-
-            const editCountSpan = document.createElement('span');
-            editCountSpan.textContent = `${translations[currentLanguage]['edit_count_label']}${prompt.editCount || 0}`;
-            statsDiv.appendChild(editCountSpan);
-
-            promptDiv.appendChild(statsDiv);
-
-            const buttonsDiv = document.createElement('div');
-            buttonsDiv.className = 'mt-3';
-
-            // Ordine dei bottoni: Modifica, Copia, Elimina, Aumenta il font, Condividi, Preferito/Elimina dai Preferiti
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.textContent = translations[currentLanguage]['modify_button'];
-            buttonsDiv.appendChild(editBtn);
+            editBtn.textContent = 'Modifica';
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn btn-success btn-save btn-custom';
+            saveBtn.textContent = 'Salva';
+            saveBtn.style.display = 'none';
 
             const copyBtn = document.createElement('button');
-            copyBtn.className = 'btn btn-copy btn-custom';
-            copyBtn.textContent = translations[currentLanguage]['copy_button'];
-            buttonsDiv.appendChild(copyBtn);
+            copyBtn.className = 'btn btn-warning btn-copy btn-custom';
+            copyBtn.textContent = 'Copia';
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
-            deleteBtn.textContent = translations[currentLanguage]['delete_button'];
-            buttonsDiv.appendChild(deleteBtn);
+            deleteBtn.textContent = 'Elimina';
 
             const fontBtn = document.createElement('button');
-            fontBtn.className = 'btn btn-font btn-custom';
-            fontBtn.textContent = translations[currentLanguage]['increase_font_button'];
-            buttonsDiv.appendChild(fontBtn);
+            fontBtn.className = 'btn btn-secondary btn-font btn-custom';
+            fontBtn.textContent = 'Aumenta Font';
 
-            const shareBtn = document.createElement('button');
-            shareBtn.className = 'btn btn-share btn-custom';
-            shareBtn.textContent = translations[currentLanguage]['share_button'];
-            buttonsDiv.appendChild(shareBtn);
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(saveBtn);
+            actionsDiv.appendChild(copyBtn);
+            actionsDiv.appendChild(deleteBtn);
+            actionsDiv.appendChild(fontBtn);
 
-            // Bottone per aggiungere/rimuovere dai preferiti
-            const favoriteBtn = document.createElement('button');
-            favoriteBtn.className = 'btn btn-favorite btn-custom';
-            favoriteBtn.textContent = prompt.favorite ? translations[currentLanguage]['favorite_button'] : translations[currentLanguage]['not_favorite_button'];
-            buttonsDiv.appendChild(favoriteBtn);
+            promptDiv.appendChild(actionsDiv);
 
-            // Se il prompt è nei preferiti, aggiungi il bottone "Elimina dai Preferiti"
-            if (prompt.favorite) {
-                const removeFavoriteBtn = document.createElement('button');
-                removeFavoriteBtn.className = 'btn btn-remove-favorite btn-custom';
-                removeFavoriteBtn.textContent = translations[currentLanguage]['remove_favorite_button'];
-                buttonsDiv.appendChild(removeFavoriteBtn);
+            editBtn.onclick = (e) => {
+                e.stopPropagation();
+                titleInput.readOnly = false;
+                textArea.readOnly = false;
+                titleInput.focus();
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline';
+            };
 
-                removeFavoriteBtn.onclick = () => {
-                    prompt.favorite = false;
-                    saveToLocalStorage();
-                    renderCategories();
-                    if (document.getElementById('prompts-display-container').innerHTML.includes(translations[currentLanguage]['favorites_title'])) {
-                        showFavoritePrompts();
-                    }
-                };
-            }
+            saveBtn.onclick = (e) => {
+                e.stopPropagation();
+                titleInput.readOnly = true;
+                textArea.readOnly = true;
+                editBtn.style.display = 'inline';
+                saveBtn.style.display = 'none';
 
-            promptDiv.appendChild(buttonsDiv);
+                categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
+                categories[categoryIndex].prompts[promptIndex].text = textArea.value;
+                saveToLocalStorage();
 
-            copyBtn.onclick = () => {
-                var plainText = htmlToPlainText(prompt.text);
-                navigator.clipboard.writeText(plainText).then(() => {
-                    prompt.copyCount = (prompt.copyCount || 0) + 1;
-                    saveToLocalStorage();
-                    copyCountSpan.textContent = `${translations[currentLanguage]['copy_count_label']}${prompt.copyCount}`;
-                    alert(translations[currentLanguage]['prompt_copied']);
+                // Aggiorna il titolo nel promptTitleDiv
+                const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
+                const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
+                promptTitleDivs[promptIndex].textContent = titleInput.value;
+            };
+
+            copyBtn.onclick = (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(textArea.value).then(() => {
+                    alert("Testo copiato negli appunti!");
                 }).catch(err => {
-                    console.error(translations[currentLanguage]['copy_error'], err);
+                    console.error("Errore nella copia del testo: ", err);
                 });
             };
 
-            fontBtn.onclick = () => {
-                content.style.fontSize = 'larger';
-            };
-
-            editBtn.onclick = () => {
-                showEditPromptForm(prompt, categoryIndex, promptIndex);
-            };
-
-            deleteBtn.onclick = () => {
-                if (confirm(translations[currentLanguage]['confirm_delete_prompt'])) {
-                    backupData();
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
                     categories[categoryIndex].prompts.splice(promptIndex, 1);
                     saveToLocalStorage();
                     renderCategories();
-                    if (document.getElementById('prompts-display-container').innerHTML.includes(translations[currentLanguage]['favorites_title'])) {
-                        showFavoritePrompts();
-                    }
                 }
             };
 
-            shareBtn.onclick = () => {
-                sharePrompt(prompt);
+            fontBtn.onclick = (e) => {
+                e.stopPropagation();
+                let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
+                textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
+                autoResizeTextArea(textArea);
             };
 
-            favoriteBtn.onclick = () => {
-                prompt.favorite = !prompt.favorite;
-                saveToLocalStorage();
-                favoriteBtn.textContent = prompt.favorite ? translations[currentLanguage]['favorite_button'] : translations[currentLanguage]['not_favorite_button'];
-                renderCategories();
-                if (document.getElementById('prompts-display-container').innerHTML.includes(translations[currentLanguage]['favorites_title'])) {
-                    showFavoritePrompts();
-                }
-            };
-
-            return { promptDiv };
-        }
-
-        // Funzione per rimuovere gli stili di colore dal testo HTML
-        function removeColorStylesFromHTML(html) {
-            var div = document.createElement('div');
-            div.innerHTML = html;
-
-            var elements = div.getElementsByTagName('*');
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].style.color = '';
-            }
-
-            return div.innerHTML;
-        }
-
-        function htmlToPlainText(html) {
-            var tempElement = document.createElement('div');
-            tempElement.innerHTML = html;
-
-            // Rimuovi script e stili
-            var scripts = tempElement.getElementsByTagName('script');
-            for (var i = scripts.length - 1; i >= 0; i--) {
-                scripts[i].parentNode.removeChild(scripts[i]);
-            }
-            var styles = tempElement.getElementsByTagName('style');
-            for (var i = styles.length - 1; i >= 0; i--) {
-                styles[i].parentNode.removeChild(styles[i]);
-            }
-
-            // Gestisci <br> come newline
-            tempElement.innerHTML = tempElement.innerHTML.replace(/<br\s*[\/]?>/gi, '\n');
-
-            // Gestisci elenchi ordinati
-            var olElements = tempElement.getElementsByTagName('ol');
-            for (var i = 0; i < olElements.length; i++) {
-                var ol = olElements[i];
-                var items = ol.getElementsByTagName('li');
-                for (var j = 0; j < items.length; j++) {
-                    items[j].innerText = (j + 1) + '. ' + items[j].innerText;
-                }
-                ol.outerHTML = ol.innerHTML;
-            }
-
-            // Gestisci elenchi non ordinati
-            var ulElements = tempElement.getElementsByTagName('ul');
-            for (var i = 0; i < ulElements.length; i++) {
-                var ul = ulElements[i];
-                var items = ul.getElementsByTagName('li');
-                for (var j = 0; j < items.length; j++) {
-                    items[j].innerText = '- ' + items[j].innerText;
-                }
-                ul.outerHTML = ul.innerHTML;
-            }
-
-            // Ottieni il testo
-            var text = tempElement.textContent || tempElement.innerText || '';
-
-            // Rimuovi spazi e newline multipli
-            text = text.replace(/\n\s*\n/g, '\n').trim();
-
-            return text;
-        }
-
-        function displaySelectedPrompt(prompt, categoryIndex, promptIndex, container) {
-            container.innerHTML = '';
-            const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-            container.appendChild(promptDiv);
+            return { promptDiv, textArea, titleInput };
         }
 
         function toggleCategoryBox(categoryDiv, categoryIndex) {
             const categoryBoxes = document.querySelectorAll('.category-box');
-            const categoryDivs = document.querySelectorAll('#categories .category-btn');
+            const categoryDivs = document.querySelectorAll('#categories .btn');
             categoryBoxes.forEach((box, idx) => {
                 if (idx === categoryIndex) {
                     const isVisible = box.style.display === 'block';
                     box.style.display = isVisible ? 'none' : 'block';
+                    // Cambia il colore di sfondo del pulsante della categoria
                     if (isVisible) {
-                        categoryDiv.style.border = 'none';
+                        categoryDivs[idx].classList.remove('btn-success');
+                        categoryDivs[idx].classList.add('btn-secondary');
                     } else {
-                        categoryDiv.style.border = '2px solid #28a745';
+                        categoryDivs[idx].classList.remove('btn-secondary');
+                        categoryDivs[idx].classList.add('btn-success');
                     }
                 } else {
                     box.style.display = 'none';
-                    categoryDivs[idx].style.border = 'none';
+                    categoryDivs[idx].classList.remove('btn-success');
+                    categoryDivs[idx].classList.add('btn-secondary');
                 }
             });
         }
 
         function showNewPromptForm(categoryIndex) {
-            $('#newPromptModal').modal('show');
-            $('#newPromptModalLabel').text(translations[currentLanguage]['new_prompt']);
+            $('#newPromptModal').modal('show'); // Mostra il modale
 
             $('#newPromptForm').off('submit').on('submit', function (e) {
                 e.preventDefault();
                 const title = $('#promptTitle').val();
-                const text = quill.root.innerHTML;
-                const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-
+                const text = $('#promptText').val();
                 if (title && text) {
-                    categories[categoryIndex].prompts.push({
-                        title,
-                        text,
-                        tags,
-                        favorite: false,
-                        copyCount: 0,
-                        editCount: 0
-                    });
+                    categories[categoryIndex].prompts.push({ title, text });
                     saveToLocalStorage();
-
-                    // Imposta gli indici attivi per visualizzare il nuovo prompt
-                    activeCategoryIndex = categoryIndex;
-                    activePromptIndex = categories[categoryIndex].prompts.length - 1;
-
                     renderCategories();
-                    $('#newPromptModal').modal('hide');
-                    $('#newPromptForm')[0].reset();
-                    quill.setText('');
-                }
-            });
-        }
-
-        function showEditPromptForm(prompt, categoryIndex, promptIndex) {
-            $('#newPromptModal').modal('show');
-            $('#newPromptModalLabel').text(translations[currentLanguage]['modify_button']);
-            $('#promptTitle').val(prompt.title);
-            $('#promptTags').val(prompt.tags ? prompt.tags.join(', ') : '');
-            quill.root.innerHTML = prompt.text;
-
-            $('#newPromptForm').off('submit').on('submit', function (e) {
-                e.preventDefault();
-                const title = $('#promptTitle').val();
-                const text = quill.root.innerHTML;
-                const tags = $('#promptTags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-
-                if (title && text) {
-                    prompt.title = title;
-                    prompt.text = text;
-                    prompt.tags = tags;
-                    prompt.editCount = (prompt.editCount || 0) + 1;
-                    saveToLocalStorage();
-
-                    // Imposta gli indici attivi per visualizzare il prompt modificato
-                    activeCategoryIndex = categoryIndex;
-                    activePromptIndex = promptIndex;
-                    $('#newPromptModal').modal('hide');
-                    renderCategories();
+                    $('#newPromptModal').modal('hide'); // Nasconde il modale
+                    // Pulisce i campi del form
+                    $('#promptTitle').val('');
+                    $('#promptText').val('');
                 }
             });
         }
 
         function deleteCategory(categoryIndex) {
-            if (confirm(translations[currentLanguage]['confirm_delete_category'])) {
-                backupData();
+            if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
                 categories.splice(categoryIndex, 1);
                 saveToLocalStorage();
                 renderCategories();
             }
         }
 
-        function sharePrompt(prompt) {
-            var plainText = htmlToPlainText(prompt.text);
-            var shareData = {
-                title: prompt.title,
-                text: plainText,
-            };
-
-            if (navigator.share) {
-                navigator.share(shareData).then(() => {
-                    console.log(translations[currentLanguage]['prompt_shared']);
-                }).catch(err => {
-                    console.error(translations[currentLanguage]['share_error'], err);
-                });
-            } else {
-                // Se l'API Web Share non è supportata, copia il testo negli appunti
-                navigator.clipboard.writeText(plainText).then(() => {
-                    alert(translations[currentLanguage]['prompt_copied']);
-                }).catch(err => {
-                    console.error(translations[currentLanguage]['copy_error'], err);
-                });
-            }
-        }
-
-        function showFavoritePrompts() {
+        function searchPrompts() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
             const promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = `<h2>${translations[currentLanguage]['favorites_title']}</h2>`;
-            document.getElementById('hideFavoritesBtn').style.display = 'inline-block';
-            document.getElementById('showFavoritesBtn').style.display = 'none';
+            promptsDisplayContainer.innerHTML = '<h2>Risultati della ricerca</h2>';
+
             let resultsFound = false;
 
             categories.forEach((category, categoryIndex) => {
-                const favoritePrompts = category.prompts.reduce((accumulator, prompt, index) => {
-                    if (prompt.favorite) {
-                        accumulator.push({ prompt, index });
-                    }
-                    return accumulator;
-                }, []);
-
-                if (favoritePrompts.length > 0) {
+                if (category.name.toLowerCase() === searchQuery) {
                     resultsFound = true;
 
                     const categoryHeader = document.createElement('h3');
@@ -1113,36 +410,36 @@
                     const promptGrid = document.createElement('div');
                     promptGrid.className = 'prompt-grid';
 
-                    favoritePrompts.forEach(({ prompt, index }) => {
-                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, index);
+                    category.prompts.forEach((prompt, promptIndex) => {
+                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
                         promptGrid.appendChild(promptDiv);
                     });
 
                     promptsDisplayContainer.appendChild(promptGrid);
+                } else {
+                    category.prompts.forEach((prompt, promptIndex) => {
+                        if (prompt.title.toLowerCase() === searchQuery) {
+                            resultsFound = true;
+                            const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
+                            promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
+                            promptsDisplayContainer.appendChild(promptDiv);
+                        }
+                    });
                 }
             });
 
             if (!resultsFound) {
-                promptsDisplayContainer.innerHTML += `<p>${translations[currentLanguage]['no_favorites_found']}</p>`;
+                promptsDisplayContainer.innerHTML += '<p>Nessun risultato trovato.</p>';
             }
-        }
-
-        function hideFavoritePrompts() {
-            const promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = '';
-            document.getElementById('hideFavoritesBtn').style.display = 'none';
-            document.getElementById('showFavoritesBtn').style.display = 'inline-block';
         }
 
         document.getElementById('addCategoryBtn').onclick = function () {
             const categoryName = document.getElementById('newCategoryInput').value;
-            const categoryColor = document.getElementById('newCategoryColor').value || '#606060';
             if (categoryName) {
-                categories.push({ name: categoryName, prompts: [], color: categoryColor });
+                categories.push({ name: categoryName, prompts: [] });
                 saveToLocalStorage();
                 renderCategories();
                 document.getElementById('newCategoryInput').value = '';
-                document.getElementById('newCategoryColor').value = '#606060';
             }
         };
 
@@ -1154,165 +451,7 @@
             }
         });
 
-        document.getElementById('restoreBackupBtn').onclick = function () {
-            if (confirm(translations[currentLanguage]['confirm_restore_backup'])) {
-                var backup = localStorage.getItem('categories_backup');
-                if (backup) {
-                    categories = JSON.parse(backup);
-                    // Imposta i valori di default per copyCount, editCount e color se non esistono
-                    categories.forEach(category => {
-                        if (!category.color) category.color = '#606060'; // Colore di default grigio #606060
-                        category.prompts.forEach(prompt => {
-                            if (prompt.copyCount === undefined) prompt.copyCount = 0;
-                            if (prompt.editCount === undefined) prompt.editCount = 0;
-                        });
-                    });
-                    saveToLocalStorage();
-                    renderCategories();
-                    alert(translations[currentLanguage]['backup_restored']);
-                } else {
-                    alert(translations[currentLanguage]['no_backup_available']);
-                }
-            }
-        };
-
-        document.getElementById('exportDataBtn').onclick = function () {
-            var dataStr = JSON.stringify(categories);
-            var dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-            var exportFileDefaultName = 'prompts_backup_' + new Date().toISOString().slice(0, 19) + '.json';
-
-            var linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-        };
-
-        document.getElementById('importDataBtn').onclick = function () {
-            var fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.json';
-
-            fileInput.onchange = function (event) {
-                var file = event.target.files[0];
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onload = function (e) {
-                        try {
-                            var importedData = JSON.parse(e.target.result);
-                            if (Array.isArray(importedData)) {
-                                categories = importedData;
-                                // Imposta i valori di default per copyCount, editCount e color se non esistono
-                                categories.forEach(category => {
-                                    if (!category.color) category.color = '#606060'; // Colore di default grigio #606060
-                                    category.prompts.forEach(prompt => {
-                                        if (prompt.copyCount === undefined) prompt.copyCount = 0;
-                                        if (prompt.editCount === undefined) prompt.editCount = 0;
-                                    });
-                                });
-                                saveToLocalStorage();
-                                renderCategories();
-                                alert(translations[currentLanguage]['data_imported']);
-                            } else {
-                                alert(translations[currentLanguage]['invalid_file_format']);
-                            }
-                        } catch (err) {
-                            alert(translations[currentLanguage]['import_error'] + err);
-                        }
-                    };
-                    reader.readAsText(file);
-                }
-            };
-
-            fileInput.click();
-        };
-
-        document.getElementById('showFavoritesBtn').onclick = showFavoritePrompts;
-        document.getElementById('hideFavoritesBtn').onclick = hideFavoritePrompts;
-
-        document.getElementById('languageSelect').onchange = function () {
-            currentLanguage = this.value;
-            translateUI();
-            renderCategories();
-            populateCategoryFilter();
-
-            // Aggiorna il placeholder dell'editor Quill
-            quill.root.dataset.placeholder = translations[currentLanguage]['text_label'];
-        };
-
-        // Gestione del tema
-        document.getElementById('themeSelect').onchange = function () {
-            currentTheme = this.value;
-            applyTheme(currentTheme);
-            localStorage.setItem('theme', currentTheme);
-        };
-
-        function applyTheme(theme) {
-            if (theme === 'light') {
-                document.body.classList.add('light-theme');
-            } else {
-                document.body.classList.remove('light-theme');
-            }
-
-            // Aggiorna i colori dell'editor Quill
-            updateQuillTheme();
-        }
-
-        function updateQuillTheme() {
-            var qlEditor = document.querySelector('.ql-editor');
-            var qlToolbar = document.querySelector('.ql-toolbar');
-
-            qlEditor.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--ql-editor-background-color').trim();
-            qlEditor.style.color = getComputedStyle(document.documentElement).getPropertyValue('--ql-editor-text-color').trim();
-
-            qlToolbar.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--ql-toolbar-background-color').trim();
-            qlToolbar.querySelectorAll('.ql-stroke').forEach(icon => {
-                icon.style.stroke = getComputedStyle(document.documentElement).getPropertyValue('--ql-toolbar-icon-color').trim();
-            });
-            qlToolbar.querySelectorAll('.ql-fill').forEach(icon => {
-                icon.style.fill = getComputedStyle(document.documentElement).getPropertyValue('--ql-toolbar-icon-color').trim();
-            });
-        }
-
-        // Funzione per determinare il colore del testo in base al colore di sfondo
-        function getContrastYIQ(hexcolor) {
-            hexcolor = hexcolor || '#606060'; // Colore di default grigio #606060
-            hexcolor = hexcolor.replace("#", "");
-            var r = parseInt(hexcolor.substr(0, 2), 16);
-            var g = parseInt(hexcolor.substr(2, 2), 16);
-            var b = parseInt(hexcolor.substr(4, 2), 16);
-            var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-            return (yiq >= 128) ? '#000' : '#fff';
-        }
-
-        // Inizializza Quill
-        quill = new Quill('#editor-container', {
-            theme: 'snow',
-            placeholder: translations[currentLanguage]['text_label'],
-            modules: {
-                toolbar: [
-                    [{ header: [1, 2, false] }],
-                    ['bold', 'italic', 'underline'],
-                    ['link', 'blockquote', 'code-block'],
-                    [{ list: 'ordered' }, { list: 'bullet' }],
-                    ['clean']
-                ]
-            }
-        });
-
-        // Imposta la lingua corrente in base al selettore di lingua
-        currentLanguage = document.getElementById('languageSelect').value;
-
-        // Imposta il tema corrente in base al selettore di tema
-        currentTheme = localStorage.getItem('theme') || 'dark';
-        document.getElementById('themeSelect').value = currentTheme;
-        applyTheme(currentTheme);
-
-        // Inizializzazione
-        translateUI();
         loadFromLocalStorage();
-        populateCategoryFilter();
-
     </script>
 </body>
 
