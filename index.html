@@ -224,6 +224,7 @@
                 container.appendChild(categoryDiv);
 
                 const categoryBox = createCategoryBox(category, index);
+                categoryBox.style.display = 'none';  // Mantieni tutte le categorie chiuse
                 categoryBoxesContainer.appendChild(categoryBox);
             });
         }
@@ -388,8 +389,8 @@
             deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
             deleteBtn.title = 'Elimina';
 
-            const fontBtn = document.createElement('button');
-fontBtn.className = 'btn btn-secondary btn-font btn-custom';
+          const fontBtn = document.createElement('button');
+            fontBtn.className = 'btn btn-secondary btn-font btn-custom';
             fontBtn.innerHTML = '<i class="fas fa-text-height"></i>';
             fontBtn.title = 'Aumenta Font';
 
@@ -615,7 +616,7 @@ fontBtn.className = 'btn btn-secondary btn-font btn-custom';
                     prompts: []
                 });
                 saveToLocalStorage();
-                renderCategories();
+                renderCategories();  // Usa renderCategories invece di renderArchivedCategories
                 document.getElementById('newCategoryInput').value = '';
             }
         };
