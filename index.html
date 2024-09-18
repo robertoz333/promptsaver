@@ -5,19 +5,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Saver con Bootstrap</title>
-    <!-- Bootstrap CSS -->
+    <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Stili personalizzati -->
     <style>
-        /* Stili per gli input e textarea nel modale */
-        #newPromptModal .form-control {
-            background-color: #343a40; /* Colore di sfondo scuro per gli input */
-            color: white; /* Colore del testo bianco */
-            border: 1px solid #ced4da;
+        body {
+            background-color: #000;
+            color: #fff;
+            padding: 20px;
         }
 
-        #newPromptModal .form-control::placeholder {
-            color: #ced4da; /* Colore del placeholder */
+        .category-box {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .prompt-title-div.active {
+            background-color: #28a745; /* Colore "success" di Bootstrap */
+            color: #fff;
+        }
+
+        .prompt-content {
+            background-color: #444;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .prompt-title-input,
+        .prompt-text {
+            background-color: #fff; /* Sfondo bianco */
+            color: #000; /* Testo nero */
+            border: 1px solid #555;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .prompt-title-input {
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        .prompt-text {
+            padding: 10px;
+            font-size: 16px;
+            resize: none;
+            height: auto;
+        }
+
+        .category-header {
+            margin-bottom: 20px;
+        }
+
+        .prompt-titles-container {
+            margin-bottom: 20px;
+        }
+
+        /* Pulsanti personalizzati per mantenere i colori originali */
+        .btn-custom {
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .btn-new {
+            background-color: #28a745;
+        }
+
+        .btn-edit {
+            background-color: #17a2b8;
+        }
+
+        .btn-save {
+            background-color: #28a745;
+            display: none;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+        }
+
+        .btn-copy {
+            background-color: #ffc107;
+        }
+
+        .btn-font {
+            background-color: #ff9800;
         }
     </style>
 </head>
@@ -53,36 +128,35 @@
 
     <!-- Modale per aggiungere un nuovo prompt -->
     <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="newPromptForm">
-                        <div class="form-group">
-                            <label for="promptTitle">Titolo</label>
-                            <input type="text" class="form-control" id="promptTitle" placeholder="Inserisci il titolo" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="promptText">Testo</label>
-                            <textarea class="form-control" id="promptText" rows="5" placeholder="Inserisci il testo" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success">Aggiungi</button>
-                    </form>
-                </div>
-            </div>
+      <div class="modal-dialog" role="document">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="newPromptForm">
+              <div class="form-group">
+                <label for="promptTitle">Titolo</label>
+                <input type="text" class="form-control" id="promptTitle" required>
+              </div>
+              <div class="form-group">
+                <label for="promptText">Testo</label>
+                <textarea class="form-control" id="promptText" rows="5" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-success">Aggiungi</button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Bootstrap JS e dipendenze -->
+    <!-- Include jQuery, Popper.js, and Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Script personalizzato -->
     <script>
         var categories = [];
 
