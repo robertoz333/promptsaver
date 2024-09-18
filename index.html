@@ -72,6 +72,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            font-size: 16px;
         }
 
         .btn-custom i {
@@ -537,31 +538,51 @@
             let resultsFound = false;
 
             categories.forEach((category, categoryIndex) => {
-                if (category.name.toLowerCase().includes(searchQuery)) {
+                if (category.name.toLowerCase() === searchQuery) {
                     resultsFound = true;
 
-                    const categoryHeader = document.createElement('h3');
-                    categoryHeader.textContent = category.name;
-                    promptsDisplayContainer.appendChild(categoryHeader);
-
-                    const promptGrid = document.createElement('div');
-                    promptGrid.className = 'prompt-grid';
-
-                    category.prompts.forEach((prompt, promptIndex) => {
-                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-                        promptGrid.appendChild(promptDiv);
+                    // Apri solo la categoria corrispondente
+                    promptsDisplayContainer.innerHTML = '';
+                    toggleCategoryBox(null, categoryIndex);
+                    const categoryDivs = document.querySelectorAll('#categories .btn');
+                    categoryDivs.forEach((div, idx) => {
+                        if (idx === categoryIndex) {
+                            div.classList.remove('btn-secondary');
+                            div.classList.add('btn-success');
+                        } else {
+                            div.classList.remove('btn-success');
+                            div.classList.add('btn-secondary');
+                        }
                     });
-
-                    promptsDisplayContainer.appendChild(promptGrid);
                 } else {
                     category.prompts.forEach((prompt, promptIndex) => {
-                        if (prompt.title.toLowerCase().includes(searchQuery) || prompt.text.toLowerCase().includes(searchQuery)) {
+                        if (prompt.title.toLowerCase() === searchQuery || prompt.text.toLowerCase() === searchQuery) {
                             resultsFound = true;
-                            const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-                            const categoryHeader = document.createElement('h3');
-                            categoryHeader.textContent = category.name;
-                            promptDiv.insertBefore(categoryHeader, promptDiv.firstChild);
-                            promptsDisplayContainer.appendChild(promptDiv);
+
+                            // Apri solo il prompt corrispondente
+                            promptsDisplayContainer.innerHTML = '';
+                            renderCategories(); // Assicuriamoci che tutte le categorie siano chiuse
+                            toggleCategoryBox(null, categoryIndex);
+
+                            const selectedCategoryBox = document.querySelectorAll('.category-box')[categoryIndex];
+                            const promptTitleDivs = selectedCategoryBox.querySelectorAll('.prompt-titles-container .btn');
+
+                            displaySelectedPrompt(promptTitleDivs[promptIndex], prompt, categoryIndex, promptIndex);
+
+                            // Evidenzia il prompt trovato
+                            promptTitleDivs.forEach(div => div.classList.remove('active'));
+                            promptTitleDivs[promptIndex].classList.add('active');
+
+                            const categoryDivs = document.querySelectorAll('#categories .btn');
+                            categoryDivs.forEach((div, idx) => {
+                                if (idx === categoryIndex) {
+                                    div.classList.remove('btn-secondary');
+                                    div.classList.add('btn-success');
+                                } else {
+                                    div.classList.remove('btn-success');
+                                    div.classList.add('btn-secondary');
+                                }
+                            });
                         }
                     });
                 }
