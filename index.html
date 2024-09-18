@@ -69,30 +69,12 @@
             margin-right: 5px;
         }
 
-        .btn-new {
-            background-color: #28a745;
-        }
-
-        .btn-edit {
-            background-color: #17a2b8;
-        }
-
-        .btn-save {
-            background-color: #28a745;
-            display: none;
-        }
-
-        .btn-delete {
-            background-color: #dc3545;
-        }
-
-        .btn-copy {
-            background-color: #ffc107;
-        }
-
-        .btn-font {
-            background-color: #ff9800;
-        }
+        .btn-new { background-color: #28a745; }
+        .btn-edit { background-color: #17a2b8; }
+        .btn-save { background-color: #28a745; display: none; }
+        .btn-delete { background-color: #dc3545; }
+        .btn-copy { background-color: #ffc107; }
+        .btn-font { background-color: #ff9800; }
     </style>
 </head>
 
@@ -154,15 +136,35 @@
 
     <!-- Include jQuery, Popper.js e Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Aggiungi gli script Popper.js e Bootstrap JS se necessario -->
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         var categories = [];
 
+        // Funzione per rimuovere i tag HTML da una stringa
+        function sanitizeText(text) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = text;
+            return tempDiv.textContent || tempDiv.innerText || '';
+        }
+
         function loadFromLocalStorage() {
             var savedCategories = localStorage.getItem('categories');
             if (savedCategories) {
                 categories = JSON.parse(savedCategories);
+
+                // Sanitizza i testi dei prompt eliminando la formattazione HTML
+                categories.forEach(category => {
+                    category.name = sanitizeText(category.name);
+                    category.prompts.forEach(prompt => {
+                        prompt.title = sanitizeText(prompt.title);
+                        prompt.text = sanitizeText(prompt.text);
+                    });
+                });
+
+                saveToLocalStorage(); // Salva i dati sanitizzati
+
                 renderArchivedCategories();
             }
         }
@@ -261,7 +263,7 @@
                 categoryInput.readOnly = true;
                 editBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
-                categories[categoryIndex].name = categoryInput.value;
+                categories[categoryIndex].name = sanitizeText(categoryInput.value);
                 saveToLocalStorage();
                 renderCategories();
             };
@@ -397,8 +399,8 @@
                 editBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
 
-                categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
-                categories[categoryIndex].prompts[promptIndex].text = textArea.value;
+                categories[categoryIndex].prompts[promptIndex].title = sanitizeText(titleInput.value);
+                categories[categoryIndex].prompts[promptIndex].text = sanitizeText(textArea.value);
                 saveToLocalStorage();
 
                 const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
@@ -465,7 +467,10 @@
                 const title = $('#promptTitle').val();
                 const text = $('#promptText').val();
                 if (title && text) {
-                    categories[categoryIndex].prompts.push({ title, text });
+                    categories[categoryIndex].prompts.push({
+                        title: sanitizeText(title),
+                        text: sanitizeText(text)
+                    });
                     saveToLocalStorage();
                     renderCategories();
                     $('#newPromptModal').modal('hide'); // Nasconde il modale
@@ -535,7 +540,10 @@
         document.getElementById('addCategoryBtn').onclick = function () {
             const categoryName = document.getElementById('newCategoryInput').value;
             if (categoryName) {
-                categories.push({ name: categoryName, prompts: [] });
+                categories.push({
+                    name: sanitizeText(categoryName),
+                    prompts: []
+                });
                 saveToLocalStorage();
                 renderCategories();
                 document.getElementById('newCategoryInput').value = '';
