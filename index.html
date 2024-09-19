@@ -4,11 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver con Bootstrap e Icone</title>
+    <title>Prompt Saver con Bootstrap</title>
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Include Font Awesome CSS per le icone -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
     <style>
         body {
             background-color: #000;
@@ -53,7 +51,6 @@
             font-size: 16px;
             resize: none;
             height: auto;
-            line-height: 1.5;
         }
 
         .category-header {
@@ -70,23 +67,36 @@
             border-radius: 5px;
             cursor: pointer;
             margin-right: 5px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
         }
 
-        .btn-custom i {
-            margin: 0;
-            font-size: 16px;
+        .btn-new {
+            background-color: #28a745;
         }
 
-        .btn-new { background-color: #28a745; }
-        .btn-edit { background-color: #17a2b8; }
-        .btn-save { background-color: #28a745; display: none; }
-        .btn-delete { background-color: #dc3545; }
-        .btn-copy { background-color: #ffc107; }
-        .btn-font { background-color: #ff9800; }
+        .btn-edit {
+            background-color: #17a2b8;
+        }
+
+        .btn-save {
+            background-color: #28a745;
+            display: none;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+        }
+
+        .btn-copy {
+            background-color: #ffc107;
+        }
+
+        .btn-font {
+            background-color: #ff9800;
+        }
+
+        .btn-archive {
+            background-color: #6c757d;
+        }
     </style>
 </head>
 
@@ -98,7 +108,7 @@
             <div class="input-group">
                 <input type="text" id="searchInput" class="form-control" placeholder="Cerca prompt o categoria...">
                 <div class="input-group-append">
-                    <button id="searchBtn" class="btn btn-success"><i class="fas fa-search"></i></button>
+                    <button id="searchBtn" class="btn btn-success">🔍</button>
                 </div>
             </div>
         </div>
@@ -108,11 +118,17 @@
                 <div class="input-group">
                     <input type="text" id="newCategoryInput" class="form-control" placeholder="Nuova categoria">
                     <div class="input-group-append">
-                        <button id="addCategoryBtn" class="btn btn-success"><i class="fas fa-plus"></i></button>
+                        <button id="addCategoryBtn" class="btn btn-success">Aggiungi Categoria</button>
                     </div>
                 </div>
                 <div id="categories" class="mt-3 d-flex flex-wrap"></div>
             </div>
+        </div>
+
+        <div class="mb-4">
+            <button id="backupBtn" class="btn btn-primary">Backup Dati</button>
+            <button id="restoreBtn" class="btn btn-warning">Ripristina Backup</button>
+            <button id="toggleArchivedBtn" class="btn btn-info">Mostra/Nascondi Archiviate</button>
         </div>
 
         <div id="prompts-display-container"></div>
@@ -121,87 +137,49 @@
 
     <!-- Modale per aggiungere un nuovo prompt -->
     <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="newPromptForm">
-                        <div class="form-group">
-                            <label for="promptTitle">Titolo</label>
-                            <input type="text" class="form-control" id="promptTitle" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="promptText">Testo</label>
-                            <textarea class="form-control" id="promptText" rows="5" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Aggiungi</button>
-                    </form>
-                </div>
-            </div>
+      <div class="modal-dialog" role="document">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header">
+            <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="newPromptForm">
+              <div class="form-group">
+                <label for="promptTitle">Titolo</label>
+                <input type="text" class="form-control" id="promptTitle" required>
+              </div>
+              <div class="form-group">
+                <label for="promptText">Testo</label>
+                <textarea class="form-control" id="promptText" rows="5" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-success">Aggiungi</button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Include jQuery, Popper.js e Bootstrap JS -->
+    <!-- Include jQuery, Popper.js, and Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         var categories = [];
-
-        function sanitizeText(text) {
-            var tempDiv = document.createElement('div');
-            tempDiv.innerHTML = text;
-            return tempDiv.textContent || tempDiv.innerText || '';
-        }
+        var showArchivedOnly = true;
 
         function loadFromLocalStorage() {
             var savedCategories = localStorage.getItem('categories');
             if (savedCategories) {
                 categories = JSON.parse(savedCategories);
-                categories.forEach(category => {
-                    category.name = sanitizeText(category.name);
-                    category.prompts.forEach(prompt => {
-                        prompt.title = sanitizeText(prompt.title);
-                        prompt.text = sanitizeText(prompt.text);
-                    });
-                });
-                saveToLocalStorage();
-                renderArchivedCategories();
+                renderCategories();
             }
         }
 
         function saveToLocalStorage() {
             localStorage.setItem('categories', JSON.stringify(categories));
-        }
-
-        function renderArchivedCategories() {
-            var container = document.getElementById('categories');
-            var categoryBoxesContainer = document.getElementById('category-boxes-container');
-            container.innerHTML = '';
-            categoryBoxesContainer.innerHTML = '';
-
-            categories.sort((a, b) => a.name.localeCompare(b.name));
-
-            categories.forEach((category, index) => {
-                const categoryDiv = document.createElement('button');
-                categoryDiv.className = 'btn btn-secondary mr-2 mb-2';
-                categoryDiv.textContent = category.name;
-
-                categoryDiv.onclick = () => {
-                    toggleCategoryBox(categoryDiv, index);
-                };
-
-                container.appendChild(categoryDiv);
-
-                const categoryBox = createCategoryBox(category, index);
-                categoryBox.style.display = 'none';
-                categoryBoxesContainer.appendChild(categoryBox);
-            });
         }
 
         function renderCategories() {
@@ -213,19 +191,20 @@
             categories.sort((a, b) => a.name.localeCompare(b.name));
 
             categories.forEach((category, index) => {
-                const categoryDiv = document.createElement('button');
-                categoryDiv.className = 'btn btn-secondary mr-2 mb-2';
-                categoryDiv.textContent = category.name;
+                if (!showArchivedOnly || category.archived) {
+                    const categoryDiv = document.createElement('button');
+                    categoryDiv.className = 'btn btn-secondary mr-2 mb-2';
+                    categoryDiv.textContent = category.name;
 
-                categoryDiv.onclick = () => {
-                    toggleCategoryBox(categoryDiv, index);
-                };
+                    categoryDiv.onclick = () => {
+                        toggleCategoryBox(categoryDiv, index);
+                    };
 
-                container.appendChild(categoryDiv);
+                    container.appendChild(categoryDiv);
 
-                const categoryBox = createCategoryBox(category, index);
-                categoryBox.style.display = 'none';  // Mantieni tutte le categorie chiuse
-                categoryBoxesContainer.appendChild(categoryBox);
+                    const categoryBox = createCategoryBox(category, index);
+                    categoryBoxesContainer.appendChild(categoryBox);
+                }
             });
         }
 
@@ -245,21 +224,23 @@
 
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-            editBtn.title = 'Modifica';
+            editBtn.textContent = 'Modifica';
             categoryHeader.appendChild(editBtn);
 
             const saveBtn = document.createElement('button');
             saveBtn.className = 'btn btn-success btn-save btn-custom';
-            saveBtn.innerHTML = '<i class="fas fa-save"></i>';
-            saveBtn.title = 'Salva';
+            saveBtn.textContent = 'Salva';
             categoryHeader.appendChild(saveBtn);
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
-            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-            deleteBtn.title = 'Elimina';
+            deleteBtn.textContent = 'Elimina';
             categoryHeader.appendChild(deleteBtn);
+
+            const archiveBtn = document.createElement('button');
+            archiveBtn.className = 'btn btn-secondary btn-archive btn-custom';
+            archiveBtn.textContent = category.archived ? 'Disarchiva' : 'Archivia';
+            categoryHeader.appendChild(archiveBtn);
 
             categoryBox.appendChild(categoryHeader);
 
@@ -273,13 +254,19 @@
                 categoryInput.readOnly = true;
                 editBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
-                categories[categoryIndex].name = sanitizeText(categoryInput.value);
+                categories[categoryIndex].name = categoryInput.value;
                 saveToLocalStorage();
                 renderCategories();
             };
 
             deleteBtn.onclick = () => {
                 deleteCategory(categoryIndex);
+            };
+
+            archiveBtn.onclick = () => {
+                categories[categoryIndex].archived = !categories[categoryIndex].archived;
+                saveToLocalStorage();
+                renderCategories();
             };
 
             const promptTitlesContainer = document.createElement('div');
@@ -300,8 +287,7 @@
 
             const newPromptBtn = document.createElement('button');
             newPromptBtn.className = 'btn btn-success btn-new mt-3';
-            newPromptBtn.innerHTML = '<i class="fas fa-plus"></i>';
-            newPromptBtn.title = 'Nuovo Prompt';
+            newPromptBtn.textContent = 'Nuovo Prompt';
             newPromptBtn.onclick = () => {
                 showNewPromptForm(categoryIndex);
             };
@@ -355,12 +341,9 @@
 
             promptDiv.appendChild(titleInput);
 
-            let displayText = prompt.text.replace(/\.(?!\.)\s*/g, '.\n');
-            displayText = displayText.replace(/\n+/g, '\n');
-
             const textArea = document.createElement('textarea');
             textArea.className = 'prompt-text form-control';
-            textArea.value = displayText;
+            textArea.value = prompt.text;
             textArea.readOnly = true;
 
             promptDiv.appendChild(textArea);
@@ -370,29 +353,24 @@
 
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-            editBtn.title = 'Modifica';
+            editBtn.textContent = 'Modifica';
 
             const saveBtn = document.createElement('button');
             saveBtn.className = 'btn btn-success btn-save btn-custom';
-            saveBtn.innerHTML = '<i class="fas fa-save"></i>';
+            saveBtn.textContent = 'Salva';
             saveBtn.style.display = 'none';
-            saveBtn.title = 'Salva';
 
             const copyBtn = document.createElement('button');
             copyBtn.className = 'btn btn-warning btn-copy btn-custom';
-            copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
-            copyBtn.title = 'Copia';
+            copyBtn.textContent = 'Copia';
 
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
-            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-            deleteBtn.title = 'Elimina';
+            deleteBtn.textContent = 'Elimina';
 
-          const fontBtn = document.createElement('button');
+            const fontBtn = document.createElement('button');
             fontBtn.className = 'btn btn-secondary btn-font btn-custom';
-            fontBtn.innerHTML = '<i class="fas fa-text-height"></i>';
-            fontBtn.title = 'Aumenta Font';
+            fontBtn.textContent = 'Aumenta Font';
 
             actionsDiv.appendChild(editBtn);
             actionsDiv.appendChild(saveBtn);
@@ -409,7 +387,6 @@
                 titleInput.focus();
                 editBtn.style.display = 'none';
                 saveBtn.style.display = 'inline';
-                textArea.value = prompt.text;
             };
 
             saveBtn.onclick = (e) => {
@@ -419,22 +396,18 @@
                 editBtn.style.display = 'inline';
                 saveBtn.style.display = 'none';
 
-                categories[categoryIndex].prompts[promptIndex].title = sanitizeText(titleInput.value);
-                categories[categoryIndex].prompts[promptIndex].text = sanitizeText(textArea.value);
+                categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
+                categories[categoryIndex].prompts[promptIndex].text = textArea.value;
                 saveToLocalStorage();
 
                 const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
                 const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
                 promptTitleDivs[promptIndex].textContent = titleInput.value;
-
-                let updatedDisplayText = textArea.value.replace(/\.(?!\.)\s*/g, '.\n');
-                updatedDisplayText = updatedDisplayText.replace(/\n+/g, '\n');
-                textArea.value = updatedDisplayText;
             };
 
             copyBtn.onclick = (e) => {
                 e.stopPropagation();
-                navigator.clipboard.writeText(textArea.value.replace(/\n/g, ' ')).then(() => {
+                navigator.clipboard.writeText(textArea.value).then(() => {
                     alert("Testo copiato negli appunti!");
                 }).catch(err => {
                     console.error("Errore nella copia del testo: ", err);
@@ -446,19 +419,7 @@
                 if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
                     categories[categoryIndex].prompts.splice(promptIndex, 1);
                     saveToLocalStorage();
-                    
-                    // Aggiorna solo la categoria corrente invece di renderizzare tutte le categorie
-                    const categoryBox = document.querySelectorAll('.category-box')[categoryIndex];
-                    const promptTitlesContainer = categoryBox.querySelector('.prompt-titles-container');
-                    const selectedPromptContainer = categoryBox.querySelector('.selected-prompt-container');
-                    
-                    promptTitlesContainer.innerHTML = '';
-                    selectedPromptContainer.innerHTML = '';
-                    
-                    categories[categoryIndex].prompts.forEach((prompt, idx) => {
-                        const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, idx);
-                        promptTitlesContainer.appendChild(promptTitleDiv);
-                    });
+                    renderCategories();
                 }
             };
 
@@ -502,34 +463,9 @@
                 const title = $('#promptTitle').val();
                 const text = $('#promptText').val();
                 if (title && text) {
-                    const newPrompt = {
-                        title: sanitizeText(title),
-                        text: sanitizeText(text)
-                    };
-                    categories[categoryIndex].prompts.push(newPrompt);
+                    categories[categoryIndex].prompts.push({ title, text });
                     saveToLocalStorage();
-                    
-                    const categoryBox = document.querySelectorAll('.category-box')[categoryIndex];
-                    const promptTitlesContainer = categoryBox.querySelector('.prompt-titles-container');
-                    const selectedPromptContainer = categoryBox.querySelector('.selected-prompt-container');
-                    
-                    // Aggiorna tutti i titoli dei prompt
-                    promptTitlesContainer.innerHTML = '';
-                    categories[categoryIndex].prompts.forEach((prompt, idx) => {
-                        const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, idx);
-                        promptTitlesContainer.appendChild(promptTitleDiv);
-                    });
-                    
-                    // Mostra il nuovo prompt
-                    selectedPromptContainer.innerHTML = '';
-                    const { promptDiv } = createPromptDiv(newPrompt, categoryIndex, categories[categoryIndex].prompts.length - 1);
-                    selectedPromptContainer.appendChild(promptDiv);
-                    
-                    categoryBox.style.display = 'block';
-                    const categoryDivs = document.querySelectorAll('#categories .btn');
-                    categoryDivs[categoryIndex].classList.remove('btn-secondary');
-                    categoryDivs[categoryIndex].classList.add('btn-success');
-
+                    renderCategories();
                     $('#newPromptModal').modal('hide');
                     $('#promptTitle').val('');
                     $('#promptText').val('');
@@ -548,75 +484,92 @@
         function searchPrompts() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
             const promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = '';
-            const searchResultsHeading = document.createElement('h2');
-            searchResultsHeading.textContent = 'Risultati della ricerca';
-            promptsDisplayContainer.appendChild(searchResultsHeading);
+            promptsDisplayContainer.innerHTML = '<h2>Risultati della ricerca</h2>';
 
             let resultsFound = false;
 
             categories.forEach((category, categoryIndex) => {
                 if (category.name.toLowerCase().includes(searchQuery)) {
                     resultsFound = true;
-                    promptsDisplayContainer.innerHTML = '';
-                    toggleCategoryBox(null, categoryIndex);
-                    const categoryDivs = document.querySelectorAll('#categories .btn');
-                    categoryDivs.forEach((div, idx) => {
-                        if (idx === categoryIndex) {
-                            div.classList.remove('btn-secondary');
-                            div.classList.add('btn-success');
-                        } else {
-                            div.classList.remove('btn-success');
-                            div.classList.add('btn-secondary');
-                        }
+
+                    const categoryHeader = document.createElement('h3');
+                    categoryHeader.textContent = category.name;
+                    promptsDisplayContainer.appendChild(categoryHeader);
+
+                    const promptGrid = document.createElement('div');
+                    promptGrid.className = 'prompt-grid';
+
+                    category.prompts.forEach((prompt, promptIndex) => {
+                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
+                        promptGrid.appendChild(promptDiv);
                     });
+
+                    promptsDisplayContainer.appendChild(promptGrid);
                 } else {
                     category.prompts.forEach((prompt, promptIndex) => {
                         if (prompt.title.toLowerCase().includes(searchQuery) || prompt.text.toLowerCase().includes(searchQuery)) {
                             resultsFound = true;
-                            promptsDisplayContainer.innerHTML = '';
-                            renderCategories();
-                            toggleCategoryBox(null, categoryIndex);
-
-                            const selectedCategoryBox = document.querySelectorAll('.category-box')[categoryIndex];
-                            const promptTitleDivs = selectedCategoryBox.querySelectorAll('.prompt-titles-container .btn');
-
-                            displaySelectedPrompt(promptTitleDivs[promptIndex], prompt, categoryIndex, promptIndex);
-
-                            promptTitleDivs.forEach(div => div.classList.remove('active'));
-                            promptTitleDivs[promptIndex].classList.add('active');
-
-                            const categoryDivs = document.querySelectorAll('#categories .btn');
-                            categoryDivs.forEach((div, idx) => {
-                                if (idx === categoryIndex) {
-                                    div.classList.remove('btn-secondary');
-                                    div.classList.add('btn-success');
-                                } else {
-                                    div.classList.remove('btn-success');
-                                    div.classList.add('btn-secondary');
-                                }
-                            });
+                            const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
+                            promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
+                            promptsDisplayContainer.appendChild(promptDiv);
                         }
                     });
                 }
             });
 
             if (!resultsFound) {
-                const noResultsMessage = document.createElement('p');
-                noResultsMessage.textContent = 'Nessun risultato trovato.';
-                promptsDisplayContainer.appendChild(noResultsMessage);
+                promptsDisplayContainer.innerHTML += '<p>Nessun risultato trovato.</p>';
             }
+        }
+
+        function backupData() {
+            const data = JSON.stringify(categories);
+            const blob = new Blob([data], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'prompt_saver_backup.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function restoreBackup() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (event) => {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const restoredData = JSON.parse(e.target.result);
+                        categories = restoredData;
+                        saveToLocalStorage();
+                        renderCategories();
+                        alert('Backup ripristinato con successo!');
+                    } catch (error) {
+                        console.error('Errore durante il ripristino del backup:', error);
+                        alert('Errore durante il ripristino del backup. Assicurati che il file sia valido.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function toggleArchivedCategories() {
+            showArchivedOnly = !showArchivedOnly;
+            renderCategories();
         }
 
         document.getElementById('addCategoryBtn').onclick = function () {
             const categoryName = document.getElementById('newCategoryInput').value;
             if (categoryName) {
-                categories.push({
-                    name: sanitizeText(categoryName),
-                    prompts: []
-                });
+                categories.push({ name: categoryName, prompts: [], archived: false });
                 saveToLocalStorage();
-                renderCategories();  // Usa renderCategories invece di renderArchivedCategories
+                renderCategories();
                 document.getElementById('newCategoryInput').value = '';
             }
         };
@@ -628,6 +581,10 @@
                 searchPrompts();
             }
         });
+
+        document.getElementById('backupBtn').onclick = backupData;
+        document.getElementById('restoreBtn').onclick = restoreBackup;
+        document.getElementById('toggleArchivedBtn').onclick = toggleArchivedCategories;
 
         loadFromLocalStorage();
     </script>
