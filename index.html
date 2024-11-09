@@ -1,593 +1,1284 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Saver con Bootstrap</title>
-    <!-- Include Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            padding: 20px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prompt Saver con Preferiti</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+:root {
+    --background-color: #000;
+    --text-color: #fff;
+    --secondary-background-color: #333;
+    --tertiary-background-color: #444;
+    --quaternary-background-color: #555;
+    --prompt-active-color: #28a745;
+    --prompt-active-text-color: #fff;
+    --btn-custom-color: #fff;
+    --btn-new-bg-color: #28a745;
+    --btn-edit-bg-color: #17a2b8;
+    --btn-save-bg-color: #28a745;
+    --btn-delete-bg-color: #dc3545;
+    --btn-copy-bg-color: #ffc107;
+    --btn-font-bg-color: #ff9800;
+    --btn-share-bg-color: #007bff;
+    --btn-favorite-bg-color: #FFD700;
+    --btn-import-bg-color: #004085;
+    --tag-background-color: #28a745;
+    --ql-toolbar-background-color: #555;
+    --ql-toolbar-border-color: #444;
+    --input-background-color: #fff;
+    --input-text-color: #000;
+}
 
-        .category-box {
-            background-color: #333;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
+.light-theme {
+    --background-color: #fff;
+    --text-color: #000;
+    --secondary-background-color: #f0f0f0;
+    --tertiary-background-color: #e0e0e0;
+    --quaternary-background-color: #d0d0d0;
+    --ql-toolbar-background-color: #e0e0e0;
+    --ql-toolbar-border-color: #ccc;
+    --input-background-color: #fff;
+    --input-text-color: #000;
+}
 
-        .prompt-title-div.active {
-            background-color: #28a745;
-            color: #fff;
-        }
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 20px;
+}
 
-        .prompt-content {
-            background-color: #444;
-            padding: 20px;
-            border-radius: 5px;
-        }
+.category-box {
+    background-color: var(--secondary-background-color);
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
 
-        .prompt-title-input,
-        .prompt-text {
-            background-color: #fff;
-            color: #000;
-            border: 1px solid #555;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
+.prompt-title-div.active {
+    background-color: var(--prompt-active-color);
+    color: var(--prompt-active-text-color);
+}
 
-        .prompt-title-input {
-            padding: 10px;
-            font-size: 18px;
-        }
+.prompt-content {
+    background-color: var(--tertiary-background-color);
+    padding: 20px;
+    border-radius: 5px;
+}
 
-        .prompt-text {
-            padding: 10px;
-            font-size: 16px;
-            resize: none;
-            height: auto;
-        }
+.category-header {
+    margin-bottom: 20px;
+}
 
-        .category-header {
-            margin-bottom: 20px;
-        }
+.prompt-titles-container {
+    margin-bottom: 20px;
+}
 
-        .prompt-titles-container {
-            margin-bottom: 20px;
-        }
+.btn-custom {
+    color: var(--btn-custom-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
 
-        .btn-custom {
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 5px;
-        }
+.btn-custom i {
+    margin: 0;
+    font-size: 16px;
+    color: inherit;
+}
 
-        .btn-new {
-            background-color: #28a745;
-        }
+.btn-new {
+    background-color: var(--btn-new-bg-color);
+}
 
-        .btn-edit {
-            background-color: #17a2b8;
-        }
+.btn-edit {
+    background-color: var(--btn-edit-bg-color);
+}
 
-        .btn-save {
-            background-color: #28a745;
-            display: none;
-        }
+.btn-save {
+    background-color: var(--btn-save-bg-color);
+    display: none;
+}
 
-        .btn-delete {
-            background-color: #dc3545;
-        }
+.btn-delete {
+    background-color: var(--btn-delete-bg-color);
+}
 
-        .btn-copy {
-            background-color: #ffc107;
-        }
+.btn-copy {
+    background-color: var(--btn-copy-bg-color);
+}
 
-        .btn-font {
-            background-color: #ff9800;
-        }
+.btn-font {
+    background-color: var(--btn-font-bg-color);
+}
 
-        .btn-archive {
-            background-color: #6c757d;
-        }
-    </style>
+.btn-share {
+    background-color: var(--btn-share-bg-color);
+}
+
+.btn-favorite {
+    background-color: var(--btn-favorite-bg-color);
+}
+
+.btn-import {
+    background-color: var(--btn-import-bg-color);
+    color: #fff;
+}
+
+.btn-import:hover {
+    background-color: #002752;
+    color: #fff;
+}
+
+.text-tools {
+    margin-bottom: 10px;
+}
+
+.text-tools button {
+    margin-right: 5px;
+}
+
+.display-prompt-text {
+    background-color: var(--quaternary-background-color);
+    color: var(--text-color);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--tertiary-background-color);
+    margin-bottom: 15px;
+    white-space: pre-wrap;
+}
+
+.ql-toolbar.ql-snow {
+    background-color: var(--ql-toolbar-background-color);
+    border: 1px solid var(--ql-toolbar-border-color);
+}
+
+.ql-toolbar.ql-snow button,
+.ql-toolbar.ql-snow .ql-picker-label,
+.ql-toolbar.ql-snow .ql-picker-item {
+    color: var(--text-color);
+}
+
+.ql-toolbar.ql-snow button svg,
+.ql-toolbar.ql-snow button svg path {
+    fill: var(--text-color);
+}
+
+.ql-toolbar.ql-snow .ql-stroke {
+    stroke: var(--text-color);
+}
+
+.ql-toolbar.ql-snow .ql-fill {
+    fill: var(--text-color);
+}
+
+.btn-custom i {
+    color: var(--text-color) !important;
+}
+
+.btn-import svg {
+    fill: var(--text-color) !important;
+}
+
+.ql-toolbar.ql-snow .ql-picker.ql-header .ql-picker-options {
+    background-color: var(--ql-toolbar-background-color) !important;
+}
+
+.ql-toolbar.ql-snow .ql-picker.ql-header .ql-picker-item:hover {
+    background-color: var(--tertiary-background-color) !important;
+    color: var(--text-color) !important;
+}
+
+.ql-editor::placeholder {
+    color: #ccc;
+}
+
+.ql-toolbar.ql-snow button.ql-active svg,
+.ql-toolbar.ql-snow button.ql-active svg path {
+    fill: var(--prompt-active-color) !important;
+}
+
+.ql-toolbar.ql-snow .ql-picker-options {
+    color: var(--text-color) !important;
+}
+
+.tag {
+    background-color: var(--tag-background-color);
+    color: var(--prompt-active-text-color);
+    padding: 5px 10px;
+    border-radius: 15px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.tag i {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.tags-input {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: var(--input-background-color);
+    color: var(--input-text-color);
+}
+
+.tags-input input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--input-text-color);
+    flex: 1;
+    min-width: 100px;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+@media (max-width:576px) {
+    .btn-custom {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .category-header .form-control {
+        margin-bottom: 10px;
+    }
+
+    .prompt-content {
+        padding: 15px;
+    }
+
+    .display-prompt-text {
+        font-size: 14px;
+    }
+
+    .prompt-actions .btn-custom {
+        font-size: 14px;
+    }
+
+    .tags-input {
+        flex-direction: column;
+    }
+
+    .tags-input input {
+        width: 100%;
+        margin-top: 5px;
+    }
+}
+</style>
 </head>
-
 <body>
-    <div class="container">
-        <h1 class="text-center">Prompt Saver</h1>
-
-        <div class="search-container mb-4">
+<div class="container">
+    <div class="d-flex justify-content-end mb-3">
+        <select id="languageSelect" class="custom-select w-auto mr-2">
+            <option value="it">Italiano</option>
+            <option value="en">English</option>
+        </select>
+        <button id="themeToggleBtn" class="btn btn-secondary"><i class="fas fa-moon"></i></button>
+    </div>
+    <h1 class="text-center" data-translate="promptSaver">Prompt Saver</h1>
+    <div class="search-container mb-4">
+        <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" data-placeholder="searchPromptCategoryTag">
+            <div class="input-group-append">
+                <button id="searchBtn" class="btn btn-success"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="top-section mb-4">
+        <div class="new-category-section w-100">
             <div class="input-group">
-                <input type="text" id="searchInput" class="form-control" placeholder="Cerca prompt o categoria...">
+                <input type="text" id="newCategoryInput" class="form-control" data-placeholder="newCategory">
                 <div class="input-group-append">
-                    <button id="searchBtn" class="btn btn-success">🔍</button>
+                    <button id="addCategoryBtn" class="btn btn-success"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
+            <div id="categories" class="mt-3 d-flex flex-wrap"></div>
         </div>
-
-        <div class="top-section mb-4">
-            <div class="new-category-section w-100">
-                <div class="input-group">
-                    <input type="text" id="newCategoryInput" class="form-control" placeholder="Nuova categoria">
-                    <div class="input-group-append">
-                        <button id="addCategoryBtn" class="btn btn-success">Aggiungi Categoria</button>
-                    </div>
-                </div>
-                <div id="categories" class="mt-3 d-flex flex-wrap"></div>
-            </div>
-        </div>
-
-        <div class="mb-4">
-            <button id="backupBtn" class="btn btn-primary">Backup Dati</button>
-            <button id="restoreBtn" class="btn btn-warning">Ripristina Backup</button>
-            <button id="toggleArchivedBtn" class="btn btn-info">Mostra/Nascondi Archiviate</button>
-        </div>
-
-        <div id="prompts-display-container"></div>
-        <div id="category-boxes-container"></div>
     </div>
+    <div class="row mb-4">
+        <div class="col-md-12 d-flex align-items-center">
+            <button id="backupBtn" class="btn btn-primary mr-2"><i class="fas fa-download"></i> <span data-translate="backupData">Backup Dati</span></button>
+            <input type="file" id="importFile" class="d-none" accept=".json">
+            <button id="importBtn" class="btn btn-import"><i class="fas fa-upload"></i> <span data-translate="importBackup">Importa Backup</span></button>
+        </div>
+    </div>
+    <div id="prompts-display-container"></div>
+    <div id="category-boxes-container"></div>
 
-    <!-- Modale per aggiungere un nuovo prompt -->
+    <!-- Modale Nuovo Prompt -->
     <div class="modal fade" id="newPromptModal" tabindex="-1" role="dialog" aria-labelledby="newPromptModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content bg-dark text-white">
-          <div class="modal-header">
-            <h5 class="modal-title" id="newPromptModalLabel">Nuovo Prompt</h5>
-            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form id="newPromptForm">
-              <div class="form-group">
-                <label for="promptTitle">Titolo</label>
-                <input type="text" class="form-control" id="promptTitle" required>
-              </div>
-              <div class="form-group">
-                <label for="promptText">Testo</label>
-                <textarea class="form-control" id="promptText" rows="5" required></textarea>
-              </div>
-              <button type="submit" class="btn btn-success">Aggiungi</button>
-            </form>
-          </div>
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newPromptModalLabel" data-translate="newPrompt">Nuovo Prompt</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="newPromptForm">
+                        <div class="form-group">
+                            <label for="promptTitle" data-translate="title">Titolo</label>
+                            <input type="text" class="form-control" id="promptTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptText" data-translate="text">Testo</label>
+                            <div id="newPromptTextEditor" class="form-control" style="height:200px"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPromptTags" data-translate="tags">Tag</label>
+                            <div id="newPromptTags" class="tags-input"></div>
+                        </div>
+                        <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> <span data-translate="add">Aggiungi</span></button>
+                    </form>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
-    <!-- Include jQuery, Popper.js, and Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Modale Modifica Prompt -->
+    <div class="modal fade" id="editPromptModal" tabindex="-1" role="dialog" aria-labelledby="editPromptModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPromptModalLabel" data-translate="editPrompt">Modifica Prompt</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Chiudi">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPromptForm">
+                        <div class="form-group">
+                            <label for="editPromptTitle" data-translate="title">Titolo</label>
+                            <input type="text" class="form-control" id="editPromptTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPromptText" data-translate="text">Testo</label>
+                            <div id="editPromptTextEditor" class="form-control" style="height:200px"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPromptTags" data-translate="tags">Tag</label>
+                            <div id="editPromptTags" class="tags-input"></div>
+                        </div>
+                        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> <span data-translate="save">Salva</span></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aggiunta delle librerie necessarie -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <!-- Script personalizzato -->
     <script>
-        var categories = [];
-        var showArchivedOnly = true;
+    const categories = [];
+    let currentEdit = { categoryId: null, promptId: null };
+    let currentLanguage = 'it';
+    let currentTheme = 'dark';
 
-        function loadFromLocalStorage() {
-            var savedCategories = localStorage.getItem('categories');
-            if (savedCategories) {
-                categories = JSON.parse(savedCategories);
-                renderCategories();
-            }
+    const translations = {
+        en: {
+            promptSaver: "Prompt Saver",
+            searchPromptCategoryTag: "Search prompts, categories or tags...",
+            newCategory: "New category",
+            backupData: "Backup Data",
+            importBackup: "Import Backup",
+            favorites: "Favorites",
+            noResultsFound: "No results found.",
+            add: "Add",
+            newPrompt: "New Prompt",
+            title: "Title",
+            text: "Text",
+            tags: "Tags",
+            save: "Save",
+            editPrompt: "Edit Prompt",
+            deletePromptConfirmation: "Are you sure you want to delete this prompt?",
+            deleteCategoryConfirmation: "Are you sure you want to delete this category?",
+            promptTitleRequired: "Title and text are required.",
+            backupImported: "Backup imported successfully!",
+            backupImportError: "Error importing backup: ",
+            copySuccess: "Text copied to clipboard!",
+            shareError: "Error during sharing: ",
+            promptCopied: "Text copied to clipboard! You can paste it wherever you like.",
+            noFavoritesFound: "No favorites found.",
+            searchResults: "Search Results",
+            favoritesHeading: "Favorites",
+            darkMode: "Dark Mode",
+            lightMode: "Light Mode",
+            addTag: "Add tag...",
+            edit: "Edit",
+            copy: "Copy",
+            share: "Share",
+            delete: "Delete",
+            increaseFont: "Increase Font",
+            addToFavorites: "Add to Favorites",
+            removeFromFavorites: "Remove from Favorites"
+        },
+        it: {
+            promptSaver: "Prompt Saver",
+            searchPromptCategoryTag: "Cerca prompt, categoria o tag...",
+            newCategory: "Nuova categoria",
+            backupData: "Backup Dati",
+            importBackup: "Importa Backup",
+            favorites: "Preferiti",
+            noResultsFound: "Nessun risultato trovato.",
+            add: "Aggiungi",
+            newPrompt: "Nuovo Prompt",
+            title: "Titolo",
+            text: "Testo",
+            tags: "Tag",
+            save: "Salva",
+            editPrompt: "Modifica Prompt",
+            deletePromptConfirmation: "Sei sicuro di voler eliminare questo prompt?",
+            deleteCategoryConfirmation: "Sei sicuro di voler eliminare questa categoria?",
+            promptTitleRequired: "Il titolo e il testo del prompt sono obbligatori.",
+            backupImported: "Backup importato con successo!",
+            backupImportError: "Errore durante l'importazione del backup: ",
+            copySuccess: "Testo copiato negli appunti!",
+            shareError: "Errore durante la condivisione: ",
+            promptCopied: "Testo copiato negli appunti! Puoi incollarlo dove preferisci.",
+            noFavoritesFound: "Nessun preferito trovato.",
+            searchResults: "Risultati della ricerca",
+            favoritesHeading: "Preferiti",
+            darkMode: "Tema Scuro",
+            lightMode: "Tema Chiaro",
+            addTag: "Aggiungi tag...",
+            edit: "Modifica",
+            copy: "Copia",
+            share: "Condividi",
+            delete: "Elimina",
+            increaseFont: "Aumenta Font",
+            addToFavorites: "Aggiungi ai Preferiti",
+            removeFromFavorites: "Rimuovi dai Preferiti"
         }
+    };
 
-        function saveToLocalStorage() {
-            localStorage.setItem('categories', JSON.stringify(categories));
+    function translatePage() {
+        document.querySelectorAll('[data-translate]').forEach(element => {
+            const key = element.getAttribute('data-translate');
+            element.textContent = translations[currentLanguage][key];
+        });
+        document.querySelectorAll('[data-placeholder]').forEach(element => {
+            const key = element.getAttribute('data-placeholder');
+            element.setAttribute('placeholder', translations[currentLanguage][key]);
+        });
+    }
+
+    document.getElementById('languageSelect').addEventListener('change', function () {
+        currentLanguage = this.value;
+        translatePage();
+        renderCategories();
+    });
+
+    function applyTheme() {
+        if (currentTheme === 'dark') {
+            document.body.classList.remove('light-theme');
+            document.getElementById('themeToggleBtn').innerHTML = '<i class="fas fa-sun"></i>';
+            document.getElementById('themeToggleBtn').setAttribute('title', translations[currentLanguage]['lightMode']);
+        } else {
+            document.body.classList.add('light-theme');
+            document.getElementById('themeToggleBtn').innerHTML = '<i class="fas fa-moon"></i>';
+            document.getElementById('themeToggleBtn').setAttribute('title', translations[currentLanguage]['darkMode']);
         }
+    }
 
-        function renderCategories() {
-            var container = document.getElementById('categories');
-            var categoryBoxesContainer = document.getElementById('category-boxes-container');
-            container.innerHTML = '';
-            categoryBoxesContainer.innerHTML = '';
+    document.getElementById('themeToggleBtn').addEventListener('click', function () {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', currentTheme);
+        applyTheme();
+    });
 
-            categories.sort((a, b) => a.name.localeCompare(b.name));
+    let savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        currentTheme = savedTheme;
+    }
+    applyTheme();
 
-            categories.forEach((category, index) => {
-                if (!showArchivedOnly || category.archived) {
-                    const categoryDiv = document.createElement('button');
-                    categoryDiv.className = 'btn btn-secondary mr-2 mb-2';
-                    categoryDiv.textContent = category.name;
+    // Personalizzazione delle icone per Quill
+    const icons = Quill.import('ui/icons');
+    icons.bold = '<i class="fas fa-bold"></i>';
+    icons.italic = '<i class="fas fa-italic"></i>';
+    icons.underline = '<i class="fas fa-underline"></i>';
+    icons.strike = '<i class="fas fa-strikethrough"></i>';
+    icons.blockquote = '<i class="fas fa-quote-right"></i>';
+    icons.code = '<i class="fas fa-code"></i>';
+    icons.header = '<i class="fas fa-heading"></i>';
+    icons.list = {
+        ordered: '<i class="fas fa-list-ol"></i>',
+        bullet: '<i class="fas fa-list-ul"></i>',
+        check: '<i class="fas fa-check-square"></i>'
+    };
+    icons.align = {
+        '': '<i class="fas fa-align-left"></i>',
+        'center': '<i class="fas fa-align-center"></i>',
+        'right': '<i class="fas fa-align-right"></i>',
+        'justify': '<i class="fas fa-align-justify"></i>'
+    };
+    icons.link = '<i class="fas fa-link"></i>';
+    icons.image = '<i class="fas fa-image"></i>';
+    icons.video = '<i class="fas fa-video"></i>';
+    icons.clean = '<i class="fas fa-eraser"></i>';
+    icons.subscript = '<i class="fas fa-subscript"></i>';
+    icons.superscript = '<i class="fas fa-superscript"></i>';
+    Quill.register('ui/icons', icons, true);
 
-                    categoryDiv.onclick = () => {
-                        toggleCategoryBox(categoryDiv, index);
-                    };
-
-                    container.appendChild(categoryDiv);
-
-                    const categoryBox = createCategoryBox(category, index);
-                    categoryBoxesContainer.appendChild(categoryBox);
-                }
-            });
+    // Configurazione dell'editor Quill per il nuovo prompt
+    const quillNewPrompt = new Quill('#newPromptTextEditor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'align': [] }],
+                ['blockquote', 'code-block'],
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                [{ 'script': 'sub' }, { 'script': 'super' }],
+                [{ 'indent': '-1' }, { 'indent': '+1' }],
+                [{ 'direction': 'rtl' }],
+                ['link', 'image', 'video'],
+                [{ 'size': ['small', false, 'large', 'huge'] }],
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'font': [] }],
+                ['clean']
+            ]
         }
+    });
 
-        function createCategoryBox(category, categoryIndex) {
-            const categoryBox = document.createElement('div');
-            categoryBox.className = 'category-box';
-
-            const categoryHeader = document.createElement('div');
-            categoryHeader.className = 'category-header d-flex align-items-center';
-
-            const categoryInput = document.createElement('input');
-            categoryInput.type = 'text';
-            categoryInput.value = category.name;
-            categoryInput.className = 'form-control mr-2';
-            categoryInput.readOnly = true;
-            categoryHeader.appendChild(categoryInput);
-
-            const editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.textContent = 'Modifica';
-            categoryHeader.appendChild(editBtn);
-
-            const saveBtn = document.createElement('button');
-            saveBtn.className = 'btn btn-success btn-save btn-custom';
-            saveBtn.textContent = 'Salva';
-            categoryHeader.appendChild(saveBtn);
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
-            deleteBtn.textContent = 'Elimina';
-            categoryHeader.appendChild(deleteBtn);
-
-            const archiveBtn = document.createElement('button');
-            archiveBtn.className = 'btn btn-secondary btn-archive btn-custom';
-            archiveBtn.textContent = category.archived ? 'Disarchiva' : 'Archivia';
-            categoryHeader.appendChild(archiveBtn);
-
-            categoryBox.appendChild(categoryHeader);
-
-            editBtn.onclick = () => {
-                categoryInput.readOnly = false;
-                editBtn.style.display = 'none';
-                saveBtn.style.display = 'inline';
-            };
-
-            saveBtn.onclick = () => {
-                categoryInput.readOnly = true;
-                editBtn.style.display = 'inline';
-                saveBtn.style.display = 'none';
-                categories[categoryIndex].name = categoryInput.value;
-                saveToLocalStorage();
-                renderCategories();
-            };
-
-            deleteBtn.onclick = () => {
-                deleteCategory(categoryIndex);
-            };
-
-            archiveBtn.onclick = () => {
-                categories[categoryIndex].archived = !categories[categoryIndex].archived;
-                saveToLocalStorage();
-                renderCategories();
-            };
-
-            const promptTitlesContainer = document.createElement('div');
-            promptTitlesContainer.className = 'prompt-titles-container d-flex flex-wrap';
-
-            const selectedPromptContainer = document.createElement('div');
-            selectedPromptContainer.className = 'selected-prompt-container';
-
-            category.prompts.sort((a, b) => a.title.localeCompare(b.title));
-
-            category.prompts.forEach((prompt, promptIndex) => {
-                const promptTitleDiv = createPromptTitleDiv(prompt, categoryIndex, promptIndex);
-                promptTitlesContainer.appendChild(promptTitleDiv);
-            });
-
-            categoryBox.appendChild(promptTitlesContainer);
-            categoryBox.appendChild(selectedPromptContainer);
-
-            const newPromptBtn = document.createElement('button');
-            newPromptBtn.className = 'btn btn-success btn-new mt-3';
-            newPromptBtn.textContent = 'Nuovo Prompt';
-            newPromptBtn.onclick = () => {
-                showNewPromptForm(categoryIndex);
-            };
-            categoryBox.appendChild(newPromptBtn);
-
-            return categoryBox;
+    // Configurazione dell'editor Quill per la modifica del prompt
+    const quillEditPrompt = new Quill('#editPromptTextEditor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'align': [] }],
+                ['blockquote', 'code-block'],
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                [{ 'script': 'sub' }, { 'script': 'super' }],
+                [{ 'indent': '-1' }, { 'indent': '+1' }],
+                [{ 'direction': 'rtl' }],
+                ['link', 'image', 'video'],
+                [{ 'size': ['small', false, 'large', 'huge'] }],
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'font': [] }],
+                ['clean']
+            ]
         }
+    });
 
-        function createPromptTitleDiv(prompt, categoryIndex, promptIndex) {
-            const promptTitleDiv = document.createElement('button');
-            promptTitleDiv.className = 'btn btn-secondary mr-2 mb-2';
-            promptTitleDiv.textContent = prompt.title;
+    // Aggiorniamo lo stile per rendere le icone bianche nella toolbar
+    const customStyle = document.createElement('style');
+    customStyle.innerHTML = `
+    .ql-toolbar .ql-formats button i.fas {
+        color: var(--text-color);
+    }
+    `;
+    document.head.appendChild(customStyle);
 
-            promptTitleDiv.onclick = () => {
-                displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex);
-            };
+    function sanitizeHTML(html) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        return tempDiv.textContent || tempDiv.innerText || '';
+    }
 
-            return promptTitleDiv;
-        }
+    function generateUniqueId() {
+        return '_' + Math.random().toString(36).substr(2, 9);
+    }
 
-        function autoResizeTextArea(element) {
-            element.style.height = 'auto';
-            element.style.height = element.scrollHeight + 'px';
-        }
-
-        function displaySelectedPrompt(promptTitleDiv, prompt, categoryIndex, promptIndex) {
-            const selectedPromptContainer = promptTitleDiv.closest('.category-box').querySelector('.selected-prompt-container');
-            selectedPromptContainer.innerHTML = '';
-
-            const { promptDiv, textArea, titleInput } = createPromptDiv(prompt, categoryIndex, promptIndex);
-            selectedPromptContainer.appendChild(promptDiv);
-
-            autoResizeTextArea(textArea);
-
-            const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.btn');
-            promptTitleDivs.forEach(div => {
-                div.classList.remove('active');
-            });
-            promptTitleDiv.classList.add('active');
-        }
-
-        function createPromptDiv(prompt, categoryIndex, promptIndex) {
-            const promptDiv = document.createElement('div');
-            promptDiv.className = 'prompt-content';
-
-            const titleInput = document.createElement('input');
-            titleInput.type = 'text';
-            titleInput.className = 'prompt-title-input form-control';
-            titleInput.value = prompt.title;
-            titleInput.readOnly = true;
-
-            promptDiv.appendChild(titleInput);
-
-            const textArea = document.createElement('textarea');
-            textArea.className = 'prompt-text form-control';
-            textArea.value = prompt.text;
-            textArea.readOnly = true;
-
-            promptDiv.appendChild(textArea);
-
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'prompt-actions mt-3';
-
-            const editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-info btn-edit btn-custom';
-            editBtn.textContent = 'Modifica';
-
-            const saveBtn = document.createElement('button');
-            saveBtn.className = 'btn btn-success btn-save btn-custom';
-            saveBtn.textContent = 'Salva';
-            saveBtn.style.display = 'none';
-
-            const copyBtn = document.createElement('button');
-            copyBtn.className = 'btn btn-warning btn-copy btn-custom';
-            copyBtn.textContent = 'Copia';
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn btn-danger btn-delete btn-custom';
-            deleteBtn.textContent = 'Elimina';
-
-            const fontBtn = document.createElement('button');
-            fontBtn.className = 'btn btn-secondary btn-font btn-custom';
-            fontBtn.textContent = 'Aumenta Font';
-
-            actionsDiv.appendChild(editBtn);
-            actionsDiv.appendChild(saveBtn);
-            actionsDiv.appendChild(copyBtn);
-            actionsDiv.appendChild(deleteBtn);
-            actionsDiv.appendChild(fontBtn);
-
-            promptDiv.appendChild(actionsDiv);
-
-            editBtn.onclick = (e) => {
-                e.stopPropagation();
-                titleInput.readOnly = false;
-                textArea.readOnly = false;
-                titleInput.focus();
-                editBtn.style.display = 'none';
-                saveBtn.style.display = 'inline';
-            };
-
-            saveBtn.onclick = (e) => {
-                e.stopPropagation();
-                titleInput.readOnly = true;
-                textArea.readOnly = true;
-                editBtn.style.display = 'inline';
-                saveBtn.style.display = 'none';
-
-                categories[categoryIndex].prompts[promptIndex].title = titleInput.value;
-                categories[categoryIndex].prompts[promptIndex].text = textArea.value;
-                saveToLocalStorage();
-
-                const promptTitlesContainer = promptDiv.closest('.category-box').querySelector('.prompt-titles-container');
-                const promptTitleDivs = promptTitlesContainer.querySelectorAll('.btn');
-                promptTitleDivs[promptIndex].textContent = titleInput.value;
-            };
-
-            copyBtn.onclick = (e) => {
-                e.stopPropagation();
-                navigator.clipboard.writeText(textArea.value).then(() => {
-                    alert("Testo copiato negli appunti!");
-                }).catch(err => {
-                    console.error("Errore nella copia del testo: ", err);
+    function loadFromLocalStorage() {
+        const savedCategories = localStorage.getItem('categories');
+        if (savedCategories) {
+            const parsedCategories = JSON.parse(savedCategories);
+            parsedCategories.forEach(category => {
+                category.id = category.id || generateUniqueId();
+                category.name = sanitizeHTML(category.name);
+                category.prompts.forEach(prompt => {
+                    prompt.id = prompt.id || generateUniqueId();
+                    prompt.title = sanitizeHTML(prompt.title);
+                    prompt.text = prompt.text || '';
+                    prompt.tags = prompt.tags || [];
+                    prompt.favorite = prompt.favorite || false;
                 });
-            };
-
-            deleteBtn.onclick = (e) => {
-                e.stopPropagation();
-                if (confirm('Sei sicuro di voler eliminare questo prompt?')) {
-                    categories[categoryIndex].prompts.splice(promptIndex, 1);
-                    saveToLocalStorage();
-                    renderCategories();
-                }
-            };
-
-            fontBtn.onclick = (e) => {
-                e.stopPropagation();
-                let currentTextFontSize = parseInt(window.getComputedStyle(textArea).fontSize);
-                textArea.style.fontSize = (currentTextFontSize + 1) + 'px';
-                autoResizeTextArea(textArea);
-            };
-
-            return { promptDiv, textArea, titleInput };
-        }
-
-        function toggleCategoryBox(categoryDiv, categoryIndex) {
-            const categoryBoxes = document.querySelectorAll('.category-box');
-            const categoryDivs = document.querySelectorAll('#categories .btn');
-            categoryBoxes.forEach((box, idx) => {
-                if (idx === categoryIndex) {
-                    const isVisible = box.style.display === 'block';
-                    box.style.display = isVisible ? 'none' : 'block';
-                    if (isVisible) {
-                        categoryDivs[idx].classList.remove('btn-success');
-                        categoryDivs[idx].classList.add('btn-secondary');
-                    } else {
-                        categoryDivs[idx].classList.remove('btn-secondary');
-                        categoryDivs[idx].classList.add('btn-success');
-                    }
-                } else {
-                    box.style.display = 'none';
-                    categoryDivs[idx].classList.remove('btn-success');
-                    categoryDivs[idx].classList.add('btn-secondary');
-                }
             });
-        }
-
-        function showNewPromptForm(categoryIndex) {
-            $('#newPromptModal').modal('show');
-
-            $('#newPromptForm').off('submit').on('submit', function (e) {
-                e.preventDefault();
-                const title = $('#promptTitle').val();
-                const text = $('#promptText').val();
-                if (title && text) {
-                    categories[categoryIndex].prompts.push({ title, text });
-                    saveToLocalStorage();
-                    renderCategories();
-                    $('#newPromptModal').modal('hide');
-                    $('#promptTitle').val('');
-                    $('#promptText').val('');
-                }
-            });
-        }
-
-        function deleteCategory(categoryIndex) {
-            if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
-                categories.splice(categoryIndex, 1);
-                saveToLocalStorage();
-                renderCategories();
-            }
-        }
-
-        function searchPrompts() {
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-            const promptsDisplayContainer = document.getElementById('prompts-display-container');
-            promptsDisplayContainer.innerHTML = '<h2>Risultati della ricerca</h2>';
-
-            let resultsFound = false;
-
-            categories.forEach((category, categoryIndex) => {
-                if (category.name.toLowerCase().includes(searchQuery)) {
-                    resultsFound = true;
-
-                    const categoryHeader = document.createElement('h3');
-                    categoryHeader.textContent = category.name;
-                    promptsDisplayContainer.appendChild(categoryHeader);
-
-                    const promptGrid = document.createElement('div');
-                    promptGrid.className = 'prompt-grid';
-
-                    category.prompts.forEach((prompt, promptIndex) => {
-                        const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-                        promptGrid.appendChild(promptDiv);
-                    });
-
-                    promptsDisplayContainer.appendChild(promptGrid);
-                } else {
-                    category.prompts.forEach((prompt, promptIndex) => {
-                        if (prompt.title.toLowerCase().includes(searchQuery) || prompt.text.toLowerCase().includes(searchQuery)) {
-                            resultsFound = true;
-                            const { promptDiv } = createPromptDiv(prompt, categoryIndex, promptIndex);
-                            promptDiv.insertAdjacentHTML('afterbegin', `<h3>${category.name}</h3>`);
-                            promptsDisplayContainer.appendChild(promptDiv);
-                        }
-                    });
-                }
-            });
-
-            if (!resultsFound) {
-                promptsDisplayContainer.innerHTML += '<p>Nessun risultato trovato.</p>';
-            }
-        }
-
-        function backupData() {
-            const data = JSON.stringify(categories);
-            const blob = new Blob([data], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'prompt_saver_backup.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function restoreBackup() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = (event) => {
-                const file = event.target.files[0];
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const restoredData = JSON.parse(e.target.result);
-                        categories = restoredData;
-                        saveToLocalStorage();
-                        renderCategories();
-                        alert('Backup ripristinato con successo!');
-                    } catch (error) {
-                        console.error('Errore durante il ripristino del backup:', error);
-                        alert('Errore durante il ripristino del backup. Assicurati che il file sia valido.');
-                    }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
-        }
-
-        function toggleArchivedCategories() {
-            showArchivedOnly = !showArchivedOnly;
+            categories.push(...parsedCategories);
+            sortCategoriesAndPrompts();
+            saveToLocalStorage();
             renderCategories();
         }
+    }
 
-        document.getElementById('addCategoryBtn').onclick = function () {
-            const categoryName = document.getElementById('newCategoryInput').value;
-            if (categoryName) {
-                categories.push({ name: categoryName, prompts: [], archived: false });
-                saveToLocalStorage();
-                renderCategories();
-                document.getElementById('newCategoryInput').value = '';
-            }
+    function saveToLocalStorage() {
+        localStorage.setItem('categories', JSON.stringify(categories));
+    }
+
+    function sortCategoriesAndPrompts() {
+        categories.sort((a, b) => a.name.localeCompare(b.name, currentLanguage));
+        categories.forEach(category => {
+            category.prompts.sort((a, b) => a.title.localeCompare(b.title, currentLanguage));
+        });
+    }
+
+    function renderCategories() {
+        sortCategoriesAndPrompts();
+        const container = document.getElementById('categories');
+        const categoryBoxesContainer = document.getElementById('category-boxes-container');
+        container.innerHTML = '';
+        categoryBoxesContainer.innerHTML = '';
+
+        const favoritesButton = document.createElement('button');
+        favoritesButton.className = 'btn btn-secondary mr-2 mb-2';
+        favoritesButton.textContent = translations[currentLanguage]['favorites'];
+        favoritesButton.onclick = () => {
+            toggleFavoritesView(favoritesButton);
+        };
+        container.appendChild(favoritesButton);
+
+        categories.forEach(category => {
+            const categoryDiv = document.createElement('button');
+            categoryDiv.className = 'btn btn-secondary mr-2 mb-2';
+            categoryDiv.textContent = category.name;
+            categoryDiv.onclick = () => {
+                toggleCategoryBox(category.id);
+            };
+            container.appendChild(categoryDiv);
+
+            const categoryBox = createCategoryBox(category);
+            categoryBox.style.display = 'none';
+            categoryBoxesContainer.appendChild(categoryBox);
+        });
+    }
+
+    function createCategoryBox(category) {
+        const categoryBox = document.createElement('div');
+        categoryBox.className = 'category-box';
+        categoryBox.setAttribute('data-category-id', category.id);
+
+        const categoryHeader = document.createElement('div');
+        categoryHeader.className = 'category-header d-flex flex-wrap align-items-center';
+
+        const categoryInput = document.createElement('input');
+        categoryInput.type = 'text';
+        categoryInput.value = category.name;
+        categoryInput.className = 'form-control mr-2 mb-2';
+        categoryInput.readOnly = true;
+        categoryHeader.appendChild(categoryInput);
+
+        const editBtn = createIconButton('info', 'edit', translations[currentLanguage]['editPrompt']);
+        const saveBtn = createIconButton('success', 'save', translations[currentLanguage]['save'], true);
+        const deleteBtn = createIconButton('danger', 'trash', translations[currentLanguage]['delete']);
+        categoryHeader.appendChild(editBtn);
+        categoryHeader.appendChild(saveBtn);
+        categoryHeader.appendChild(deleteBtn);
+        categoryBox.appendChild(categoryHeader);
+
+        editBtn.onclick = () => {
+            categoryInput.readOnly = false;
+            toggleButtons(editBtn, saveBtn);
         };
 
-        document.getElementById('searchBtn').onclick = searchPrompts;
+        saveBtn.onclick = () => {
+            categoryInput.readOnly = true;
+            toggleButtons(editBtn, saveBtn);
+            category.name = sanitizeHTML(categoryInput.value);
+            sortCategoriesAndPrompts();
+            saveToLocalStorage();
+            renderCategories();
+        };
 
-        document.getElementById('searchInput').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                searchPrompts();
+        deleteBtn.onclick = () => {
+            deleteCategory(category.id);
+        };
+
+        const promptTitlesContainer = document.createElement('div');
+        promptTitlesContainer.className = 'prompt-titles-container d-flex flex-wrap';
+
+        const selectedPromptContainer = document.createElement('div');
+        selectedPromptContainer.className = 'selected-prompt-container';
+
+        category.prompts.sort((a, b) => a.title.localeCompare(b.title, currentLanguage));
+        category.prompts.forEach(prompt => {
+            const promptTitleDiv = createPromptTitleDiv(prompt, category.id);
+            promptTitlesContainer.appendChild(promptTitleDiv);
+        });
+
+        categoryBox.appendChild(promptTitlesContainer);
+        categoryBox.appendChild(selectedPromptContainer);
+
+        const newPromptBtn = createIconButton('success', 'plus', translations[currentLanguage]['newPrompt']);
+        newPromptBtn.classList.add('btn-new', 'mt-3');
+        newPromptBtn.onclick = () => {
+            showNewPromptForm(category.id);
+        };
+        categoryBox.appendChild(newPromptBtn);
+
+        return categoryBox;
+    }
+
+    function createIconButton(colorClass, iconName, title, hidden = false) {
+        const btn = document.createElement('button');
+        btn.className = `btn btn-${colorClass} btn-custom mb-2`;
+        btn.innerHTML = `<i class="fas fa-${iconName}"></i>`;
+        btn.title = title;
+        if (hidden) btn.style.display = 'none';
+        return btn;
+    }
+
+    function toggleButtons(editBtn, saveBtn) {
+        if (editBtn.style.display === 'none') {
+            editBtn.style.display = 'inline';
+            saveBtn.style.display = 'none';
+        } else {
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline';
+        }
+    }
+
+    function createPromptTitleDiv(prompt, categoryId) {
+        const promptTitleDiv = document.createElement('button');
+        promptTitleDiv.className = 'btn btn-secondary mr-2 mb-2';
+        promptTitleDiv.innerHTML = prompt.title;
+        promptTitleDiv.onclick = () => {
+            clearSearchResults();
+            displaySelectedPrompt(promptTitleDiv, prompt, categoryId);
+        };
+        return promptTitleDiv;
+    }
+
+    function displaySelectedPrompt(promptTitleDiv, prompt, categoryId) {
+        const categoryBox = promptTitleDiv.closest('.category-box');
+        const selectedPromptContainer = categoryBox.querySelector('.selected-prompt-container');
+        selectedPromptContainer.innerHTML = '';
+        const promptDiv = createPromptContent(prompt, categoryId);
+        selectedPromptContainer.appendChild(promptDiv);
+
+        const promptTitleDivs = promptTitleDiv.parentElement.querySelectorAll('.btn');
+        promptTitleDivs.forEach(div => {
+            div.classList.remove('active');
+        });
+        promptTitleDiv.classList.add('active');
+    }
+
+    function createPromptContent(prompt, categoryId) {
+        const promptDiv = document.createElement('div');
+        promptDiv.className = 'prompt-content';
+
+        const titleInput = document.createElement('h4');
+        titleInput.innerHTML = prompt.title;
+        promptDiv.appendChild(titleInput);
+
+        const tagsContainer = createTagsContainer(prompt.tags);
+        promptDiv.appendChild(tagsContainer);
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'display-prompt-text';
+        textDiv.innerHTML = prompt.text; // Preserviamo la formattazione HTML
+        promptDiv.appendChild(textDiv);
+
+        const actionsDiv = createPromptActions(prompt, categoryId);
+        promptDiv.appendChild(actionsDiv);
+
+        return promptDiv;
+    }
+
+    function createTagsContainer(tags) {
+        const tagsContainer = document.createElement('div');
+        tagsContainer.className = 'tags-container mb-2';
+        tags.forEach(tag => {
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'tag';
+            tagSpan.textContent = tag;
+            tagsContainer.appendChild(tagSpan);
+        });
+        return tagsContainer;
+    }
+
+    function createPromptActions(prompt, categoryId) {
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'prompt-actions mt-3';
+
+        const editBtn = createIconButton('info', 'edit', translations[currentLanguage]['edit']);
+        const copyBtn = createIconButton('warning', 'copy', translations[currentLanguage]['copy']);
+        const shareBtn = createIconButton('primary', 'share-alt', translations[currentLanguage]['share']);
+        const deleteBtn = createIconButton('danger', 'trash', translations[currentLanguage]['delete']);
+        const fontBtn = createIconButton('secondary', 'text-height', translations[currentLanguage]['increaseFont']);
+        const favoriteBtn = createIconButton('favorite', prompt.favorite ? 'star' : 'star', prompt.favorite ? translations[currentLanguage]['removeFromFavorites'] : translations[currentLanguage]['addToFavorites']);
+        favoriteBtn.innerHTML = prompt.favorite ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+
+        actionsDiv.append(editBtn, copyBtn, shareBtn, favoriteBtn, deleteBtn, fontBtn);
+
+        editBtn.onclick = (e) => {
+            e.stopPropagation();
+            openEditModal(categoryId, prompt.id);
+        };
+        copyBtn.onclick = (e) => {
+            e.stopPropagation();
+            copyPromptText(prompt);
+        };
+        shareBtn.onclick = (e) => {
+            e.stopPropagation();
+            sharePrompt(prompt);
+        };
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (confirm(translations[currentLanguage]['deletePromptConfirmation'])) {
+                deletePrompt(categoryId, prompt.id);
+            }
+        };
+        fontBtn.onclick = (e) => {
+            e.stopPropagation();
+            increaseFontSize(actionsDiv.parentElement.querySelector('.display-prompt-text'));
+        };
+        favoriteBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleFavorite(prompt, favoriteBtn);
+        };
+
+        return actionsDiv;
+    }
+
+    function copyPromptText(prompt) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = prompt.text;
+        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+        navigator.clipboard.writeText(plainText).then(() => {
+            alert(translations[currentLanguage]['copySuccess']);
+        }).catch(err => {
+            console.error("Error copying text: ", err);
+        });
+    }
+
+    function increaseFontSize(textDiv) {
+        const currentTextFontSize = parseInt(window.getComputedStyle(textDiv).fontSize);
+        textDiv.style.fontSize = (currentTextFontSize + 1) + 'px';
+    }
+
+    function toggleCategoryBox(categoryId) {
+        clearSearchResults();
+        const promptsDisplayContainer = document.getElementById('prompts-display-container');
+        promptsDisplayContainer.innerHTML = '';
+
+        const categoryBoxes = document.querySelectorAll('.category-box');
+        const categoryDivs = document.querySelectorAll('#categories .btn');
+
+        categoryBoxes.forEach((box, idx) => {
+            if (box.getAttribute('data-category-id') === categoryId) {
+                const isVisible = box.style.display === 'block';
+                box.style.display = isVisible ? 'none' : 'block';
+                if (isVisible) {
+                    categoryDivs[idx + 1].classList.remove('btn-success');
+                    categoryDivs[idx + 1].classList.add('btn-secondary');
+                } else {
+                    categoryDivs[idx + 1].classList.remove('btn-secondary');
+                    categoryDivs[idx + 1].classList.add('btn-success');
+                }
+            } else {
+                box.style.display = 'none';
+                categoryDivs[idx + 1].classList.remove('btn-success');
+                categoryDivs[idx + 1].classList.add('btn-secondary');
             }
         });
 
-        document.getElementById('backupBtn').onclick = backupData;
-        document.getElementById('restoreBtn').onclick = restoreBackup;
-        document.getElementById('toggleArchivedBtn').onclick = toggleArchivedCategories;
+        const favoritesButton = document.querySelector('#categories .btn:first-child');
+        favoritesButton.classList.remove('btn-success');
+        favoritesButton.classList.add('btn-secondary');
+    }
 
-        loadFromLocalStorage();
+    function showNewPromptForm(categoryId) {
+        quillNewPrompt.setContents([]);
+        initTagsInput('newPromptTags');
+        $('#newPromptModal').modal('show');
+        $('#newPromptForm').off('submit').on('submit', function (e) {
+            e.preventDefault();
+            const title = $('#promptTitle').val().trim();
+            const text = quillNewPrompt.root.innerHTML.trim();
+            const tags = getTags('newPromptTags');
+            if (title && text && text !== '') {
+                const newPrompt = {
+                    id: generateUniqueId(),
+                    title: sanitizeHTML(title),
+                    text: text, // Conserviamo l'HTML
+                    tags: tags.map(tag => sanitizeHTML(tag)),
+                    favorite: false
+                };
+                const category = categories.find(c => c.id === categoryId);
+                category.prompts.push(newPrompt);
+                sortCategoriesAndPrompts();
+                saveToLocalStorage();
+                renderCategories();
+                toggleCategoryBox(categoryId);
+                const categoryBox = document.querySelector(`.category-box[data-category-id="${categoryId}"]`);
+                const promptTitles = categoryBox.querySelectorAll('.prompt-titles-container .btn');
+                promptTitles.forEach(btn => {
+                    if (btn.textContent === newPrompt.title) {
+                        btn.click();
+                    }
+                });
+                $('#newPromptModal').modal('hide');
+                $('#promptTitle').val('');
+                quillNewPrompt.setContents([]);
+                resetTags('newPromptTags');
+            } else {
+                alert(translations[currentLanguage]['promptTitleRequired']);
+            }
+        });
+    }
+
+    function deleteCategory(categoryId) {
+        if (confirm(translations[currentLanguage]['deleteCategoryConfirmation'])) {
+            const index = categories.findIndex(c => c.id === categoryId);
+            if (index !== -1) {
+                categories.splice(index, 1);
+                saveToLocalStorage();
+                renderCategories();
+            }
+        }
+    }
+
+    function deletePrompt(categoryId, promptId) {
+        const category = categories.find(c => c.id === categoryId);
+        if (category) {
+            const promptIndex = category.prompts.findIndex(p => p.id === promptId);
+            if (promptIndex !== -1) {
+                category.prompts.splice(promptIndex, 1);
+                saveToLocalStorage();
+                renderCategories();
+            }
+        }
+    }
+
+    function clearSearchResults() {
+        const promptsDisplayContainer = document.getElementById('prompts-display-container');
+        promptsDisplayContainer.innerHTML = '';
+    }
+
+    function searchPrompts() {
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+        const promptsDisplayContainer = document.getElementById('prompts-display-container');
+        promptsDisplayContainer.innerHTML = '';
+
+        const searchResultsHeading = document.createElement('h2');
+        searchResultsHeading.textContent = translations[currentLanguage]['searchResults'];
+        promptsDisplayContainer.appendChild(searchResultsHeading);
+
+        let resultsFound = false;
+        categories.forEach(category => {
+            category.prompts.forEach(prompt => {
+                const promptText = prompt.text.toLowerCase();
+                const categoryName = category.name.toLowerCase();
+                const tags = prompt.tags.map(tag => tag.toLowerCase());
+                if (
+                    prompt.title.toLowerCase().includes(searchQuery) ||
+                    promptText.includes(searchQuery) ||
+                    categoryName.includes(searchQuery) ||
+                    tags.includes(searchQuery)
+                ) {
+                    resultsFound = true;
+                    const promptDiv = createPromptContent(prompt, category.id);
+                    promptsDisplayContainer.appendChild(promptDiv);
+                }
+            });
+        });
+
+        if (!resultsFound) {
+            const noResultsMessage = document.createElement('p');
+            noResultsMessage.textContent = translations[currentLanguage]['noResultsFound'];
+            promptsDisplayContainer.appendChild(noResultsMessage);
+        }
+
+        const categoryBoxes = document.querySelectorAll('.category-box');
+        categoryBoxes.forEach(box => {
+            box.style.display = 'none';
+        });
+
+        const categoryDivs = document.querySelectorAll('#categories .btn');
+        categoryDivs.forEach(div => {
+            div.classList.remove('btn-success');
+            div.classList.add('btn-secondary');
+        });
+    }
+
+    document.getElementById('addCategoryBtn').onclick = function () {
+        const categoryName = document.getElementById('newCategoryInput').value.trim();
+        if (categoryName) {
+            const newCategory = {
+                id: generateUniqueId(),
+                name: sanitizeHTML(categoryName),
+                prompts: []
+            };
+            categories.push(newCategory);
+            sortCategoriesAndPrompts();
+            saveToLocalStorage();
+            renderCategories();
+            toggleCategoryBox(newCategory.id);
+            document.getElementById('newCategoryInput').value = '';
+        }
+    };
+
+    document.getElementById('searchBtn').onclick = searchPrompts;
+    document.getElementById('searchInput').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            searchPrompts();
+        }
+    });
+
+    document.getElementById('backupBtn').onclick = function () {
+        const dataStr = JSON.stringify(categories);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'backup.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    document.getElementById('importBtn').onclick = function () {
+        document.getElementById('importFile').click();
+    };
+
+    document.getElementById('importFile').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    importedData.forEach(category => {
+                        category.id = category.id || generateUniqueId();
+                        category.prompts.forEach(prompt => {
+                            prompt.id = prompt.id || generateUniqueId();
+                        });
+                    });
+                    categories.length = 0;
+                    categories.push(...importedData);
+                    sortCategoriesAndPrompts();
+                    saveToLocalStorage();
+                    renderCategories();
+                    alert(translations[currentLanguage]['backupImported']);
+                } catch (error) {
+                    alert(translations[currentLanguage]['backupImportError'] + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    function openEditModal(categoryId, promptId) {
+        currentEdit.categoryId = categoryId;
+        currentEdit.promptId = promptId;
+        const category = categories.find(c => c.id === categoryId);
+        const prompt = category.prompts.find(p => p.id === promptId);
+        $('#editPromptTitle').val(prompt.title);
+        quillEditPrompt.root.innerHTML = prompt.text;
+        initTagsInput('editPromptTags', prompt.tags);
+        $('#editPromptModal').modal('show');
+    }
+
+    $('#editPromptForm').on('submit', function (e) {
+        e.preventDefault();
+        const newTitle = $('#editPromptTitle').val().trim();
+        const newText = quillEditPrompt.root.innerHTML.trim();
+        const newTags = getTags('editPromptTags');
+        if (newTitle && newText && newText !== '') {
+            const category = categories.find(c => c.id === currentEdit.categoryId);
+            const prompt = category.prompts.find(p => p.id === currentEdit.promptId);
+            prompt.title = sanitizeHTML(newTitle);
+            prompt.text = newText; // Conserviamo l'HTML
+            prompt.tags = newTags.map(tag => sanitizeHTML(tag));
+            sortCategoriesAndPrompts();
+            saveToLocalStorage();
+            renderCategories();
+            toggleCategoryBox(category.id);
+            const categoryBox = document.querySelector(`.category-box[data-category-id="${category.id}"]`);
+            const promptTitles = categoryBox.querySelectorAll('.prompt-titles-container .btn');
+            promptTitles.forEach(btn => {
+                if (btn.textContent === prompt.title) {
+                    btn.click();
+                }
+            });
+            $('#editPromptModal').modal('hide');
+        } else {
+            alert(translations[currentLanguage]['promptTitleRequired']);
+        }
+    });
+
+    function initTagsInput(elementId, initialTags = []) {
+        const container = document.getElementById(elementId);
+        container.innerHTML = '';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = translations[currentLanguage]['addTag'] || 'Aggiungi tag...';
+        container.appendChild(input);
+        const tags = [...initialTags];
+
+        function addTag(tag) {
+            if (tag && !tags.includes(tag)) {
+                tags.push(tag);
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'tag';
+                tagSpan.textContent = tag;
+                const removeIcon = document.createElement('i');
+                removeIcon.className = 'fas fa-times';
+                removeIcon.onclick = () => {
+                    tags.splice(tags.indexOf(tag), 1);
+                    container.removeChild(tagSpan);
+                };
+                tagSpan.appendChild(removeIcon);
+                container.insertBefore(tagSpan, input);
+                input.value = '';
+            }
+        }
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                const tag = input.value.trim();
+                addTag(tag);
+            }
+        });
+
+        initialTags.forEach(tag => addTag(tag));
+    }
+
+    function getTags(elementId) {
+        const container = document.getElementById(elementId);
+        const tagElements = container.querySelectorAll('.tag');
+        return Array.from(tagElements).map(tagEl => tagEl.textContent.trim());
+    }
+
+    function resetTags(elementId) {
+        const container = document.getElementById(elementId);
+        container.innerHTML = '';
+    }
+
+    function sharePrompt(prompt) {
+        if (navigator.share) {
+            navigator.share({
+                title: prompt.title,
+                text: prompt.text,
+            }).then(() => {
+                console.log('Prompt shared successfully.');
+            }).catch(err => {
+                console.error(translations[currentLanguage]['shareError'], err);
+            });
+        } else {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = prompt.text;
+            const plainText = tempDiv.textContent || tempDiv.innerText || '';
+            navigator.clipboard.writeText(`${prompt.title}\n\n${plainText}`).then(() => {
+                alert(translations[currentLanguage]['promptCopied']);
+            }).catch(err => {
+                console.error("Error copying text: ", err);
+            });
+        }
+    }
+
+    function toggleFavorite(prompt, favoriteBtn) {
+        prompt.favorite = !prompt.favorite;
+        saveToLocalStorage();
+        favoriteBtn.innerHTML = prompt.favorite ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+        favoriteBtn.title = prompt.favorite ? translations[currentLanguage]['removeFromFavorites'] : translations[currentLanguage]['addToFavorites'];
+    }
+
+    function toggleFavoritesView(favoritesButton) {
+        clearSearchResults();
+        const categoryBoxes = document.querySelectorAll('.category-box');
+        const categoryDivs = document.querySelectorAll('#categories .btn');
+        categoryBoxes.forEach(box => {
+            box.style.display = 'none';
+        });
+        categoryDivs.forEach(div => {
+            div.classList.remove('btn-success');
+            div.classList.add('btn-secondary');
+        });
+        favoritesButton.classList.remove('btn-secondary');
+        favoritesButton.classList.add('btn-success');
+        renderFavorites();
+    }
+
+    function renderFavorites() {
+        const promptsDisplayContainer = document.getElementById('prompts-display-container');
+        promptsDisplayContainer.innerHTML = '';
+
+        const favoritesHeading = document.createElement('h2');
+        favoritesHeading.textContent = translations[currentLanguage]['favoritesHeading'];
+        promptsDisplayContainer.appendChild(favoritesHeading);
+
+        let favoritesFound = false;
+        const favoriteTitlesContainer = document.createElement('div');
+        favoriteTitlesContainer.className = 'favorite-titles-container d-flex flex-wrap';
+
+        const selectedFavoriteContainer = document.createElement('div');
+        selectedFavoriteContainer.className = 'selected-favorite-container';
+
+        const favoritePrompts = [];
+        categories.forEach(category => {
+            category.prompts.forEach(prompt => {
+                if (prompt.favorite) {
+                    favoritePrompts.push({ prompt: prompt, categoryId: category.id });
+                }
+            });
+        });
+
+        favoritePrompts.sort((a, b) => a.prompt.title.localeCompare(b.prompt.title, currentLanguage));
+        favoritePrompts.forEach(item => {
+            favoritesFound = true;
+            const favoriteTitleButton = document.createElement('button');
+            favoriteTitleButton.className = 'btn btn-secondary mr-2 mb-2';
+            favoriteTitleButton.textContent = item.prompt.title;
+            favoriteTitleButton.onclick = () => {
+                displayFavoritePrompt(item.prompt, item.categoryId, selectedFavoriteContainer);
+            };
+            favoriteTitlesContainer.appendChild(favoriteTitleButton);
+        });
+
+        if (favoritesFound) {
+            promptsDisplayContainer.appendChild(favoriteTitlesContainer);
+            promptsDisplayContainer.appendChild(selectedFavoriteContainer);
+        } else {
+            const noFavoritesMessage = document.createElement('p');
+            noFavoritesMessage.textContent = translations[currentLanguage]['noFavoritesFound'];
+            promptsDisplayContainer.appendChild(noFavoritesMessage);
+        }
+    }
+
+    function displayFavoritePrompt(prompt, categoryId, container) {
+        container.innerHTML = '';
+        const promptDiv = createPromptContent(prompt, categoryId);
+        container.appendChild(promptDiv);
+    }
+
+    // Carichiamo i dati e traduciamo la pagina all'avvio
+    loadFromLocalStorage();
+    translatePage();
     </script>
+</div>
 </body>
-
 </html>
