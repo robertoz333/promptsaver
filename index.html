@@ -295,6 +295,10 @@ body {
         <button id="themeToggleBtn" class="btn btn-secondary"><i class="fas fa-moon"></i></button>
     </div>
     <h1 class="text-center" data-translate="promptSaver">Prompt Saver</h1>
+    <!-- Aggiunta dell'icona + per aggiungere un nuovo prompt -->
+    <div class="text-center mb-3">
+        <button id="globalNewPromptBtn" class="btn btn-success btn-custom"><i class="fas fa-plus"></i></button>
+    </div>
     <div class="search-container mb-4">
         <div class="input-group">
             <input type="text" id="searchInput" class="form-control" data-placeholder="searchPromptCategoryTag">
@@ -336,6 +340,13 @@ body {
                 </div>
                 <div class="modal-body">
                     <form id="newPromptForm">
+                        <!-- Campo per la categoria -->
+                        <div class="form-group" id="promptCategoryGroup" style="display:none;">
+                            <label for="promptCategory" data-translate="category">Categoria</label>
+                            <select id="promptCategory" class="form-control" required>
+                                <!-- Opzioni popolate dinamicamente -->
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label for="promptTitle" data-translate="title">Titolo</label>
                             <input type="text" class="form-control" id="promptTitle" required>
@@ -435,7 +446,8 @@ body {
             delete: "Delete",
             increaseFont: "Increase Font",
             addToFavorites: "Add to Favorites",
-            removeFromFavorites: "Remove from Favorites"
+            removeFromFavorites: "Remove from Favorites",
+            category: "Category"
         },
         it: {
             promptSaver: "Prompt Saver",
@@ -472,7 +484,8 @@ body {
             delete: "Elimina",
             increaseFont: "Aumenta Font",
             addToFavorites: "Aggiungi ai Preferiti",
-            removeFromFavorites: "Rimuovi dai Preferiti"
+            removeFromFavorites: "Rimuovi dai Preferiti",
+            category: "Categoria"
         }
     };
 
@@ -911,27 +924,52 @@ body {
     function showNewPromptForm(categoryId) {
         quillNewPrompt.setContents([]);
         initTagsInput('newPromptTags');
+        $('#promptTitle').val('');
+        quillNewPrompt.setContents([]);
+        resetTags('newPromptTags');
+
+        if (categoryId) {
+            $('#promptCategoryGroup').hide();
+        } else {
+            $('#promptCategoryGroup').show();
+            // Popoliamo le categorie nel select
+            const promptCategorySelect = document.getElementById('promptCategory');
+            promptCategorySelect.innerHTML = '';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                promptCategorySelect.appendChild(option);
+            });
+        }
+
         $('#newPromptModal').modal('show');
         $('#newPromptForm').off('submit').on('submit', function (e) {
             e.preventDefault();
             const title = $('#promptTitle').val().trim();
             const text = quillNewPrompt.root.innerHTML.trim();
             const tags = getTags('newPromptTags');
-            if (title && text && text !== '') {
+
+            let selectedCategoryId = categoryId;
+            if (!categoryId) {
+                selectedCategoryId = $('#promptCategory').val();
+            }
+
+            if (title && text && text !== '' && selectedCategoryId) {
                 const newPrompt = {
                     id: generateUniqueId(),
                     title: sanitizeHTML(title),
-                    text: text, // Conserviamo l'HTML
+                    text: text,
                     tags: tags.map(tag => sanitizeHTML(tag)),
                     favorite: false
                 };
-                const category = categories.find(c => c.id === categoryId);
+                const category = categories.find(c => c.id === selectedCategoryId);
                 category.prompts.push(newPrompt);
                 sortCategoriesAndPrompts();
                 saveToLocalStorage();
                 renderCategories();
-                toggleCategoryBox(categoryId);
-                const categoryBox = document.querySelector(`.category-box[data-category-id="${categoryId}"]`);
+                toggleCategoryBox(selectedCategoryId);
+                const categoryBox = document.querySelector(`.category-box[data-category-id="${selectedCategoryId}"]`);
                 const promptTitles = categoryBox.querySelectorAll('.prompt-titles-container .btn');
                 promptTitles.forEach(btn => {
                     if (btn.textContent === newPrompt.title) {
@@ -939,9 +977,6 @@ body {
                     }
                 });
                 $('#newPromptModal').modal('hide');
-                $('#promptTitle').val('');
-                quillNewPrompt.setContents([]);
-                resetTags('newPromptTags');
             } else {
                 alert(translations[currentLanguage]['promptTitleRequired']);
             }
@@ -1274,6 +1309,11 @@ body {
         const promptDiv = createPromptContent(prompt, categoryId);
         container.appendChild(promptDiv);
     }
+
+    // Gestione del click sul bottone globale per aggiungere un nuovo prompt
+    document.getElementById('globalNewPromptBtn').onclick = function() {
+        showNewPromptForm();
+    };
 
     // Carichiamo i dati e traduciamo la pagina all'avvio
     loadFromLocalStorage();
