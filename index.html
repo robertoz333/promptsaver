@@ -341,7 +341,11 @@ body {
                             <input type="text" class="form-control" id="promptTitle" required>
                         </div>
                         <div class="form-group">
-                            <label for="promptText" data-translate="text">Testo</label>
+                            <label for="promptPurpose" data-translate="purpose">A cosa serve</label>
+                            <input type="text" class="form-control" id="promptPurpose" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="promptText" data-translate="description">Descrizione</label>
                             <div id="newPromptTextEditor" class="form-control" style="height:200px"></div>
                         </div>
                         <div class="form-group">
@@ -372,7 +376,11 @@ body {
                             <input type="text" class="form-control" id="editPromptTitle" required>
                         </div>
                         <div class="form-group">
-                            <label for="editPromptText" data-translate="text">Testo</label>
+                            <label for="editPromptPurpose" data-translate="purpose">A cosa serve</label>
+                            <input type="text" class="form-control" id="editPromptPurpose" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPromptText" data-translate="description">Descrizione</label>
                             <div id="editPromptTextEditor" class="form-control" style="height:200px"></div>
                         </div>
                         <div class="form-group">
@@ -417,7 +425,7 @@ body {
             editPrompt: "Edit Prompt",
             deletePromptConfirmation: "Are you sure you want to delete this prompt?",
             deleteCategoryConfirmation: "Are you sure you want to delete this category?",
-            promptTitleRequired: "Title and text are required.",
+            promptTitlePurposeRequired: "Title, purpose, and description are required.",
             backupImported: "Backup imported successfully!",
             backupImportError: "Error importing backup: ",
             copySuccess: "Text copied to clipboard!",
@@ -435,7 +443,9 @@ body {
             delete: "Delete",
             increaseFont: "Increase Font",
             addToFavorites: "Add to Favorites",
-            removeFromFavorites: "Remove from Favorites"
+            removeFromFavorites: "Remove from Favorites",
+            purpose: "What is it for",
+            description: "Description"
         },
         it: {
             promptSaver: "Prompt Saver",
@@ -454,7 +464,7 @@ body {
             editPrompt: "Modifica Prompt",
             deletePromptConfirmation: "Sei sicuro di voler eliminare questo prompt?",
             deleteCategoryConfirmation: "Sei sicuro di voler eliminare questa categoria?",
-            promptTitleRequired: "Il titolo e il testo del prompt sono obbligatori.",
+            promptTitlePurposeRequired: "Il titolo, A cosa serve, e la descrizione sono obbligatori.",
             backupImported: "Backup importato con successo!",
             backupImportError: "Errore durante l'importazione del backup: ",
             copySuccess: "Testo copiato negli appunti!",
@@ -472,7 +482,9 @@ body {
             delete: "Elimina",
             increaseFont: "Aumenta Font",
             addToFavorites: "Aggiungi ai Preferiti",
-            removeFromFavorites: "Rimuovi dai Preferiti"
+            removeFromFavorites: "Rimuovi dai Preferiti",
+            purpose: "A cosa serve",
+            description: "Descrizione"
         }
     };
 
@@ -620,7 +632,8 @@ body {
                 category.prompts.forEach(prompt => {
                     prompt.id = prompt.id || generateUniqueId();
                     prompt.title = sanitizeHTML(prompt.title);
-                    prompt.text = prompt.text || '';
+                    prompt.purpose = sanitizeHTML(prompt.purpose || '');
+                    prompt.description = prompt.description || prompt.text || '';
                     prompt.tags = prompt.tags || [];
                     prompt.favorite = prompt.favorite || false;
                 });
@@ -788,17 +801,21 @@ body {
         const promptDiv = document.createElement('div');
         promptDiv.className = 'prompt-content';
 
-        const titleInput = document.createElement('h4');
-        titleInput.innerHTML = prompt.title;
-        promptDiv.appendChild(titleInput);
+        const titleElement = document.createElement('h4');
+        titleElement.innerHTML = prompt.title;
+        promptDiv.appendChild(titleElement);
+
+        const purposeElement = document.createElement('p');
+        purposeElement.innerHTML = '<strong>' + translations[currentLanguage]['purpose'] + ':</strong> ' + (prompt.purpose || '');
+        promptDiv.appendChild(purposeElement);
 
         const tagsContainer = createTagsContainer(prompt.tags);
         promptDiv.appendChild(tagsContainer);
 
-        const textDiv = document.createElement('div');
-        textDiv.className = 'display-prompt-text';
-        textDiv.innerHTML = prompt.text; // Preserviamo la formattazione HTML
-        promptDiv.appendChild(textDiv);
+        const descriptionDiv = document.createElement('div');
+        descriptionDiv.className = 'display-prompt-text';
+        descriptionDiv.innerHTML = prompt.description || ''; // Preserviamo la formattazione HTML
+        promptDiv.appendChild(descriptionDiv);
 
         const actionsDiv = createPromptActions(prompt, categoryId);
         promptDiv.appendChild(actionsDiv);
@@ -864,7 +881,7 @@ body {
 
     function copyPromptText(prompt) {
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = prompt.text;
+        tempDiv.innerHTML = prompt.description;
         const plainText = tempDiv.textContent || tempDiv.innerText || '';
         navigator.clipboard.writeText(plainText).then(() => {
             alert(translations[currentLanguage]['copySuccess']);
@@ -916,13 +933,15 @@ body {
         $('#newPromptForm').off('submit').on('submit', function (e) {
             e.preventDefault();
             const title = $('#promptTitle').val().trim();
-            const text = quillNewPrompt.root.innerHTML.trim();
+            const purpose = $('#promptPurpose').val().trim();
+            const description = quillNewPrompt.root.innerHTML.trim();
             const tags = getTags('newPromptTags');
-            if (title && text && text !== '') {
+            if (title && purpose && description && description !== '') {
                 const newPrompt = {
                     id: generateUniqueId(),
                     title: sanitizeHTML(title),
-                    text: text, // Conserviamo l'HTML
+                    purpose: sanitizeHTML(purpose),
+                    description: description, // Conserviamo l'HTML
                     tags: tags.map(tag => sanitizeHTML(tag)),
                     favorite: false
                 };
@@ -941,10 +960,11 @@ body {
                 });
                 $('#newPromptModal').modal('hide');
                 $('#promptTitle').val('');
+                $('#promptPurpose').val('');
                 quillNewPrompt.setContents([]);
                 resetTags('newPromptTags');
             } else {
-                alert(translations[currentLanguage]['promptTitleRequired']);
+                alert(translations[currentLanguage]['promptTitlePurposeRequired']);
             }
         });
     }
@@ -989,7 +1009,7 @@ body {
         let resultsFound = false;
         categories.forEach(category => {
             category.prompts.forEach(prompt => {
-                const promptText = prompt.text.toLowerCase();
+                const promptText = (prompt.description || '').toLowerCase();
                 const categoryName = category.name.toLowerCase();
                 const tags = prompt.tags.map(tag => tag.toLowerCase());
                 if (
@@ -1097,7 +1117,8 @@ body {
         const category = categories.find(c => c.id === categoryId);
         const prompt = category.prompts.find(p => p.id === promptId);
         $('#editPromptTitle').val(prompt.title);
-        quillEditPrompt.root.innerHTML = prompt.text;
+        $('#editPromptPurpose').val(prompt.purpose || '');
+        quillEditPrompt.root.innerHTML = prompt.description;
         initTagsInput('editPromptTags', prompt.tags);
         $('#editPromptModal').modal('show');
     }
@@ -1105,13 +1126,15 @@ body {
     $('#editPromptForm').on('submit', function (e) {
         e.preventDefault();
         const newTitle = $('#editPromptTitle').val().trim();
-        const newText = quillEditPrompt.root.innerHTML.trim();
+        const newPurpose = $('#editPromptPurpose').val().trim();
+        const newDescription = quillEditPrompt.root.innerHTML.trim();
         const newTags = getTags('editPromptTags');
-        if (newTitle && newText && newText !== '') {
+        if (newTitle && newPurpose && newDescription && newDescription !== '') {
             const category = categories.find(c => c.id === currentEdit.categoryId);
             const prompt = category.prompts.find(p => p.id === currentEdit.promptId);
             prompt.title = sanitizeHTML(newTitle);
-            prompt.text = newText; // Conserviamo l'HTML
+            prompt.purpose = sanitizeHTML(newPurpose);
+            prompt.description = newDescription; // Conserviamo l'HTML
             prompt.tags = newTags.map(tag => sanitizeHTML(tag));
             sortCategoriesAndPrompts();
             saveToLocalStorage();
@@ -1126,7 +1149,7 @@ body {
             });
             $('#editPromptModal').modal('hide');
         } else {
-            alert(translations[currentLanguage]['promptTitleRequired']);
+            alert(translations[currentLanguage]['promptTitlePurposeRequired']);
         }
     });
 
@@ -1183,7 +1206,7 @@ body {
         if (navigator.share) {
             navigator.share({
                 title: prompt.title,
-                text: prompt.text,
+                text: prompt.description,
             }).then(() => {
                 console.log('Prompt shared successfully.');
             }).catch(err => {
@@ -1191,7 +1214,7 @@ body {
             });
         } else {
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = prompt.text;
+            tempDiv.innerHTML = prompt.description;
             const plainText = tempDiv.textContent || tempDiv.innerText || '';
             navigator.clipboard.writeText(`${prompt.title}\n\n${plainText}`).then(() => {
                 alert(translations[currentLanguage]['promptCopied']);
