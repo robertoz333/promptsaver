@@ -690,11 +690,19 @@ body {
 
         const editBtn = createIconButton('info', 'edit', translations[currentLanguage]['editPrompt']);
         const saveBtn = createIconButton('success', 'save', translations[currentLanguage]['save'], true);
+        const newPromptBtn = createIconButton('success', 'plus', translations[currentLanguage]['newPrompt']);
+        newPromptBtn.classList.add('btn-new');
         const deleteBtn = createIconButton('danger', 'trash', translations[currentLanguage]['delete']);
+
         categoryHeader.appendChild(editBtn);
         categoryHeader.appendChild(saveBtn);
+        categoryHeader.appendChild(newPromptBtn);
         categoryHeader.appendChild(deleteBtn);
         categoryBox.appendChild(categoryHeader);
+
+        newPromptBtn.onclick = () => {
+            showNewPromptForm(category.id);
+        };
 
         editBtn.onclick = () => {
             categoryInput.readOnly = false;
@@ -728,13 +736,6 @@ body {
 
         categoryBox.appendChild(promptTitlesContainer);
         categoryBox.appendChild(selectedPromptContainer);
-
-        const newPromptBtn = createIconButton('success', 'plus', translations[currentLanguage]['newPrompt']);
-        newPromptBtn.classList.add('btn-new', 'mt-3');
-        newPromptBtn.onclick = () => {
-            showNewPromptForm(category.id);
-        };
-        categoryBox.appendChild(newPromptBtn);
 
         return categoryBox;
     }
