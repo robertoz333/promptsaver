@@ -908,6 +908,13 @@ body {
                 } else {
                     categoryDivs[idx + 1].classList.remove('btn-secondary');
                     categoryDivs[idx + 1].classList.add('btn-success');
+                    // Aggiunta per chiudere il prompt selezionato
+                    const selectedPromptContainer = box.querySelector('.selected-prompt-container');
+                    selectedPromptContainer.innerHTML = '';
+                    const promptTitleDivs = box.querySelectorAll('.prompt-titles-container .btn');
+                    promptTitleDivs.forEach(div => {
+                        div.classList.remove('active');
+                    });
                 }
             } else {
                 box.style.display = 'none';
